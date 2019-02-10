@@ -43,3 +43,9 @@ npm-debug.log
 
 # Elixir language server
 .elixir_ls/
+
+# Local media files
+/priv/media/*
+
+# Preserve .gitkeep
+!/**/.gitkeep
