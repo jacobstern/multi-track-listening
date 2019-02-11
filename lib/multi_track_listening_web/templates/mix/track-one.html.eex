@@ -1,0 +1,13 @@
+<h2>Upload First Track</h2>
+
+<%= form_for @changeset, Routes.mix_path(@conn, :create_track_one, @mix), [multipart: true, method: :post], fn f -> %>
+    <%= label f, :file %>
+    <%= file_input f, :file %>
+    <%= error_tag f, :file %>
+
+    <%= label f, :name %>
+    <%= text_input f, :name %>
+    <%= error_tag f, :name %>
+
+    <%= submit "Upload" %>
+<% end %>

@@ -16,7 +16,12 @@ defmodule MultiTrackListeningWeb.Router do
   scope "/", MultiTrackListeningWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", HomeController, :index
+
+    post "/mixes/create", MixController, :create
+    get "/mixes/:id/track-one", MixController, :new_track_one
+    post "/mixes/:id/track-one", MixController, :create_track_one
+    get "/mixes/:id/upload-second-track", MixController, :new_track_two
   end
 
   # Other scopes may use custom stacks.

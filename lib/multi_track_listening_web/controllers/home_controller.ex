@@ -1,4 +1,4 @@
-defmodule MultiTrackListeningWeb.PageController do
+defmodule MultiTrackListeningWeb.HomeController do
   use MultiTrackListeningWeb, :controller
 
   def index(conn, _params) do

@@ -3,6 +3,10 @@ defmodule MultiTrackListening.Storage do
   The Storage context.
   """
 
+  defmodule Error do
+    defexception [:message]
+  end
+
   import Ecto.Query, warn: false
   alias MultiTrackListening.Repo
   alias MultiTrackListening.Storage
@@ -12,14 +16,23 @@ defmodule MultiTrackListening.Storage do
     Path.join([priv, "media", uuid])
   end
 
-  def persist_file!(local_file, content_type) do
+  def persist_file(local_file, content_type) do
     uuid = UUID.uuid4()
     File.cp!(local_file, generate_local_path(uuid))
     Repo.insert!(%Storage.File{backend: "local", content_type: content_type, uuid: uuid})
   end
 
-  @spec get_file_by_uuid!(String.t()) :: Storage.File
-  def get_file_by_uuid!(uuid) do
-    Repo.get_by!(Storage.File, uuid: uuid)
+  @spec get_file_by_uuid(String.t()) :: Storage.File.t()
+  def get_file_by_uuid(uuid) do
+    case Repo.get_by(Storage.File, uuid: uuid) do
+      file = %Storage.File{} -> file
+      _ -> raise %Error{message: "invalid file uuid #{uuid}"}
+    end
+  end
+
+  @spec delete_file_by_uuid(String.t()) :: :ok
+  def delete_file_by_uuid(uuid) do
+    get_file_by_uuid(uuid) |> Repo.delete!()
+    File.rm!(generate_local_path(uuid))
   end
 end

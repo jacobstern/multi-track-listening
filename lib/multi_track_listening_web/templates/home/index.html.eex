@@ -1,0 +1,3 @@
+<%= form_tag Routes.mix_path(@conn, :create) do %>
+  <%= submit "Create a new mix" %>
+<% end %>
