@@ -126,14 +126,25 @@ defmodule MultiTrackListening.Mixes do
     TrackUpload.changeset(%TrackUpload{}, %{})
   end
 
-  @spec update_track_one(Mix.t(), Track.t()) :: :ok
+  @spec update_track_one(Mix.t(), Track.t()) :: Mix.t()
   def update_track_one(%Mix{} = mix, %Track{} = track) do
-    Repo.update!(Ecto.Changeset.change(mix, track_one: track))
+    updated = Repo.update!(Ecto.Changeset.change(mix, track_one: track))
 
     if not is_nil(mix.track_one) do
       Storage.delete_file_by_uuid(mix.track_one.file_uuid)
     end
 
-    :ok
+    updated
+  end
+
+  @spec update_track_two(Mix.t(), Track.t()) :: Mix.t()
+  def update_track_two(%Mix{} = mix, %Track{} = track) do
+    updated = Repo.update!(Ecto.Changeset.change(mix, track_two: track))
+
+    if not is_nil(mix.track_two) do
+      Storage.delete_file_by_uuid(mix.track_two.file_uuid)
+    end
+
+    updated
   end
 end

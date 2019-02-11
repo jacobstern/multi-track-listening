@@ -4,8 +4,8 @@ defmodule MultiTrackListening.Mixes.Mix do
   alias MultiTrackListening.Mixes.Track
 
   schema "mixes" do
-    embeds_one :track_one, Track
-    embeds_one :track_two, Track
+    embeds_one :track_one, Track, on_replace: :delete
+    embeds_one :track_two, Track, on_replace: :delete
 
     timestamps()
   end

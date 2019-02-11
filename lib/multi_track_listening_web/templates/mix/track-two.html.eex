@@ -1,1 +1,3 @@
 <h2>Upload Second Track</h2>
+
+<%= render "track-upload-form.html", Map.put(assigns, :action, Routes.mix_path(@conn, :create_track_two, @mix)) %>

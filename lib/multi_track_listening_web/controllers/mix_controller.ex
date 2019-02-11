@@ -32,4 +32,21 @@ defmodule MultiTrackListeningWeb.MixController do
     changeset = Mixes.change_track_upload()
     render(conn, "track-two.html", mix: mix, changeset: changeset)
   end
+
+  def create_track_two(conn, %{"id" => id, "track_upload" => params}) do
+    mix = Mixes.get_mix!(id)
+
+    case Mixes.persist_track_upload(params) do
+      {:ok, track} ->
+        updated = Mixes.update_track_two(mix, track)
+        redirect(conn, to: Routes.mix_path(conn, :finalize, updated))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "track-two.html", mix: mix, changeset: changeset)
+    end
+  end
+
+  def finalize(conn, _params) do
+    render(conn, "finalize.html")
+  end
 end

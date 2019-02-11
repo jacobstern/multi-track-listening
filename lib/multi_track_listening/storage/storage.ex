@@ -3,7 +3,7 @@ defmodule MultiTrackListening.Storage do
   The Storage context.
   """
 
-  defmodule Error do
+  defmodule InvalidUuidError do
     defexception [:message]
   end
 
@@ -26,7 +26,7 @@ defmodule MultiTrackListening.Storage do
   def get_file_by_uuid(uuid) do
     case Repo.get_by(Storage.File, uuid: uuid) do
       file = %Storage.File{} -> file
-      _ -> raise %Error{message: "invalid file uuid #{uuid}"}
+      _ -> raise %InvalidUuidError{message: "invalid file uuid #{uuid}"}
     end
   end
 
