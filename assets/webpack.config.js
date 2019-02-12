@@ -1,9 +1,21 @@
 const path = require('path');
-const glob = require('glob');
+const fs = require('fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+function generateDynamicEntries() {
+  const entryDirPath = './js/entry';
+  const entryFiles = fs.readdirSync(entryDirPath);
+  return entryFiles.reduce((acc, file) => {
+    const name = path.basename(file, '.js');
+    const fullPath = path.resolve(entryDirPath, file);
+    return Object.assign({}, acc, {
+      [name]: fullPath
+    });
+  }, {});
+}
 
 module.exports = (env, options) => ({
   optimization: {
@@ -12,11 +24,8 @@ module.exports = (env, options) => ({
       new OptimizeCSSAssetsPlugin({})
     ]
   },
-  entry: {
-      './js/app.js': ['./js/app.js'].concat(glob.sync('./vendor/**/*.js'))
-  },
+  entry: generateDynamicEntries(),
   output: {
-    filename: 'app.js',
     path: path.resolve(__dirname, '../priv/static/js')
   },
   module: {
@@ -35,7 +44,9 @@ module.exports = (env, options) => ({
     ]
   },
   plugins: [
-    new MiniCssExtractPlugin({ filename: '../css/app.css' }),
+    new MiniCssExtractPlugin({
+      filename: '../css/[name].css'
+    }),
     new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
   ]
 });

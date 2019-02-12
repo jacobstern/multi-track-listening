@@ -16,9 +16,10 @@ defmodule MultiTrackListening.Storage do
     Path.join([priv, "media", uuid])
   end
 
-  def persist_file(local_file, content_type) do
+  @spec persist_file(File.Path.t(), String.t()) :: Storage.File.t()
+  def persist_file(file_path, content_type) do
     uuid = UUID.uuid4()
-    File.cp!(local_file, generate_local_path(uuid))
+    File.cp!(file_path, generate_local_path(uuid))
     Repo.insert!(%Storage.File{backend: "local", content_type: content_type, uuid: uuid})
   end
 

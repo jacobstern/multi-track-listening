@@ -41,6 +41,7 @@ defmodule MultiTrackListeningWeb do
 
       import MultiTrackListeningWeb.ErrorHelpers
       import MultiTrackListeningWeb.Gettext
+      import MultiTrackListeningWeb.ViewScripts
       alias MultiTrackListeningWeb.Router.Helpers, as: Routes
     end
   end

@@ -49,3 +49,8 @@ npm-debug.log
 
 # Preserve .gitkeep
 !/**/.gitkeep
+
+# Copied from assets/
+priv/favicon.ico
+priv/robots.txt
+priv/images/phoenix.png
