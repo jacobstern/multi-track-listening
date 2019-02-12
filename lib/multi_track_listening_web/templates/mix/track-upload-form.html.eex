@@ -1,10 +1,10 @@
 <%= form_for @changeset, @action, [multipart: true, method: :post], fn f -> %>
     <%= label f, :file %>
-    <%= file_input f, :file %>
+    <%= file_input f, :file, required: true, accept: ".mp3" %>
     <%= error_tag f, :file %>
 
     <%= label f, :name %>
-    <%= text_input f, :name %>
+    <%= text_input f, :name, required: true %>
     <%= error_tag f, :name %>
 
     <%= submit "Upload" %>

@@ -2,7 +2,7 @@ defmodule MultiTrackListeningWeb.ViewScripts do
   use Phoenix.HTML
   alias MultiTrackListeningWeb.Router.Helpers, as: Routes
 
-  def render_script(conn, file_name) do
+  def render_script_tag(conn, file_name) do
     path = Path.join("/js", file_name)
     content_tag(:script, nil, src: Routes.static_path(conn, path))
   end

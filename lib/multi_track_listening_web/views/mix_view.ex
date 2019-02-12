@@ -2,6 +2,10 @@ defmodule MultiTrackListeningWeb.MixView do
   use MultiTrackListeningWeb, :view
 
   def render("scripts.track-one.html", assigns) do
-    render_script(assigns.conn, "track-upload.js")
+    render_script_tag(assigns.conn, "track-upload.js")
+  end
+
+  def render("scripts.track-two.html", assigns) do
+    render_script_tag(assigns.conn, "track-upload.js")
   end
 end
