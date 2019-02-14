@@ -136,19 +136,6 @@ result_t parse_args(int argc, char **argv,
     return RESULT_SUCCESS;
 }
 
-result_t open_file(const char *filename, const char *mode, FILE **file)
-{
-    *file = fopen(filename, mode);
-
-    if (*file == NULL)
-    {
-        fprintf(stderr, "failed to open filename %s: %s", filename, strerror(errno));
-        return RESULT_FAILURE;
-    }
-
-    return RESULT_SUCCESS;
-}
-
 result_t decode_mp3_mono(char *filename, buffer_list_t **buffer_list)
 {
     int result = 0;
@@ -292,8 +279,26 @@ error:
     return RESULT_FAILURE;
 }
 
-result_t write_buffers()
+result_t write_buffers(const char *filename, buffer_list_t *in_buffers)
 {
+    FILE *file = fopen(filename, "wb");
+
+    if (file == NULL)
+    {
+        fprintf(stderr, "failed to open filename %s for writing: %s", filename, strerror(errno));
+        return RESULT_FAILURE;
+    }
+
+    buffer_list_t *cell = in_buffers;
+    while (cell->head != NULL)
+    {
+        buffer_t *buffer = cell->head;
+        fwrite((const void *)buffer->bytes, sizeof(uint8_t), buffer->size, file);
+        cell = cell->tail;
+    }
+
+    fclose(file);
+    return RESULT_SUCCESS;
 }
 
 result_t initialize_libraries()
@@ -308,7 +313,7 @@ int main(int argc, char **argv)
     char *outfile, *infile_l, *infile_r;
     int result;
 
-    result = parse_args(argc, argv, &outfile, &infile_l, &infile_r);
+    result = parse_args(argc, argv, &infile_l, &infile_r, &outfile);
 
     if (is_failure(result))
     {
@@ -341,6 +346,8 @@ int main(int argc, char **argv)
     }
 
     fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
+
+    write_buffers(outfile, mp3_buffers);
 
     buffer_list_free(pcm_buffers);
     buffer_list_free(mp3_buffers);

@@ -10,6 +10,8 @@ LDLIBS ?= -lmpg123 -lmp3lame
 
 PROG ?= priv/c/cruncher
 
+PROG_ARGS ?= ./example/1.mp3 ./example/2.mp3 -o out.mp3
+
 $(PROG): c_priv $(OBJ)
 	$(CC) -I $(HEADER_FILES) -o $@ $(LDFLAGS) $(OBJ) $(LDLIBS)
 

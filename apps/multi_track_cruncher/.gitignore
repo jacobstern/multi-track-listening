@@ -25,6 +25,9 @@ multi_track_cruncher-*.tar
 # Native build output
 /priv/c/
 
+# Example output
+out.mp3
+
 ## C language .gitignore
 
 # Prerequisites
