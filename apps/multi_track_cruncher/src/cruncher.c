@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <errno.h>
+#include <lame/lame.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,19 +65,13 @@ buffer_list_t *buffer_list_new()
 
 void buffer_list_append(buffer_list_t *buffer_list, buffer_t *buffer)
 {
-    if (buffer_list->head == NULL)
-    {
-        buffer_list->head = buffer;
-        return;
-    }
-
     buffer_list_t *current = buffer_list;
-    while (current->tail != NULL)
+    while (current->head != NULL)
     {
         current = current->tail;
     }
     current->tail = buffer_list_new();
-    current->tail->head = buffer;
+    current->head = buffer;
 }
 
 int buffer_list_length(buffer_list_t *buffer_list)
@@ -84,10 +79,6 @@ int buffer_list_length(buffer_list_t *buffer_list)
     if (buffer_list->head == NULL)
     {
         return 0;
-    }
-    if (buffer_list->tail == NULL)
-    {
-        return 1;
     }
     return 1 + buffer_list_length(buffer_list->tail);
 }
@@ -158,7 +149,7 @@ result_t open_file(const char *filename, const char *mode, FILE **file)
     return RESULT_SUCCESS;
 }
 
-result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
+result_t decode_mp3_mono(char *filename, buffer_list_t **buffer_list)
 {
     int result = 0;
     mpg123_handle *handle = mpg123_new(NULL, &result);
@@ -223,6 +214,88 @@ result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
     return RESULT_SUCCESS;
 }
 
+result_t encode_mp3(buffer_list_t *in_pcm_buffers, buffer_list_t **out_buffers)
+{
+    lame_t lame = lame_init();
+    lame_set_in_samplerate(lame, 44100);
+    lame_set_num_channels(lame, 1);
+
+    buffer_list_t *buffers = NULL;
+
+    int result = lame_init_params(lame);
+    if (result < 0)
+    {
+        goto error;
+    }
+
+    buffers = buffer_list_new();
+    buffer_list_t *current_buffer_cell = in_pcm_buffers;
+
+    while (current_buffer_cell->head != NULL)
+    {
+        buffer_t *current_buffer = current_buffer_cell->head;
+        int num_samples = current_buffer->size / 2;
+        size_t buffer_size = 5 * num_samples / 4 + 7200;
+
+        buffer_t *out_buffer = buffer_new();
+        out_buffer->bytes = (uint8_t *)malloc(buffer_size);
+
+        result = lame_encode_buffer(lame, (short int *)current_buffer->bytes, NULL, num_samples,
+                                    out_buffer->bytes, buffer_size);
+        if (result < 0)
+        {
+            char reason[64] = "unknown";
+            switch (result)
+            {
+            case -1:
+                sprintf(reason, "mp3 buffer too small");
+                break;
+            case -2:
+                sprintf(reason, "malloc() problem");
+                break;
+            case -3:
+                sprintf(reason, "lame_init_params() not called");
+                break;
+            case -4:
+                sprintf(reason, "psycho acoustic problems");
+                break;
+            }
+
+            fprintf(stderr, "[lame] encoding error: %s", reason);
+            buffer_free(out_buffer);
+            goto error;
+        }
+
+        out_buffer->size = result;
+        buffer_list_append(buffers, out_buffer);
+
+        current_buffer_cell = current_buffer_cell->tail;
+    }
+
+    buffer_t *remaining = buffer_new();
+    remaining->bytes = (uint8_t *)malloc(7200);
+    remaining->size = lame_encode_flush(lame, remaining->bytes, 7200);
+    buffer_list_append(buffers, remaining);
+
+    *out_buffers = buffers;
+
+    return RESULT_SUCCESS;
+
+error:
+    lame_close(lame);
+
+    if (buffers != NULL)
+    {
+        buffer_list_free(buffers);
+    }
+
+    return RESULT_FAILURE;
+}
+
+result_t write_buffers()
+{
+}
+
 result_t initialize_libraries()
 {
     mpg123_init();
@@ -249,17 +322,28 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    buffer_list_t *buffer_list;
-    result = decode_mp3(infile_l, &buffer_list);
-
-    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(buffer_list));
-
-    buffer_list_free(buffer_list);
+    buffer_list_t *pcm_buffers;
+    result = decode_mp3_mono(infile_l, &pcm_buffers);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
+
+    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
+
+    buffer_list_t *mp3_buffers;
+    result = encode_mp3(pcm_buffers, &mp3_buffers);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
+
+    buffer_list_free(pcm_buffers);
+    buffer_list_free(mp3_buffers);
 
     return EXIT_SUCCESS;
 }
