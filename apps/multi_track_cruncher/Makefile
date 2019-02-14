@@ -1,4 +1,4 @@
-CFLAGS = -g
+CFLAGS = -g -Wall
 
 HEADER_FILES = src
 
@@ -6,13 +6,18 @@ SRC = $(wildcard src/*.c)
 
 OBJ = $(SRC:.c=.o)
 
-DEFAULT_TARGETS ?= c_priv priv/c/cruncher
+LDLIBS ?= -lmpg123
 
-priv/c/cruncher: c_priv $(OBJ)
+PROG ?= priv/c/cruncher
+
+$(PROG): c_priv $(OBJ)
 	$(CC) -I $(HEADER_FILES) -o $@ $(LDFLAGS) $(OBJ) $(LDLIBS)
 
 c_priv:
 	mkdir -p priv/c
 
+run: $(PROG)
+	$(PROG) $(PROG_ARGS)
+
 clean:
-	rm -f priv/c $(OBJ) $(BEAM_FILES)
+	rm -f $(PROG) $(OBJ) $(BEAM_FILES)

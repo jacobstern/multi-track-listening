@@ -1,15 +1,117 @@
 #include <ctype.h>
+#include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <memory.h>
+#include <mpg123.h>
+
+#define DEFAULT_BUFFER_SAMPLESS 65536
 
 extern char *optarg;
 
 extern int optind, opterr, optopt;
 
-int main(int argc, char **argv)
+typedef enum result
 {
-    char *outfile = NULL;
+    RESULT_SUCCESS = 0,
+    RESULT_FAILURE = 1
+} result_t;
+
+int is_failure(result_t result)
+{
+    return result == RESULT_FAILURE;
+}
+
+typedef struct buffer
+{
+    uint8_t *bytes;
+    size_t size;
+} buffer_t;
+
+buffer_t *buffer_new()
+{
+    buffer_t *buffer = (buffer_t *)malloc(sizeof(buffer_t));
+    buffer->bytes = NULL;
+    buffer->size = 0;
+    return buffer;
+}
+
+void buffer_free(buffer_t *buffer)
+{
+    if (buffer->bytes != NULL)
+    {
+        free(buffer->bytes);
+        buffer->bytes = NULL;
+    }
+    free(buffer);
+}
+
+typedef struct buffer_list
+{
+    buffer_t *head;
+    struct buffer_list *tail;
+} buffer_list_t;
+
+buffer_list_t *buffer_list_new()
+{
+    buffer_list_t *list = (buffer_list_t *)malloc(sizeof(buffer_list_t));
+    list->head = NULL;
+    list->tail = NULL;
+    return list;
+}
+
+void buffer_list_append(buffer_list_t *buffer_list, buffer_t *buffer)
+{
+    if (buffer_list->head == NULL)
+    {
+        buffer_list->head = buffer;
+        return;
+    }
+
+    buffer_list_t *current = buffer_list;
+    while (current->tail != NULL)
+    {
+        current = current->tail;
+    }
+    current->tail = buffer_list_new();
+    current->tail->head = buffer;
+}
+
+int buffer_list_length(buffer_list_t *buffer_list)
+{
+    if (buffer_list->head == NULL)
+    {
+        return 0;
+    }
+    if (buffer_list->tail == NULL)
+    {
+        return 1;
+    }
+    return 1 + buffer_list_length(buffer_list->tail);
+}
+
+void buffer_list_free(buffer_list_t *buffer_list)
+{
+    if (buffer_list->tail != NULL)
+    {
+        buffer_list_free(buffer_list->tail);
+        buffer_list->tail = NULL;
+    }
+    if (buffer_list->head != NULL)
+    {
+        buffer_free(buffer_list->head);
+        buffer_list->head = NULL;
+    }
+    free(buffer_list);
+}
+
+result_t parse_args(int argc, char **argv,
+                    char **infile_l, char **infile_r, char **outfile)
+{
+    *outfile = NULL;
+
     int c;
 
     while ((c = getopt(argc, argv, "o:")) != -1)
@@ -17,35 +119,147 @@ int main(int argc, char **argv)
         switch (c)
         {
         case 'o':
-            outfile = optarg;
+            *outfile = optarg;
             break;
         case '?':
-            if (optopt == 'o')
-                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-            else if (isprint(optopt))
-                fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-            else
-                fprintf(stderr,
-                        "Unknown option character `\\x%x'.\n",
-                        optopt);
-            return 1;
+            return RESULT_FAILURE; // getopt provides an info message to stdout
         }
     }
 
-    if (outfile == NULL)
+    if (*outfile == NULL)
     {
-        fprintf(stderr, "Missing required argument -o.\n");
+        fprintf(stderr, "missing required argument -- 'o'\n");
+        return RESULT_FAILURE;
     }
 
     int remaining = argc - optind;
     if (remaining != 2)
     {
-        fprintf(stderr, "Expected two positional arguments, got %d.\n", remaining);
-        return 1;
+        fprintf(stderr, "expected two positional arguments, got %d\n", remaining);
+        return RESULT_FAILURE;
     }
 
-    char *infile_l = argv[optind];
-    char *infile_r = argv[optind + 1];
+    *infile_l = argv[optind];
+    *infile_r = argv[optind + 1];
 
-    return 0;
+    return RESULT_SUCCESS;
+}
+
+result_t open_file(const char *filename, const char *mode, FILE **file)
+{
+    *file = fopen(filename, mode);
+
+    if (*file == NULL)
+    {
+        fprintf(stderr, "failed to open filename %s: %s", filename, strerror(errno));
+        return RESULT_FAILURE;
+    }
+
+    return RESULT_SUCCESS;
+}
+
+result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
+{
+    int result = 0;
+    mpg123_handle *handle = mpg123_new(NULL, &result);
+
+    if (handle == NULL)
+    {
+        fprintf(stderr, "[mpg123] cannot create handle: %s\n", mpg123_plain_strerror(result));
+        return RESULT_FAILURE;
+    }
+
+    mpg123_format_none(handle);
+    result = mpg123_format(handle, 44100, MPG123_MONO, MPG123_ENC_SIGNED_16);
+
+    if (result != MPG123_OK)
+    {
+        fprintf(stderr, "[mpg123] failed to set format: %s\n", mpg123_plain_strerror(result));
+        return RESULT_FAILURE;
+    }
+
+    result = mpg123_open(handle, filename);
+
+    if (result != MPG123_OK)
+    {
+        fprintf(stderr, "[mpg123] failed to open file: %s\n", mpg123_plain_strerror(result));
+        return RESULT_FAILURE;
+    }
+
+    buffer_list_t *out_list = buffer_list_new();
+    int done = 0;
+
+    long rate;
+    int channels, encoding;
+    mpg123_getformat(handle, &rate, &channels, &encoding);
+
+    size_t buffer_size = DEFAULT_BUFFER_SAMPLESS * sizeof(int16_t);
+
+    while (!done)
+    {
+        buffer_t *buffer = buffer_new();
+        buffer->bytes = (uint8_t *)malloc(buffer_size);
+        size_t requested = buffer_size;
+        size_t written = 0;
+        result = mpg123_read(handle, buffer->bytes, requested, &written);
+
+        if (result != MPG123_OK && result != MPG123_DONE)
+        {
+            fprintf(stderr, "[mpg123] failed to decode: %s\n", mpg123_plain_strerror(result));
+            buffer_free(buffer);
+            buffer_list_free(out_list);
+            return RESULT_FAILURE;
+        }
+
+        buffer->size = written;
+        buffer_list_append(out_list, buffer);
+
+        done = result == MPG123_DONE;
+    }
+
+    mpg123_close(handle);
+
+    *buffer_list = out_list;
+    return RESULT_SUCCESS;
+}
+
+result_t initialize_libraries()
+{
+    mpg123_init();
+
+    return RESULT_SUCCESS;
+}
+
+int main(int argc, char **argv)
+{
+    char *outfile, *infile_l, *infile_r;
+    int result;
+
+    result = parse_args(argc, argv, &outfile, &infile_l, &infile_r);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    result = initialize_libraries();
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    buffer_list_t *buffer_list;
+    result = decode_mp3(infile_l, &buffer_list);
+
+    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(buffer_list));
+
+    buffer_list_free(buffer_list);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
