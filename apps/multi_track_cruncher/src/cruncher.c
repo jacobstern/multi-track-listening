@@ -5,10 +5,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <memory.h>
+
 #include <lame/lame.h>
+#include <libswresample/swresample.h>
 #include <mpg123.h>
 
 #define DEFAULT_BUFFER_SAMPLES 65536
+#define SAMPLE_RATE 44100
 
 extern char *optarg;
 
@@ -136,7 +139,71 @@ result_t parse_args(int argc, char **argv,
     return RESULT_SUCCESS;
 }
 
-result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
+result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *in_buffers,
+                                 buffer_list_t **out_buffers)
+{
+    int64_t in_channel_layout = AV_CH_LAYOUT_STEREO;
+    if (channels == 1)
+    {
+        in_channel_layout = AV_CH_LAYOUT_MONO;
+    }
+    struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_S16,
+                                                SAMPLE_RATE, in_channel_layout, AV_SAMPLE_FMT_S16,
+                                                sample_rate, 0, NULL);
+    if (swr == NULL)
+    {
+        fprintf(stderr, "[swresample] failed to create context\n");
+    }
+    int result = swr_init(swr);
+    if (result < 0)
+    {
+        char errbuf[64];
+        av_strerror(result, errbuf, 64);
+        swr_free(&swr);
+        fprintf(stderr, "[swresample] error initializing context: %s\n", errbuf);
+    }
+
+    buffer_list_t *buffers = buffer_list_new();
+    buffer_list_t *cell = in_buffers;
+    while (cell->head != NULL)
+    {
+        buffer_t *in_buffer = cell->head;
+        int src_num_samples = in_buffer->size / sizeof(int16_t) / channels;
+        int max_dst_num_samples = av_rescale_rnd(
+            swr_get_delay(swr, sample_rate) + src_num_samples,
+            SAMPLE_RATE, sample_rate, AV_ROUND_UP);
+        size_t dst_size = max_dst_num_samples * sizeof(int16_t) * 2;
+
+        buffer_t *out_buffer = buffer_new();
+        out_buffer->bytes = (uint8_t *)malloc(dst_size);
+
+        int samples = swr_convert(swr, &out_buffer->bytes,
+                                  max_dst_num_samples,
+                                  (const uint8_t **)&in_buffer->bytes, src_num_samples);
+        if (samples < 0)
+        {
+            char errbuf[64];
+            av_strerror(result, errbuf, 64);
+            buffer_free(out_buffer);
+            buffer_list_free(buffers);
+            swr_free(&swr);
+            fprintf(stderr, "[swresample] conversion error: %s\n", errbuf);
+        }
+
+        out_buffer->size = samples * sizeof(int16_t) * 2;
+        buffer_list_append(buffers, out_buffer);
+        cell = cell->tail;
+    }
+
+    *out_buffers = buffers;
+
+    swr_free(&swr);
+
+    return RESULT_SUCCESS;
+}
+
+result_t decode_mp3(char *filename, long *out_sample_rate, int *out_channels,
+                    buffer_list_t **buffer_list)
 {
     int result = 0;
     mpg123_handle *handle = mpg123_new(NULL, &result);
@@ -147,29 +214,36 @@ result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
         return RESULT_FAILURE;
     }
 
-    mpg123_format_none(handle);
-    result = mpg123_format(handle, 44100, MPG123_STEREO, MPG123_ENC_SIGNED_16);
-
-    if (result != MPG123_OK)
-    {
-        fprintf(stderr, "[mpg123] failed to set format: %s\n", mpg123_plain_strerror(result));
-        return RESULT_FAILURE;
-    }
-
     result = mpg123_open(handle, filename);
 
     if (result != MPG123_OK)
     {
-        fprintf(stderr, "[mpg123] failed to open file: %s\n", mpg123_plain_strerror(result));
+        fprintf(stderr, "[mpg123] failed to open file: %s\n", mpg123_strerror(handle));
         return RESULT_FAILURE;
     }
+
+    // const long *available_rates;
+    // size_t number_rates = 0;
+    // mpg123_rates(&available_rates, &number_rates);
+
+    // for (int i = 0; i < number_rates; i++)
+    // {
+    //     fprintf(stderr, "supports rate %li\n", available_rates[i]);
+    // }
 
     buffer_list_t *out_list = buffer_list_new();
     int done = 0;
 
-    long rate;
-    int channels, encoding;
-    mpg123_getformat(handle, &rate, &channels, &encoding);
+    long sample_rate = 0;
+    int channels = 0, encoding = 0;
+    mpg123_getformat(handle, &sample_rate, &channels, &encoding);
+
+    if (encoding != MPG123_ENC_SIGNED_16)
+    {
+        fprintf(stderr, "[mpg123] unexpected encoding %i\n", encoding);
+        mpg123_close(handle);
+        return RESULT_FAILURE;
+    }
 
     size_t buffer_size = DEFAULT_BUFFER_SAMPLES * 2 * sizeof(int16_t);
 
@@ -183,9 +257,10 @@ result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
 
         if (result != MPG123_OK && result != MPG123_DONE)
         {
-            fprintf(stderr, "[mpg123] failed to decode: %s\n", mpg123_plain_strerror(result));
+            fprintf(stderr, "[mpg123] failed to decode: %s\n", mpg123_strerror(handle));
             buffer_free(buffer);
             buffer_list_free(out_list);
+            mpg123_close(handle);
             return RESULT_FAILURE;
         }
 
@@ -197,7 +272,10 @@ result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
 
     mpg123_close(handle);
 
+    *out_sample_rate = sample_rate;
+    *out_channels = channels;
     *buffer_list = out_list;
+
     return RESULT_SUCCESS;
 }
 
@@ -212,6 +290,7 @@ result_t encode_mp3(buffer_list_t *in_pcm_buffers, buffer_list_t **out_buffers)
     int result = lame_init_params(lame);
     if (result < 0)
     {
+        fprintf(stderr, "[lame] error with initialization");
         goto error;
     }
 
@@ -328,7 +407,10 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *pcm_buffers;
-    result = decode_mp3(infile_l, &pcm_buffers);
+    long sample_rate;
+    int channels;
+
+    result = decode_mp3(infile_l, &sample_rate, &channels, &pcm_buffers);
 
     if (is_failure(result))
     {
@@ -336,9 +418,18 @@ int main(int argc, char **argv)
     }
 
     fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
+    fprintf(stderr, "decoding sample rate: %li\n", sample_rate);
+
+    buffer_list_t *resampled_buffers;
+    result = resample_for_processing(sample_rate, channels, pcm_buffers, &resampled_buffers);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
 
     buffer_list_t *mp3_buffers;
-    result = encode_mp3(pcm_buffers, &mp3_buffers);
+    result = encode_mp3(resampled_buffers, &mp3_buffers);
 
     if (is_failure(result))
     {
