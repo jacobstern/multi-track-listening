@@ -1,14 +1,14 @@
 #include <ctype.h>
 #include <errno.h>
-#include <lame/lame.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <memory.h>
+#include <lame/lame.h>
 #include <mpg123.h>
 
-#define DEFAULT_BUFFER_SAMPLESS 65536
+#define DEFAULT_BUFFER_SAMPLES 65536
 
 extern char *optarg;
 
@@ -136,7 +136,7 @@ result_t parse_args(int argc, char **argv,
     return RESULT_SUCCESS;
 }
 
-result_t decode_mp3_mono(char *filename, buffer_list_t **buffer_list)
+result_t decode_mp3(char *filename, buffer_list_t **buffer_list)
 {
     int result = 0;
     mpg123_handle *handle = mpg123_new(NULL, &result);
@@ -148,7 +148,7 @@ result_t decode_mp3_mono(char *filename, buffer_list_t **buffer_list)
     }
 
     mpg123_format_none(handle);
-    result = mpg123_format(handle, 44100, MPG123_MONO, MPG123_ENC_SIGNED_16);
+    result = mpg123_format(handle, 44100, MPG123_STEREO, MPG123_ENC_SIGNED_16);
 
     if (result != MPG123_OK)
     {
@@ -171,7 +171,7 @@ result_t decode_mp3_mono(char *filename, buffer_list_t **buffer_list)
     int channels, encoding;
     mpg123_getformat(handle, &rate, &channels, &encoding);
 
-    size_t buffer_size = DEFAULT_BUFFER_SAMPLESS * sizeof(int16_t);
+    size_t buffer_size = DEFAULT_BUFFER_SAMPLES * 2 * sizeof(int16_t);
 
     while (!done)
     {
@@ -205,7 +205,7 @@ result_t encode_mp3(buffer_list_t *in_pcm_buffers, buffer_list_t **out_buffers)
 {
     lame_t lame = lame_init();
     lame_set_in_samplerate(lame, 44100);
-    lame_set_num_channels(lame, 1);
+    lame_set_num_channels(lame, 2);
 
     buffer_list_t *buffers = NULL;
 
@@ -221,14 +221,14 @@ result_t encode_mp3(buffer_list_t *in_pcm_buffers, buffer_list_t **out_buffers)
     while (current_buffer_cell->head != NULL)
     {
         buffer_t *current_buffer = current_buffer_cell->head;
-        int num_samples = current_buffer->size / 2;
+        int num_samples = current_buffer->size / 4;
         size_t buffer_size = 5 * num_samples / 4 + 7200;
 
         buffer_t *out_buffer = buffer_new();
         out_buffer->bytes = (uint8_t *)malloc(buffer_size);
 
-        result = lame_encode_buffer(lame, (short int *)current_buffer->bytes, NULL, num_samples,
-                                    out_buffer->bytes, buffer_size);
+        result = lame_encode_buffer_interleaved(lame, (short int *)current_buffer->bytes,
+                                                num_samples, out_buffer->bytes, buffer_size);
         if (result < 0)
         {
             char reason[64] = "unknown";
@@ -328,7 +328,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *pcm_buffers;
-    result = decode_mp3_mono(infile_l, &pcm_buffers);
+    result = decode_mp3(infile_l, &pcm_buffers);
 
     if (is_failure(result))
     {
