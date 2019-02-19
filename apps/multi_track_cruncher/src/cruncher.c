@@ -6,16 +6,23 @@
 #include <stdint.h>
 #include <memory.h>
 
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 #include <lame/lame.h>
 #include <libswresample/swresample.h>
 #include <mpg123.h>
 
 #define DEFAULT_BUFFER_SAMPLES 65536
-#define SAMPLE_RATE 44100
+#define STANDARD_SAMPLE_RATE 44100
 
 extern char *optarg;
 
 extern int optind, opterr, optopt;
+
+static LPALCLOOPBACKOPENDEVICESOFT alcLoopbackOpenDeviceSOFT;
+static LPALCISRENDERFORMATSUPPORTEDSOFT alcIsRenderFormatSupportedSOFT;
+static LPALCRENDERSAMPLESSOFT alcRenderSamplesSOFT;
 
 typedef enum result
 {
@@ -91,7 +98,7 @@ void buffer_list_free(buffer_list_t *buffer_list)
     if (buffer_list->tail != NULL)
     {
         buffer_list_free(buffer_list->tail);
-        buffer_list->tail = NULL;
+	buffer_list->tail = NULL;
     }
     if (buffer_list->head != NULL)
     {
@@ -148,7 +155,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
         in_channel_layout = AV_CH_LAYOUT_MONO;
     }
     struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_S16,
-                                                SAMPLE_RATE, in_channel_layout, AV_SAMPLE_FMT_S16,
+                                                STANDARD_SAMPLE_RATE, in_channel_layout, AV_SAMPLE_FMT_S16,
                                                 sample_rate, 0, NULL);
     if (swr == NULL)
     {
@@ -171,7 +178,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
         int src_num_samples = in_buffer->size / sizeof(int16_t) / channels;
         int max_dst_num_samples = av_rescale_rnd(
             swr_get_delay(swr, sample_rate) + src_num_samples,
-            SAMPLE_RATE, sample_rate, AV_ROUND_UP);
+            STANDARD_SAMPLE_RATE, sample_rate, AV_ROUND_UP);
         size_t dst_size = max_dst_num_samples * sizeof(int16_t) * 2;
 
         buffer_t *out_buffer = buffer_new();
@@ -222,15 +229,6 @@ result_t decode_mp3(char *filename, long *out_sample_rate, int *out_channels,
         return RESULT_FAILURE;
     }
 
-    // const long *available_rates;
-    // size_t number_rates = 0;
-    // mpg123_rates(&available_rates, &number_rates);
-
-    // for (int i = 0; i < number_rates; i++)
-    // {
-    //     fprintf(stderr, "supports rate %li\n", available_rates[i]);
-    // }
-
     buffer_list_t *out_list = buffer_list_new();
     int done = 0;
 
@@ -245,7 +243,7 @@ result_t decode_mp3(char *filename, long *out_sample_rate, int *out_channels,
         return RESULT_FAILURE;
     }
 
-    size_t buffer_size = DEFAULT_BUFFER_SAMPLES * 2 * sizeof(int16_t);
+    size_t buffer_size = DEFAULT_BUFFER_SAMPLES * channels * sizeof(int16_t);
 
     while (!done)
     {
@@ -383,6 +381,18 @@ result_t write_buffers(const char *filename, buffer_list_t *in_buffers)
 result_t initialize_libraries()
 {
     mpg123_init();
+
+    if(!alcIsExtensionPresent(NULL, "ALC_SOFT_loopback"))
+    {
+        fprintf(stderr, "[openal-soft] ALC_SOFT_loopback not supported\n");
+        return RESULT_FAILURE;
+    }
+
+#define LOAD_PROC(x)  ((x) = alcGetProcAddress(NULL, #x))
+    LOAD_PROC(alcLoopbackOpenDeviceSOFT);
+    LOAD_PROC(alcIsRenderFormatSupportedSOFT);
+    LOAD_PROC(alcRenderSamplesSOFT);
+#undef LOAD_PROC
 
     return RESULT_SUCCESS;
 }

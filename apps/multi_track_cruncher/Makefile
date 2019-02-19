@@ -6,7 +6,7 @@ SRC = $(wildcard src/*.c)
 
 OBJ = $(SRC:.c=.o)
 
-LDLIBS ?= -lmpg123 -lmp3lame -lswresample -lavutil
+LDLIBS ?= -lmpg123 -lmp3lame -lswresample -lavutil -lopenal
 
 PROG ?= priv/c/cruncher
 

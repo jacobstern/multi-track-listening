@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Elixir language server
 .elixir_ls/
+
+# Example output
+out.mp3
