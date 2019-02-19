@@ -21,7 +21,7 @@ c_priv:
 	mkdir -p priv/c
 
 run: $(PROG)
-	$(PROG) $(PROG_ARGS)
+	time $(PROG) $(PROG_ARGS)
 
 clean:
 	rm -f $(PROG) $(OBJ) $(BEAM_FILES)

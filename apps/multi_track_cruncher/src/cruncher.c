@@ -36,7 +36,7 @@ static inline int is_failure(result_t result)
     return result == RESULT_FAILURE;
 }
 
-static inline float clampf(float x, float min, float max)
+static inline float clamp(float x, float min, float max)
 {
     return fminf(fmaxf(x, min), max);
 }
@@ -239,8 +239,7 @@ result_t format_for_encoding(buffer_list_t *float_pcm_buffers, buffer_list_t **o
         for (int i = 0; i < num_samples; i++)
         {
             float sample = float_samples[i];
-            // algorithm from here https://www.kvraudio.com/forum/viewtopic.php?p=6441496&sid=9bd331f45476851ec6d51f439cf10b0a#p6441496
-            int16_t quantized = (int16_t)clampf(floorf(sample * (INT16_MAX + 1)), (float)INT16_MIN - 1.0f, (float)INT16_MAX);
+            int16_t quantized = (int16_t)clamp(floorf(sample * INT16_MAX), (float)INT16_MIN, (float)INT16_MAX);
             int_samples[i] = quantized;
         }
 
@@ -507,6 +506,20 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
         goto error;
     }
 
+    if (!alIsExtensionPresent("AL_EXT_STEREO_ANGLES"))
+    {
+        fprintf(stderr, "[openal-soft] AL_EXT_STEREO_ANGLES not supported\n");
+        goto error;
+    }
+
+    if (!alIsExtensionPresent("AL_EXT_float32"))
+    {
+        fprintf(stderr, "[openal-soft] AL_EXT_float32 not supported\n");
+        goto error;
+    }
+
+    alDistanceModel(AL_LINEAR_DISTANCE);
+
     int num_buffers_l = buffer_list_length(buffers_l);
     al_buffers = (ALuint *)malloc(num_buffers_l * sizeof(ALuint));
 
@@ -529,18 +542,33 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
     }
 
     alGenSources(1, sources);
-    err = alGetError();
-    num_generated_sources = 1;
 
+    err = alGetError();
     if (err != AL_NO_ERROR)
     {
         fprintf(stderr, "[openal-soft] error creating sources: %s\n", alGetString(err));
         goto error;
     }
+    else
+    {
+        num_generated_sources = 1;
+    }
 
     ALuint source_l = sources[0];
+
+    alSource3f(source_l, AL_POSITION, 0.0f, 0.0f, 1.0f);
+    alSourcef(source_l, AL_REFERENCE_DISTANCE, 1.0f);
+
+    err = alGetError();
+    if (err != AL_NO_ERROR)
+    {
+        fprintf(stderr, "[openal-soft] error configuring sources: %s\n", alGetString(err));
+        goto error;
+    }
+
     alSourceQueueBuffers(source_l, num_buffers_l, al_buffers_l);
 
+    err = alGetError();
     if (err != AL_NO_ERROR)
     {
         fprintf(stderr, "[openal-soft] error queuing buffers: %s\n", alGetString(err));
@@ -561,17 +589,38 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
     mashup_buffers = buffer_list_new();
     while (processed_samples < total_samples)
     {
+        ALsizei initial_processed = processed_samples;
+        float initial_time_seconds = (float)initial_processed / STANDARD_SAMPLE_RATE;
+        int samples_per_batch = STANDARD_SAMPLE_RATE / 60; // update parameters and render at a granularity of 60 hz
+        size_t batch_size = samples_per_batch * sizeof(float) * 2;
+        ALsizei max_samples = min(total_samples - processed_samples + samples_per_batch, STANDARD_SAMPLE_RATE);
+        size_t dst_size = max_samples * sizeof(float) * 2;
+
         buffer_t *mashup_buffer = buffer_new();
-        ALsizei samples_to_process = min(total_samples - processed_samples, DEFAULT_BUFFER_SAMPLES);
-
-        size_t dst_size = samples_to_process * sizeof(float) * 2;
         mashup_buffer->bytes = (uint8_t *)malloc(dst_size);
-        mashup_buffer->size = dst_size;
 
-        alcRenderSamplesSOFT(device, mashup_buffer->bytes, samples_to_process);
+        for (int batch = 0; batch < 60; batch++)
+        {
+            // TODO: try rendering tracks in mono
+            float current_time_seconds = initial_time_seconds + batch / 60.0f;
+            float angle = fmodf(current_time_seconds * M_PI * 2.0f / 10.0f, M_PI * 2.0f);
+            float opposite_angle = M_PI * 2.0f - angle;
 
+            ALfloat angles_l[2] = {(ALfloat)(M_PI / 6.0 - opposite_angle), (ALfloat)(-M_PI / 6.0 - opposite_angle)};
+            alSourcefv(source_l, AL_STEREO_ANGLES, angles_l);
+
+            uint8_t *samples_dst = &mashup_buffer->bytes[batch * batch_size];
+            alcRenderSamplesSOFT(device, samples_dst, samples_per_batch);
+            processed_samples += samples_per_batch;
+
+            if (processed_samples >= total_samples)
+            {
+                break;
+            }
+        }
+
+        mashup_buffer->size = (processed_samples - initial_processed) * sizeof(float) * 2;
         buffer_list_append(mashup_buffers, mashup_buffer);
-        processed_samples += samples_to_process;
     }
 
     alSourceStop(source_l);
@@ -632,12 +681,6 @@ result_t initialize_libraries()
         fprintf(stderr, "[openal-soft] ALC_SOFT_loopback not supported\n");
         return RESULT_FAILURE;
     }
-
-    // if (!alIsExtensionPresent("EXT_float32"))
-    // {
-    //     fprintf(stderr, "[openal-soft] EXT_float32 not supported\n");
-    //     return RESULT_FAILURE;
-    // }
 
 #define LOAD_PROC(x) ((x) = alcGetProcAddress(NULL, #x))
     LOAD_PROC(alcLoopbackOpenDeviceSOFT);
