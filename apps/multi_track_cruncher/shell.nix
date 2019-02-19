@@ -9,5 +9,5 @@ in
 with pkgs;
 
 mkShell {
-  buildInputs = [ mpg123 lame ffmpeg openal ];
+  buildInputs = [ mpg123 lame ffmpeg openal ];  # note that openal builds openal-soft (which is what we want)
 }

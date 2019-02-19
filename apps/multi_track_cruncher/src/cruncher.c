@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include <memory.h>
 
 #include <AL/al.h>
@@ -30,9 +31,14 @@ typedef enum result
     RESULT_FAILURE = 1
 } result_t;
 
-int is_failure(result_t result)
+static inline int is_failure(result_t result)
 {
     return result == RESULT_FAILURE;
+}
+
+static inline float clampf(float x, float min, float max)
+{
+    return fminf(fmaxf(x, min), max);
 }
 
 typedef struct buffer
@@ -98,7 +104,7 @@ void buffer_list_free(buffer_list_t *buffer_list)
     if (buffer_list->tail != NULL)
     {
         buffer_list_free(buffer_list->tail);
-	buffer_list->tail = NULL;
+        buffer_list->tail = NULL;
     }
     if (buffer_list->head != NULL)
     {
@@ -154,7 +160,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
     {
         in_channel_layout = AV_CH_LAYOUT_MONO;
     }
-    struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_S16,
+    struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_FLT,
                                                 STANDARD_SAMPLE_RATE, in_channel_layout, AV_SAMPLE_FMT_S16,
                                                 sample_rate, 0, NULL);
     if (swr == NULL)
@@ -179,7 +185,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
         int max_dst_num_samples = av_rescale_rnd(
             swr_get_delay(swr, sample_rate) + src_num_samples,
             STANDARD_SAMPLE_RATE, sample_rate, AV_ROUND_UP);
-        size_t dst_size = max_dst_num_samples * sizeof(int16_t) * 2;
+        size_t dst_size = max_dst_num_samples * sizeof(float) * 2;
 
         buffer_t *out_buffer = buffer_new();
         out_buffer->bytes = (uint8_t *)malloc(dst_size);
@@ -197,7 +203,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
             fprintf(stderr, "[swresample] conversion error: %s\n", errbuf);
         }
 
-        out_buffer->size = samples * sizeof(int16_t) * 2;
+        out_buffer->size = samples * sizeof(float) * 2;
         buffer_list_append(buffers, out_buffer);
         cell = cell->tail;
     }
@@ -205,6 +211,39 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
     *out_buffers = buffers;
 
     swr_free(&swr);
+
+    return RESULT_SUCCESS;
+}
+
+result_t format_for_encoding(buffer_list_t *float_pcm_buffers, buffer_list_t **out_int_pcm_buffers)
+{
+    buffer_list_t *int_pcm_buffers = buffer_list_new();
+
+    buffer_list_t *cell = float_pcm_buffers;
+    while (cell->head != NULL)
+    {
+        buffer_t *buffer = cell->head;
+        int num_samples = buffer->size / sizeof(float);
+        buffer_t *int_pcm_buffer = buffer_new();
+        size_t dst_size = num_samples * sizeof(int16_t);
+        int_pcm_buffer->bytes = (uint8_t *)malloc(dst_size);
+        int_pcm_buffer->size = dst_size;
+        float *float_samples = (float *)buffer->bytes;
+        int16_t *int_samples = (int16_t *)int_pcm_buffer->bytes;
+
+        for (int i = 0; i < num_samples; i++)
+        {
+            float sample = float_samples[i];
+            // algorithm from here https://www.kvraudio.com/forum/viewtopic.php?p=6441496&sid=9bd331f45476851ec6d51f439cf10b0a#p6441496
+            int16_t quantized = (int16_t)clampf(floorf(sample * (INT16_MAX + 1)), (float)INT16_MIN - 1.0f, (float)INT16_MAX);
+            int_samples[i] = quantized;
+        }
+
+        buffer_list_append(int_pcm_buffers, int_pcm_buffer);
+        cell = cell->tail;
+    }
+
+    *out_int_pcm_buffers = int_pcm_buffers;
 
     return RESULT_SUCCESS;
 }
@@ -382,13 +421,13 @@ result_t initialize_libraries()
 {
     mpg123_init();
 
-    if(!alcIsExtensionPresent(NULL, "ALC_SOFT_loopback"))
+    if (!alcIsExtensionPresent(NULL, "ALC_SOFT_loopback"))
     {
         fprintf(stderr, "[openal-soft] ALC_SOFT_loopback not supported\n");
         return RESULT_FAILURE;
     }
 
-#define LOAD_PROC(x)  ((x) = alcGetProcAddress(NULL, #x))
+#define LOAD_PROC(x) ((x) = alcGetProcAddress(NULL, #x))
     LOAD_PROC(alcLoopbackOpenDeviceSOFT);
     LOAD_PROC(alcIsRenderFormatSupportedSOFT);
     LOAD_PROC(alcRenderSamplesSOFT);
@@ -438,20 +477,39 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    buffer_list_t *mp3_buffers;
-    result = encode_mp3(resampled_buffers, &mp3_buffers);
+    buffer_list_free(pcm_buffers);
+    pcm_buffers = NULL;
+
+    buffer_list_t *int_buffers;
+    result = format_for_encoding(resampled_buffers, &int_buffers);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
 
+    buffer_list_free(resampled_buffers);
+    resampled_buffers = NULL;
+
+    fprintf(stderr, "round trip transcoding for %i buffers\n", buffer_list_length(int_buffers));
+
+    buffer_list_t *mp3_buffers;
+    result = encode_mp3(int_buffers, &mp3_buffers);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    buffer_list_free(int_buffers);
+    resampled_buffers = NULL;
+
     fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
 
     write_buffers(outfile, mp3_buffers);
 
-    buffer_list_free(pcm_buffers);
     buffer_list_free(mp3_buffers);
+    mp3_buffers = NULL;
 
     return EXIT_SUCCESS;
 }
