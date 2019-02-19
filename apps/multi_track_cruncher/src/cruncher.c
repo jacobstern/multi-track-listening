@@ -166,7 +166,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
     {
         in_channel_layout = AV_CH_LAYOUT_MONO;
     }
-    struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_FLT,
+    struct SwrContext *swr = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_FLT,
                                                 STANDARD_SAMPLE_RATE, in_channel_layout, AV_SAMPLE_FMT_S16,
                                                 sample_rate, 0, NULL);
     if (swr == NULL)
@@ -191,7 +191,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
         int max_dst_num_samples = av_rescale_rnd(
             swr_get_delay(swr, sample_rate) + src_num_samples,
             STANDARD_SAMPLE_RATE, sample_rate, AV_ROUND_UP);
-        size_t dst_size = max_dst_num_samples * sizeof(float) * 2;
+        size_t dst_size = max_dst_num_samples * sizeof(float);
 
         buffer_t *out_buffer = buffer_new();
         out_buffer->bytes = (uint8_t *)malloc(dst_size);
@@ -209,7 +209,7 @@ result_t resample_for_processing(long sample_rate, int channels, buffer_list_t *
             fprintf(stderr, "[swresample] conversion error: %s\n", errbuf);
         }
 
-        out_buffer->size = samples * sizeof(float) * 2;
+        out_buffer->size = samples * sizeof(float);
         buffer_list_append(buffers, out_buffer);
         cell = cell->tail;
     }
@@ -431,7 +431,7 @@ result_t al_buffer_data_from_list(buffer_list_t *buffers, ALsizei count, ALuint 
     for (int i = 0; i < count; i++)
     {
         buffer_t *buffer = cell->head;
-        alBufferData(out_al_buffers[i], AL_FORMAT_STEREO_FLOAT32, buffer->bytes, buffer->size,
+        alBufferData(out_al_buffers[i], AL_FORMAT_MONO_FLOAT32, buffer->bytes, buffer->size,
                      STANDARD_SAMPLE_RATE);
 
         ALenum err = alGetError();
@@ -506,12 +506,6 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
     {
         err = alcGetError(device);
         fprintf(stderr, "[openal-soft] error making context current: %s\n", alcGetString(device, err));
-        goto error;
-    }
-
-    if (!alIsExtensionPresent("AL_EXT_STEREO_ANGLES"))
-    {
-        fprintf(stderr, "[openal-soft] AL_EXT_STEREO_ANGLES not supported\n");
         goto error;
     }
 
@@ -616,16 +610,12 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
 
         for (int batch = 0; batch < 60; batch++)
         {
-            // TODO: try rendering tracks in mono
             float current_time_seconds = initial_time_seconds + batch / 60.0f;
             float angle = fmodf(current_time_seconds * M_PI * 2.0f / 10.0f, M_PI * 2.0f);
-            float opposite_angle = M_PI * 2.0f - angle;
+            float opposite = M_PI * 2.0f - angle;
 
-            ALfloat angles_l[2] = {(ALfloat)(M_PI / 6.0 - opposite_angle), (ALfloat)(-M_PI / 6.0 - opposite_angle)};
-            alSourcefv(source_l, AL_STEREO_ANGLES, angles_l);
-
-            ALfloat angles_r[2] = {(ALfloat)(M_PI / 6.0 - angle), (ALfloat)(-M_PI / 6.0 - angle)};
-            alSourcefv(source_r, AL_STEREO_ANGLES, angles_r);
+            alSource3f(source_l, AL_POSITION, (ALfloat)sin(opposite), 0.0f, -(ALfloat)cos(opposite));
+            alSource3f(source_r, AL_POSITION, (ALfloat)sin(angle), 0.0f, -(ALfloat)cos(angle));
 
             if (output_length_seconds - current_time_seconds < FADEOUT_DURATION)
             {
