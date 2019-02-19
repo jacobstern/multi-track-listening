@@ -41,6 +41,11 @@ static inline float clampf(float x, float min, float max)
     return fminf(fmaxf(x, min), max);
 }
 
+static inline int min(int a, int b)
+{
+    return a < b ? a : b;
+}
+
 typedef struct buffer
 {
     uint8_t *bytes;
@@ -417,6 +422,207 @@ result_t write_buffers(const char *filename, buffer_list_t *in_buffers)
     return RESULT_SUCCESS;
 }
 
+result_t al_buffer_data_from_list(buffer_list_t *buffers, ALsizei count, ALuint *out_al_buffers)
+{
+    buffer_list_t *cell = buffers;
+
+    for (int i = 0; i < count; i++)
+    {
+        buffer_t *buffer = cell->head;
+        alBufferData(out_al_buffers[i], AL_FORMAT_STEREO_FLOAT32, buffer->bytes, buffer->size,
+                     STANDARD_SAMPLE_RATE);
+
+        ALenum err = alGetError();
+
+        if (err != AL_NO_ERROR)
+        {
+            fprintf(stderr, "[openal-soft] error filling buffer: %s\n", alGetString(err));
+            alDeleteBuffers(count, out_al_buffers);
+            return RESULT_FAILURE;
+        }
+
+        cell = cell->tail;
+    }
+
+    return RESULT_SUCCESS;
+}
+
+result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
+                       buffer_list_t **out_mashup_buffers)
+{
+    // resources declared upfront for error label
+    ALCdevice *device = NULL;
+
+    ALCcontext *context = NULL;
+    buffer_list_t *mashup_buffers = NULL;
+    ALuint *al_buffers = NULL;
+    ALsizei num_generated_buffers = 0;
+    ALuint sources[2];
+    ALuint num_generated_sources = 0;
+    ALenum err = AL_NO_ERROR;
+
+    device = alcLoopbackOpenDeviceSOFT(NULL);
+
+    if (device == NULL)
+    {
+        fprintf(stderr, "[openal-soft] failed to create loopback device\n");
+        goto error;
+    }
+
+    if (!alcIsExtensionPresent(device, "ALC_SOFT_HRTF"))
+    {
+        alcCloseDevice(device);
+        fprintf(stderr, "[openal-soft] ALC_SOFT_HRTF not supported\n");
+        goto error;
+    }
+
+    if (!alcIsRenderFormatSupportedSOFT(device, STANDARD_SAMPLE_RATE, ALC_STEREO_SOFT,
+                                        ALC_FLOAT_SOFT))
+    {
+        fprintf(stderr, "[openal-soft] render format not supported\n");
+        goto error;
+    }
+
+    ALCint attrs[] = {
+        ALC_FREQUENCY, STANDARD_SAMPLE_RATE,
+        ALC_FORMAT_CHANNELS_SOFT, ALC_STEREO_SOFT,
+        ALC_FORMAT_TYPE_SOFT, ALC_FLOAT_SOFT,
+        ALC_HRTF_SOFT, ALC_TRUE, /* request HRTF */
+        0};
+    context = alcCreateContext(device, attrs);
+
+    if (context == NULL)
+    {
+        err = alcGetError(device);
+        fprintf(stderr, "[openal-soft] failed to create context: %s\n", alcGetString(device, err));
+        goto error;
+    }
+
+    ALboolean success = alcMakeContextCurrent(context);
+
+    if (success == AL_FALSE)
+    {
+        err = alcGetError(device);
+        fprintf(stderr, "[openal-soft] error making context current: %s\n", alcGetString(device, err));
+        goto error;
+    }
+
+    int num_buffers_l = buffer_list_length(buffers_l);
+    al_buffers = (ALuint *)malloc(num_buffers_l * sizeof(ALuint));
+
+    alGenBuffers(num_buffers_l, al_buffers);
+    err = alGetError();
+
+    if (err != AL_NO_ERROR)
+    {
+        fprintf(stderr, "[openal-soft] error creating buffers: %s\n", alGetString(err));
+        goto error;
+    }
+
+    num_generated_buffers = num_buffers_l;
+    ALuint *al_buffers_l = &al_buffers[0];
+
+    result_t result = al_buffer_data_from_list(buffers_l, num_buffers_l, al_buffers_l);
+    if (is_failure(result))
+    {
+        goto error;
+    }
+
+    alGenSources(1, sources);
+    err = alGetError();
+    num_generated_sources = 1;
+
+    if (err != AL_NO_ERROR)
+    {
+        fprintf(stderr, "[openal-soft] error creating sources: %s\n", alGetString(err));
+        goto error;
+    }
+
+    ALuint source_l = sources[0];
+    alSourceQueueBuffers(source_l, num_buffers_l, al_buffers_l);
+
+    if (err != AL_NO_ERROR)
+    {
+        fprintf(stderr, "[openal-soft] error queuing buffers: %s\n", alGetString(err));
+        goto error;
+    }
+
+    alSourcePlayv(1, sources);
+
+    if (err != AL_NO_ERROR)
+    {
+        fprintf(stderr, "[openal-soft] error playing sources: %s\n", alGetString(err));
+        goto error;
+    }
+
+    ALsizei total_samples = STANDARD_SAMPLE_RATE * output_length_seconds;
+    ALsizei processed_samples = 0;
+
+    mashup_buffers = buffer_list_new();
+    while (processed_samples < total_samples)
+    {
+        buffer_t *mashup_buffer = buffer_new();
+        ALsizei samples_to_process = min(total_samples - processed_samples, DEFAULT_BUFFER_SAMPLES);
+
+        size_t dst_size = samples_to_process * sizeof(float) * 2;
+        mashup_buffer->bytes = (uint8_t *)malloc(dst_size);
+        mashup_buffer->size = dst_size;
+
+        alcRenderSamplesSOFT(device, mashup_buffer->bytes, samples_to_process);
+
+        buffer_list_append(mashup_buffers, mashup_buffer);
+        processed_samples += samples_to_process;
+    }
+
+    alSourceStop(source_l);
+    alSourcei(source_l, AL_BUFFER, 0);
+
+    alDeleteBuffers(num_generated_buffers, al_buffers);
+    free(al_buffers);
+
+    alDeleteSources(num_generated_sources, sources);
+
+    alcMakeContextCurrent(NULL);
+    alcDestroyContext(context);
+    alcCloseDevice(device);
+
+    *out_mashup_buffers = mashup_buffers;
+
+    return RESULT_SUCCESS;
+
+error:
+    if (device != NULL)
+    {
+        alcCloseDevice(device);
+    }
+    if (context != NULL)
+    {
+        alcMakeContextCurrent(NULL);
+        alcDestroyContext(context);
+    }
+    if (mashup_buffers != NULL)
+
+    {
+
+        buffer_list_free(mashup_buffers);
+        mashup_buffers = NULL;
+    }
+    if (al_buffers != NULL)
+    {
+        if (num_generated_buffers > 0)
+        {
+            alDeleteBuffers(num_generated_buffers, al_buffers);
+        }
+        free(al_buffers);
+        al_buffers = NULL;
+    }
+    if (num_generated_sources > 0)
+    {
+        alDeleteSources(num_generated_sources, sources);
+    }
+    return RESULT_FAILURE;
+}
+
 result_t initialize_libraries()
 {
     mpg123_init();
@@ -426,6 +632,12 @@ result_t initialize_libraries()
         fprintf(stderr, "[openal-soft] ALC_SOFT_loopback not supported\n");
         return RESULT_FAILURE;
     }
+
+    // if (!alIsExtensionPresent("EXT_float32"))
+    // {
+    //     fprintf(stderr, "[openal-soft] EXT_float32 not supported\n");
+    //     return RESULT_FAILURE;
+    // }
 
 #define LOAD_PROC(x) ((x) = alcGetProcAddress(NULL, #x))
     LOAD_PROC(alcLoopbackOpenDeviceSOFT);
@@ -480,8 +692,8 @@ int main(int argc, char **argv)
     buffer_list_free(pcm_buffers);
     pcm_buffers = NULL;
 
-    buffer_list_t *int_buffers;
-    result = format_for_encoding(resampled_buffers, &int_buffers);
+    buffer_list_t *mashup_buffers;
+    result = mashup_tracks(resampled_buffers, 90, &mashup_buffers);
 
     if (is_failure(result))
     {
@@ -491,7 +703,16 @@ int main(int argc, char **argv)
     buffer_list_free(resampled_buffers);
     resampled_buffers = NULL;
 
-    fprintf(stderr, "round trip transcoding for %i buffers\n", buffer_list_length(int_buffers));
+    buffer_list_t *int_buffers;
+    result = format_for_encoding(mashup_buffers, &int_buffers);
+
+    if (is_failure(result))
+    {
+        return EXIT_FAILURE;
+    }
+
+    buffer_list_free(mashup_buffers);
+    resampled_buffers = NULL;
 
     buffer_list_t *mp3_buffers;
     result = encode_mp3(int_buffers, &mp3_buffers);
