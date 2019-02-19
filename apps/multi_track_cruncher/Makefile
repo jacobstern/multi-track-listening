@@ -23,5 +23,8 @@ c_priv:
 run: $(PROG)
 	time $(PROG) $(PROG_ARGS)
 
+valgrind: $(PROG)
+	valgrind --leak-check=yes $(PROG) $(PROG_ARGS)
+
 clean:
 	rm -f $(PROG) $(OBJ) $(BEAM_FILES)
