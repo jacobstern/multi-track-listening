@@ -16,6 +16,7 @@
 
 #define DEFAULT_BUFFER_SAMPLES 65536
 #define STANDARD_SAMPLE_RATE 44100
+#define FADEOUT_DURATION 0.8f
 
 extern char *optarg;
 
@@ -384,6 +385,8 @@ result_t encode_mp3(buffer_list_t *in_pcm_buffers, buffer_list_t **out_buffers)
     remaining->size = lame_encode_flush(lame, remaining->bytes, 7200);
     buffer_list_append(buffers, remaining);
 
+    lame_close(lame);
+
     *out_buffers = buffers;
 
     return RESULT_SUCCESS;
@@ -446,7 +449,7 @@ result_t al_buffer_data_from_list(buffer_list_t *buffers, ALsizei count, ALuint 
     return RESULT_SUCCESS;
 }
 
-result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
+result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int output_length_seconds,
                        buffer_list_t **out_mashup_buffers)
 {
     // resources declared upfront for error label
@@ -521,9 +524,10 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
     alDistanceModel(AL_LINEAR_DISTANCE);
 
     int num_buffers_l = buffer_list_length(buffers_l);
-    al_buffers = (ALuint *)malloc(num_buffers_l * sizeof(ALuint));
+    int num_buffers_r = buffer_list_length(buffers_r);
+    al_buffers = (ALuint *)malloc((num_buffers_l + num_buffers_r) * sizeof(ALuint));
 
-    alGenBuffers(num_buffers_l, al_buffers);
+    alGenBuffers(num_buffers_l + num_buffers_r, al_buffers);
     err = alGetError();
 
     if (err != AL_NO_ERROR)
@@ -532,8 +536,9 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
         goto error;
     }
 
-    num_generated_buffers = num_buffers_l;
+    num_generated_buffers = num_buffers_l + num_buffers_r;
     ALuint *al_buffers_l = &al_buffers[0];
+    ALuint *al_buffers_r = &al_buffers[num_buffers_l];
 
     result_t result = al_buffer_data_from_list(buffers_l, num_buffers_l, al_buffers_l);
     if (is_failure(result))
@@ -541,7 +546,13 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
         goto error;
     }
 
-    alGenSources(1, sources);
+    result = al_buffer_data_from_list(buffers_r, num_buffers_r, al_buffers_r);
+    if (is_failure(result))
+    {
+        goto error;
+    }
+
+    alGenSources(2, sources);
 
     err = alGetError();
     if (err != AL_NO_ERROR)
@@ -551,13 +562,16 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
     }
     else
     {
-        num_generated_sources = 1;
+        num_generated_sources = 2;
     }
 
     ALuint source_l = sources[0];
+    ALuint source_r = sources[1];
 
-    alSource3f(source_l, AL_POSITION, 0.0f, 0.0f, 1.0f);
-    alSourcef(source_l, AL_REFERENCE_DISTANCE, 1.0f);
+    for (int i = 0; i < 2; i++)
+    {
+        alSourcef(sources[i], AL_REFERENCE_DISTANCE, 1.0f);
+    }
 
     err = alGetError();
     if (err != AL_NO_ERROR)
@@ -567,6 +581,7 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
     }
 
     alSourceQueueBuffers(source_l, num_buffers_l, al_buffers_l);
+    alSourceQueueBuffers(source_r, num_buffers_r, al_buffers_r);
 
     err = alGetError();
     if (err != AL_NO_ERROR)
@@ -575,7 +590,7 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
         goto error;
     }
 
-    alSourcePlayv(1, sources);
+    alSourcePlayv(2, sources);
 
     if (err != AL_NO_ERROR)
     {
@@ -609,6 +624,18 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
             ALfloat angles_l[2] = {(ALfloat)(M_PI / 6.0 - opposite_angle), (ALfloat)(-M_PI / 6.0 - opposite_angle)};
             alSourcefv(source_l, AL_STEREO_ANGLES, angles_l);
 
+            ALfloat angles_r[2] = {(ALfloat)(M_PI / 6.0 - angle), (ALfloat)(-M_PI / 6.0 - angle)};
+            alSourcefv(source_r, AL_STEREO_ANGLES, angles_r);
+
+            if (output_length_seconds - current_time_seconds < FADEOUT_DURATION)
+            {
+                float fadeout_gain = ((float)output_length_seconds - current_time_seconds) / FADEOUT_DURATION;
+                for (int i = 0; i < 2; i++)
+                {
+                    alSourcef(sources[i], AL_GAIN, fadeout_gain);
+                }
+            }
+
             uint8_t *samples_dst = &mashup_buffer->bytes[batch * batch_size];
             alcRenderSamplesSOFT(device, samples_dst, samples_per_batch);
             processed_samples += samples_per_batch;
@@ -625,6 +652,9 @@ result_t mashup_tracks(buffer_list_t *buffers_l, int output_length_seconds,
 
     alSourceStop(source_l);
     alSourcei(source_l, AL_BUFFER, 0);
+
+    alSourceStop(source_r);
+    alSourcei(source_r, AL_BUFFER, 0);
 
     alDeleteBuffers(num_generated_buffers, al_buffers);
     free(al_buffers);
@@ -691,10 +721,42 @@ result_t initialize_libraries()
     return RESULT_SUCCESS;
 }
 
+result_t float_pcm_from_mp3(char *filename, buffer_list_t **out_float_pcm_buffers)
+{
+    buffer_list_t *pcm_buffers = NULL;
+    buffer_list_t *resampled_buffers = NULL;
+    long sample_rate = 0;
+    int channels = 0;
+    result_t result = RESULT_SUCCESS;
+
+    result = decode_mp3(filename, &sample_rate, &channels, &pcm_buffers);
+
+    if (is_failure(result))
+    {
+        return RESULT_FAILURE;
+    }
+
+    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
+    fprintf(stderr, "decoding sample rate: %li\n", sample_rate);
+
+    result = resample_for_processing(sample_rate, channels, pcm_buffers, &resampled_buffers);
+
+    buffer_list_free(pcm_buffers);
+    pcm_buffers = NULL;
+
+    if (is_failure(result))
+    {
+        return RESULT_FAILURE;
+    }
+
+    *out_float_pcm_buffers = resampled_buffers;
+    return RESULT_SUCCESS;
+}
+
 int main(int argc, char **argv)
 {
     char *outfile, *infile_l, *infile_r;
-    int result;
+    result_t result;
 
     result = parse_args(argc, argv, &infile_l, &infile_r, &outfile);
 
@@ -710,41 +772,34 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    buffer_list_t *pcm_buffers;
-    long sample_rate;
-    int channels;
-
-    result = decode_mp3(infile_l, &sample_rate, &channels, &pcm_buffers);
+    buffer_list_t *mashup_input_l;
+    result = float_pcm_from_mp3(infile_l, &mashup_input_l);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
 
-    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
-    fprintf(stderr, "decoding sample rate: %li\n", sample_rate);
-
-    buffer_list_t *resampled_buffers;
-    result = resample_for_processing(sample_rate, channels, pcm_buffers, &resampled_buffers);
+    buffer_list_t *mashup_input_r;
+    result = float_pcm_from_mp3(infile_r, &mashup_input_r);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
-
-    buffer_list_free(pcm_buffers);
-    pcm_buffers = NULL;
 
     buffer_list_t *mashup_buffers;
-    result = mashup_tracks(resampled_buffers, 90, &mashup_buffers);
+    result = mashup_tracks(mashup_input_l, mashup_input_r, 90, &mashup_buffers);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
 
-    buffer_list_free(resampled_buffers);
-    resampled_buffers = NULL;
+    buffer_list_free(mashup_input_l);
+    mashup_input_l = NULL;
+    buffer_list_free(mashup_input_r);
+    mashup_input_r = NULL;
 
     buffer_list_t *int_buffers;
     result = format_for_encoding(mashup_buffers, &int_buffers);
@@ -755,7 +810,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_free(mashup_buffers);
-    resampled_buffers = NULL;
+    mashup_buffers = NULL;
 
     buffer_list_t *mp3_buffers;
     result = encode_mp3(int_buffers, &mp3_buffers);
@@ -766,7 +821,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_free(int_buffers);
-    resampled_buffers = NULL;
+    int_buffers = NULL;
 
     fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
 
