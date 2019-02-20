@@ -801,8 +801,8 @@ result_t float_pcm_from_mp3(char *filename, int offset_seconds, buffer_list_t **
         return RESULT_FAILURE;
     }
 
-    fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
-    fprintf(stderr, "decoding sample rate: %li\n", sample_rate);
+    // fprintf(stderr, "decoded %i buffers\n", buffer_list_length(pcm_buffers));
+    // fprintf(stderr, "decoding sample rate: %li\n", sample_rate);
 
     result = resample_for_processing(sample_rate, channels, pcm_buffers, &resampled_buffers);
 
@@ -905,7 +905,7 @@ int main(int argc, char **argv)
     buffer_list_free(int_buffers);
     int_buffers = NULL;
 
-    fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
+    // fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
 
     write_buffers(outfile, mp3_buffers);
 
