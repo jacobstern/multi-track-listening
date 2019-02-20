@@ -1,9 +1,11 @@
 #include <ctype.h>
 #include <errno.h>
+#include <getopt.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <math.h>
 #include <memory.h>
 
@@ -121,18 +123,62 @@ void buffer_list_free(buffer_list_t *buffer_list)
 }
 
 result_t parse_args(int argc, char **argv,
-                    char **infile_l, char **infile_r, char **outfile)
+                    char **infile_l, char **infile_r, char **outfile,
+                    int *out_start_l, int *out_start_r, int *out_mix_duration)
 {
     *outfile = NULL;
 
-    int c;
+    static struct option long_options[] =
+        {
+            {"outfile", required_argument, NULL, 'o'},
+            {"start-l", required_argument, NULL, 'l'},
+            {"start-r", required_argument, NULL, 'r'},
+            {"mix-duration", required_argument, NULL, 'd'},
+            {0, 0, 0, 0}};
 
-    while ((c = getopt(argc, argv, "o:")) != -1)
+    int c;
+    int long_option_index = 0;
+    int start_l, start_r, duration;
+
+    while ((c = getopt_long(argc, argv, "o:d:", long_options, &long_option_index)) != -1)
     {
         switch (c)
         {
         case 'o':
             *outfile = optarg;
+            break;
+        case 'l':
+            start_l = strtoimax(optarg, NULL, 10);
+            if (errno == ERANGE)
+            {
+                errno = 0;
+            }
+            else
+            {
+                *out_start_l = start_l;
+            }
+            break;
+        case 'r':
+            start_r = strtoimax(optarg, NULL, 10);
+            if (errno == ERANGE)
+            {
+                errno = 0;
+            }
+            else
+            {
+                *out_start_r = start_r;
+            }
+            break;
+        case 'd':
+            duration = strtoimax(optarg, NULL, 10);
+            if (errno == ERANGE)
+            {
+                errno = 0;
+            }
+            else
+            {
+                *out_mix_duration = duration;
+            }
             break;
         case '?':
             return RESULT_FAILURE; // getopt provides an info message to stdout
@@ -141,7 +187,7 @@ result_t parse_args(int argc, char **argv,
 
     if (*outfile == NULL)
     {
-        fprintf(stderr, "missing required argument -- 'o'\n");
+        fprintf(stderr, "missing required option --outfile'\n");
         return RESULT_FAILURE;
     }
 
@@ -746,13 +792,30 @@ result_t float_pcm_from_mp3(char *filename, buffer_list_t **out_float_pcm_buffer
 int main(int argc, char **argv)
 {
     char *outfile, *infile_l, *infile_r;
+    int start_l = 0, start_r = 0, mix_duration = 90;
     result_t result;
 
-    result = parse_args(argc, argv, &infile_l, &infile_r, &outfile);
+    result = parse_args(argc, argv, &infile_l, &infile_r, &outfile, &start_l, &start_r,
+                        &mix_duration);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
+    }
+
+    if (mix_duration <= 0 || mix_duration > 90)
+    {
+        fprintf(stderr, "invalid mix duration %i\n", mix_duration);
+    }
+
+    if (start_l < 0)
+    {
+        fprintf(stderr, "invalid start_l %i\n", start_l);
+    }
+
+    if (start_r < 0)
+    {
+        fprintf(stderr, "invalid start_r %i\n", start_r);
     }
 
     result = initialize_libraries();
@@ -779,7 +842,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_buffers;
-    result = mashup_tracks(mashup_input_l, mashup_input_r, 90, &mashup_buffers);
+    result = mashup_tracks(mashup_input_l, mashup_input_r, mix_duration, &mashup_buffers);
 
     if (is_failure(result))
     {

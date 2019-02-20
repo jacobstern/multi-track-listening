@@ -12,6 +12,10 @@
       "args": [
         "./apps/multi_track_cruncher/example/1.mp3",
         "./apps/multi_track_cruncher/example/2.mp3",
+        "--start-l",
+        "15",
+        "-d",
+        "60",
         "-o",
         "out.mp3"
       ],
