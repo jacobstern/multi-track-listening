@@ -46,7 +46,8 @@ defmodule MultiTrackListeningWeb.MixController do
     end
   end
 
-  def finalize(conn, _params) do
-    render(conn, "finalize.html")
+  def finalize(conn, %{"id" => id}) do
+    mix = Mixes.get_mix!(id)
+    render(conn, "finalize.html", client_uuid: mix.track_one.client_uuid)
   end
 end

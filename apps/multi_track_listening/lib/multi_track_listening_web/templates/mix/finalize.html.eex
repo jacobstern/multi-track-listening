@@ -1,1 +1,2 @@
 <h2>Finalize Mix</h2>
+<%= content_tag(:audio, nil, id: "preview_audio", controls: true, data: [client_uuid: @client_uuid]) %>

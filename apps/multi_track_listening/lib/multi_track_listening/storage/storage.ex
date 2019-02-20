@@ -3,7 +3,7 @@ defmodule MultiTrackListening.Storage do
   The Storage context.
   """
 
-  defmodule InvalidUuidError do
+  defmodule InvalidFileError do
     defexception [:message]
   end
 
@@ -16,24 +16,24 @@ defmodule MultiTrackListening.Storage do
     Path.join([priv, "media", uuid])
   end
 
-  @spec persist_file(File.Path.t(), String.t()) :: Storage.File.t()
+  @spec persist_file(File.Path.t(), String.t()) :: String.t()
   def persist_file(file_path, content_type) do
     uuid = UUID.uuid4()
     File.cp!(file_path, generate_local_path(uuid))
     Repo.insert!(%Storage.File{backend: "local", content_type: content_type, uuid: uuid})
+    uuid
   end
 
-  @spec get_file_by_uuid(String.t()) :: Storage.File.t()
-  def get_file_by_uuid(uuid) do
+  defp get_file(uuid) do
     case Repo.get_by(Storage.File, uuid: uuid) do
       file = %Storage.File{} -> file
-      _ -> raise %InvalidUuidError{message: "invalid file uuid #{uuid}"}
+      _ -> raise %InvalidFileError{message: "invalid file uuid #{uuid}"}
     end
   end
 
-  @spec delete_file_by_uuid(String.t()) :: :ok
-  def delete_file_by_uuid(uuid) do
-    get_file_by_uuid(uuid) |> Repo.delete!()
+  @spec delete_file(String.t()) :: :ok
+  def delete_file(uuid) do
+    get_file(uuid) |> Repo.delete!()
     File.rm!(generate_local_path(uuid))
   end
 end

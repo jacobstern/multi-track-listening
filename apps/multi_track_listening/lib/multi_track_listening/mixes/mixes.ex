@@ -115,9 +115,9 @@ defmodule MultiTrackListening.Mixes do
       result = {:error, %Ecto.Changeset{}} ->
         result
 
-      {:ok, %TrackUpload{file: file, name: name}} ->
-        file_record = Storage.persist_file(file.path, file.content_type)
-        {:ok, %Track{file_uuid: file_record.uuid, name: name}}
+      {:ok, %TrackUpload{file: file, name: name, client_uuid: client_uuid}} ->
+        uuid = Storage.persist_file(file.path, file.content_type)
+        {:ok, %Track{file_uuid: uuid, name: name, client_uuid: client_uuid}}
     end
   end
 
@@ -131,7 +131,7 @@ defmodule MultiTrackListening.Mixes do
     updated = Repo.update!(Ecto.Changeset.change(mix, track_one: track))
 
     if not is_nil(mix.track_one) do
-      Storage.delete_file_by_uuid(mix.track_one.file_uuid)
+      Storage.delete_file(mix.track_one.file_uuid)
     end
 
     updated
@@ -142,7 +142,7 @@ defmodule MultiTrackListening.Mixes do
     updated = Repo.update!(Ecto.Changeset.change(mix, track_two: track))
 
     if not is_nil(mix.track_two) do
-      Storage.delete_file_by_uuid(mix.track_two.file_uuid)
+      Storage.delete_file(mix.track_two.file_uuid)
     end
 
     updated

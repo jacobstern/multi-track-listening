@@ -1,4 +1,14 @@
-import { ready } from '../page-lifecycle';
+import uniqid from 'uniqid';
+
+import * as PageLifecycle from '../page-lifecycle';
+import * as FileCache from '../file-cache';
+
+const pageIds = {
+  nameInput: 'track_upload_name',
+  fileInput: 'track_upload_file',
+  uuidInput: 'track_upload_client_uuid',
+  submit: 'track_upload_submit'
+};
 
 function guessTrackName(fileName) {
   const trackNumberRegex = /^\d\d?\.?\W+/;
@@ -11,12 +21,37 @@ function handleFileInputChange(event) {
   const file = event.target.files[0];
   if (file) {
     const trackName = guessTrackName(file.name);
-    const nameInput = document.getElementById('track_upload_name');
+    const nameInput = document.getElementById(pageIds.nameInput);
     nameInput.value = trackName;
   }
 }
 
-ready(() => {
-  const fileInput = document.getElementById('track_upload_file');
+function handleFormSubmit(event) {
+  const submitButton = document.getElementById(pageIds.submit);
+  submitButton.disabled = true;
+
+  const fileInput = document.getElementById(pageIds.fileInput);
+  const file = fileInput.files[0];
+  if (file) {
+    const clientUuidInput = document.getElementById(pageIds.uuidInput);
+    const uuid = uniqid();
+
+    clientUuidInput.value = uuid;
+    event.preventDefault();
+    FileCache.putFile(uuid, file)
+      .then(() => {
+        event.target.submit();
+      })
+      .catch(() => {
+        event.target.submit();
+      });
+  }
+}
+
+PageLifecycle.ready(() => {
+  const fileInput = document.getElementById(pageIds.fileInput);
   fileInput.addEventListener('change', handleFileInputChange);
+
+  const form = document.getElementById('track_upload_form');
+  form.addEventListener('submit', handleFormSubmit);
 });
