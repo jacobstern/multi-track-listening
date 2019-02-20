@@ -18,7 +18,7 @@
 
 #define DEFAULT_BUFFER_SAMPLES 65536
 #define STANDARD_SAMPLE_RATE 44100
-#define FADEOUT_DURATION 0.8f
+#define FADEOUT_DURATION 1.0f
 
 extern char *optarg;
 
@@ -299,7 +299,7 @@ result_t format_for_encoding(buffer_list_t *float_pcm_buffers, buffer_list_t **o
     return RESULT_SUCCESS;
 }
 
-result_t decode_mp3(char *filename, long *out_sample_rate, int *out_channels,
+result_t decode_mp3(char *filename, int offset_seconds, long *out_sample_rate, int *out_channels,
                     buffer_list_t **buffer_list)
 {
     int result = 0;
@@ -329,6 +329,35 @@ result_t decode_mp3(char *filename, long *out_sample_rate, int *out_channels,
     if (encoding != MPG123_ENC_SIGNED_16)
     {
         fprintf(stderr, "[mpg123] unexpected encoding %i\n", encoding);
+        mpg123_close(handle);
+        return RESULT_FAILURE;
+    }
+
+    // TODO: only decode as much as we need for the mix
+    off_t start_frame_offset = 0;
+
+    if (offset_seconds > 0)
+    {
+        start_frame_offset = mpg123_timeframe(handle, (double)offset_seconds);
+    }
+
+    if (start_frame_offset < 0)
+    {
+        fprintf(stderr, "[mpg123] failed to determine seek offset: %s\n", mpg123_strerror(handle));
+        mpg123_close(handle);
+        return RESULT_FAILURE;
+    }
+
+    off_t actual_offset = 0;
+
+    if (start_frame_offset > 0)
+    {
+        actual_offset = mpg123_seek_frame(handle, start_frame_offset, SEEK_SET);
+    }
+
+    if (actual_offset < 0)
+    {
+        fprintf(stderr, "[mpg123] failed to seek mp3 stream: %s\n", mpg123_strerror(handle));
         mpg123_close(handle);
         return RESULT_FAILURE;
     }
@@ -757,7 +786,7 @@ result_t initialize_libraries()
     return RESULT_SUCCESS;
 }
 
-result_t float_pcm_from_mp3(char *filename, buffer_list_t **out_float_pcm_buffers)
+result_t float_pcm_from_mp3(char *filename, int offset_seconds, buffer_list_t **out_float_pcm_buffers)
 {
     buffer_list_t *pcm_buffers = NULL;
     buffer_list_t *resampled_buffers = NULL;
@@ -765,7 +794,7 @@ result_t float_pcm_from_mp3(char *filename, buffer_list_t **out_float_pcm_buffer
     int channels = 0;
     result_t result = RESULT_SUCCESS;
 
-    result = decode_mp3(filename, &sample_rate, &channels, &pcm_buffers);
+    result = decode_mp3(filename, offset_seconds, &sample_rate, &channels, &pcm_buffers);
 
     if (is_failure(result))
     {
@@ -826,7 +855,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_input_l;
-    result = float_pcm_from_mp3(infile_l, &mashup_input_l);
+    result = float_pcm_from_mp3(infile_l, start_l, &mashup_input_l);
 
     if (is_failure(result))
     {
@@ -834,7 +863,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_input_r;
-    result = float_pcm_from_mp3(infile_r, &mashup_input_r);
+    result = float_pcm_from_mp3(infile_r, start_r, &mashup_input_r);
 
     if (is_failure(result))
     {
