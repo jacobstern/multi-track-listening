@@ -24,3 +24,6 @@ erl_crash.dump
 
 # Example output
 out.mp3
+
+# VS Code
+.vscode/settings.json
