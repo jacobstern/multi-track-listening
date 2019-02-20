@@ -2,6 +2,7 @@ defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
   alias MultiTrackListening.Mixes
+  alias MultiTrackListening.Storage
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()
@@ -48,6 +49,20 @@ defmodule MultiTrackListeningWeb.MixController do
 
   def finalize(conn, %{"id" => id}) do
     mix = Mixes.get_mix!(id)
-    render(conn, "finalize.html", client_uuid: mix.track_one.client_uuid)
+
+    cond do
+      is_nil(mix.track_one) ->
+        redirect(conn, to: Routes.mix_path(conn, :new_track_one, mix))
+
+      is_nil(mix.track_two) ->
+        redirect(conn, to: Routes.mix_path(conn, :new_track_two, mix))
+
+      true ->
+        render(conn, "finalize.html",
+          mix: mix,
+          track_one_url: Storage.file_url(mix.track_one.file_uuid),
+          track_two_url: Storage.file_url(mix.track_two.file_uuid)
+        )
+    end
   end
 end

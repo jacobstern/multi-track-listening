@@ -36,4 +36,9 @@ defmodule MultiTrackListening.Storage do
     get_file(uuid) |> Repo.delete!()
     File.rm!(generate_local_path(uuid))
   end
+
+  @spec file_url(String.t()) :: String.t()
+  def file_url(uuid) do
+    "/uploads/#{uuid}"
+  end
 end
