@@ -687,10 +687,9 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
         {
             float current_time_seconds = initial_time_seconds + batch / 60.0f;
             float angle = fmodf(current_time_seconds * M_PI * 2.0f / 10.0f, M_PI * 2.0f);
-            float opposite = M_PI * 2.0f - angle;
 
-            alSource3f(source_l, AL_POSITION, (ALfloat)sin(opposite), 0.0f, -(ALfloat)cos(opposite));
-            alSource3f(source_r, AL_POSITION, (ALfloat)sin(angle), 0.0f, -(ALfloat)cos(angle));
+            alSource3f(source_l, AL_POSITION, (ALfloat)cos(angle + M_PI), 0.0f, (ALfloat)sin(angle + M_PI));
+            alSource3f(source_r, AL_POSITION, (ALfloat)cos(angle), 0.0f, (ALfloat)sin(angle));
 
             if (output_length_seconds - current_time_seconds < FADEOUT_DURATION)
             {

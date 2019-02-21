@@ -10,7 +10,9 @@ LDLIBS ?= -lmpg123 -lmp3lame -lswresample -lavutil -lopenal -lm
 
 PROG ?= priv/c/cruncher
 
-PROG_ARGS ?= ./example/1.mp3 ./example/2.mp3 -o out.mp3 -d 60 --start-l 15
+PROG_OUT ?= out.mp3
+
+PROG_ARGS ?= ./example/1.mp3 ./example/2.mp3 -o $(PROG_OUT) -d 60 --start-l 15
 
 NIX_SHELL ?= nix-shell --pure
 
@@ -27,4 +29,4 @@ valgrind: $(PROG)
 	valgrind --leak-check=yes $(PROG) $(PROG_ARGS)
 
 clean:
-	rm -f $(PROG) $(OBJ) $(BEAM_FILES)
+	rm -f $(PROG) $(OBJ) $(BEAM_FILES) $(PROG_OUT)

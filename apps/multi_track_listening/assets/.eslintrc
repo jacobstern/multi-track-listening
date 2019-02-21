@@ -1,0 +1,20 @@
+{
+  "extends": "eslint:recommended",
+  "overrides": [
+    {
+      "files": ["webpack.config.js"],
+      "env": {
+        "node": true,
+        "es6": true
+      }
+    }
+  ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "es6": true
+  }
+}

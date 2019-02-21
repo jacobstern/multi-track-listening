@@ -12,7 +12,7 @@ function loadAudioBufferFetch(url) {
 }
 
 function loadAudioBuffer(url, clientUuid) {
-  if (Boolean(clientUuid)) {
+  if (clientUuid) {
     return FileCache.getFileBlob(clientUuid)
       .then(blob => new Response(blob).arrayBuffer())
       .catch(() => loadAudioBufferFetch(url));
@@ -20,46 +20,64 @@ function loadAudioBuffer(url, clientUuid) {
   return loadAudioBufferFetch(url);
 }
 
-function makeHandlePreviewStop(previewHandle) {
+function makeHandlePreviewStop(previewBuffers, stopPreview) {
   const handler = {
     handleEvent: event => {
       const previewButton = event.target;
       previewButton.removeEventListener('click', handler);
-      previewButton.addEventListener('click', handlePreviewPlay);
-      MixPreview.stopPreview(previewHandle);
+      previewButton.addEventListener(
+        'click',
+        makeHandlePreviewPlay(previewBuffers)
+      );
+      stopPreview();
       previewButton.value = 'Preview';
     }
   };
   return handler;
 }
 
-function handlePreviewPlay(event) {
-  event.preventDefault();
-  const previewButton = event.target;
-  Promise.all([
-    loadAudioBuffer(
-      previewButton.dataset.trackOneUrl,
-      previewButton.dataset.trackOneClientUuid
-    ),
-    loadAudioBuffer(
-      previewButton.dataset.trackTwoUrl,
-      previewButton.dataset.trackTwoClientUuid
-    )
-  ]).then(([trackOneBuffer, trackTwoBuffer]) => {
-    previewButton.value = 'Stop Preview';
-    const previewHandle = MixPreview.previewMix(trackOneBuffer, trackTwoBuffer);
-    previewButton.removeEventListener('click', handlePreviewPlay);
-    previewButton.addEventListener(
-      'click',
-      makeHandlePreviewStop(previewHandle)
-    );
-  });
+function makeHandlePreviewPlay(previewBuffers) {
+  const handler = {
+    handleEvent: event => {
+      const previewButton = event.target;
+
+      const continuation = buffers => {
+        const stopPreview = MixPreview.startPreview(buffers);
+        previewButton.disabled = false;
+        previewButton.value = 'Stop Preview';
+        previewButton.removeEventListener('click', handler);
+        previewButton.addEventListener(
+          'click',
+          makeHandlePreviewStop(buffers, stopPreview)
+        );
+      };
+
+      if (previewBuffers) {
+        continuation(previewBuffers);
+      } else {
+        previewButton.disabled = true;
+        return Promise.all([
+          loadAudioBuffer(
+            previewButton.dataset.trackOneUrl,
+            previewButton.dataset.trackOneClientUuid
+          ),
+          loadAudioBuffer(
+            previewButton.dataset.trackTwoUrl,
+            previewButton.dataset.trackTwoClientUuid
+          )
+        ]).then(buffers =>
+          MixPreview.preparePreviewBuffers(...buffers).then(continuation)
+        );
+      }
+    }
+  };
+  return handler;
 }
 
 PageLifecycle.ready(() => {
   const previewButton = document.getElementById(pageIds.previewButton);
   if (MixPreview.isSupported) {
-    previewButton.addEventListener('click', handlePreviewPlay);
+    previewButton.addEventListener('click', makeHandlePreviewPlay());
   } else {
     const previewStatus = document.getElementById(pageIds.previewStatus);
     previewStatus.innerText = 'This browser does not support mix preview.';

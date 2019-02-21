@@ -17,7 +17,7 @@ function generateDynamicEntries() {
   }, {});
 }
 
-module.exports = (env, options) => ({
+module.exports = (/* env, options */) => ({
   optimization: {
     minimizer: [
       new UglifyJsPlugin({ cache: true, parallel: true, sourceMap: false }),
