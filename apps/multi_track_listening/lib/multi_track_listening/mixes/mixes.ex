@@ -10,19 +10,6 @@ defmodule MultiTrackListening.Mixes do
   alias MultiTrackListening.Mixes.{Mix, TrackUpload, Track}
 
   @doc """
-  Returns the list of mixes.
-
-  ## Examples
-
-      iex> list_mixes()
-      [%Mix{}, ...]
-
-  """
-  def list_mixes do
-    Repo.all(Mix)
-  end
-
-  @doc """
   Gets a single mix.
 
   Raises `Ecto.NoResultsError` if the Mix does not exist.
@@ -36,7 +23,7 @@ defmodule MultiTrackListening.Mixes do
       ** (Ecto.NoResultsError)
 
   """
-  def get_mix!(id), do: Repo.get!(Mix, id)
+  def get_mix!(id), do: Repo.get!(Mix, id) |> Repo.preload(:parameters)
 
   @doc """
   Creates a mix.

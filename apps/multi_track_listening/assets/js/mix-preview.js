@@ -28,7 +28,7 @@ export function preparePreviewBuffers(trackOneBuffer, trackTwoBuffer) {
   });
 }
 
-export function startPreview(previewBuffers) {
+export function startPreview(previewBuffers, previewParameters) {
   const [trackOneAudioBuffer, trackTwoAudioBuffer] = previewBuffers;
 
   prefixAudioContext();
@@ -80,7 +80,8 @@ export function startPreview(previewBuffers) {
     trackOnePanner,
     trackTwoPanner,
     requestAnimationFrameToken,
-    context
+    context,
+    parameters: previewParameters
   };
 
   const requestAnimationFrameToken = requestAnimationFrame(

@@ -49,6 +49,7 @@ defmodule MultiTrackListeningWeb.MixController do
 
   def finalize(conn, %{"id" => id}) do
     mix = Mixes.get_mix!(id)
+    changeset = Mixes.change_mix(mix)
 
     cond do
       is_nil(mix.track_one) ->
@@ -61,7 +62,8 @@ defmodule MultiTrackListeningWeb.MixController do
         render(conn, "finalize.html",
           mix: mix,
           track_one_url: Storage.file_url(mix.track_one.file_uuid),
-          track_two_url: Storage.file_url(mix.track_two.file_uuid)
+          track_two_url: Storage.file_url(mix.track_two.file_uuid),
+          changeset: changeset
         )
     end
   end
