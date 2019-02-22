@@ -1,3 +1,5 @@
+const FADEOUT_DURATION = 0.8;
+
 function prefixAudioContext() {
   window.AudioContext = window.AudioContext || window.webkitAudioContext;
 }
@@ -28,17 +30,39 @@ export function preparePreviewBuffers(trackOneBuffer, trackTwoBuffer) {
   });
 }
 
+function startSource(source, start, currentTime, mixDuration) {
+  if (!source.buffer) {
+    throw new Error('Attempt to start source with no buffer');
+  }
+
+  const duration = source.buffer.duration;
+  if (start >= duration) {
+    return;
+  }
+
+  source.loop = true;
+  source.loopEnd = duration;
+  source.loopStart = start;
+  source.start(currentTime, start);
+  source.stop(currentTime + mixDuration);
+}
+
 export function startPreview(previewBuffers, previewParameters) {
   const [trackOneAudioBuffer, trackTwoAudioBuffer] = previewBuffers;
 
   prefixAudioContext();
   const context = new AudioContext();
+  const currentTime = context.currentTime;
 
   const trackOneSource = context.createBufferSource();
   const trackTwoSource = context.createBufferSource();
 
   trackOneSource.buffer = trackOneAudioBuffer;
   trackTwoSource.buffer = trackTwoAudioBuffer;
+
+  const { trackOneStart, trackTwoStart, mixDuration } = previewParameters;
+  startSource(trackOneSource, trackOneStart, currentTime, mixDuration);
+  startSource(trackTwoSource, trackTwoStart, currentTime, mixDuration);
 
   const [trackOnePanner, trackTwoPanner] = [trackOneSource, trackTwoSource].map(
     source => {
@@ -65,11 +89,15 @@ export function startPreview(previewBuffers, previewParameters) {
   trackOnePanner.setPosition(-1, 0, 0);
   trackTwoPanner.setPosition(1, 0, 0);
 
-  trackOneSource.start();
-  trackTwoSource.start();
+  const masterGain = context.createGain();
+  const endTimestamp = currentTime + mixDuration;
+  masterGain.gain.setValueAtTime(1.0, endTimestamp - FADEOUT_DURATION);
+  masterGain.gain.exponentialRampToValueAtTime(0.01, endTimestamp);
+  masterGain.gain.setValueAtTime(0, endTimestamp);
+  trackOnePanner.connect(masterGain);
+  trackTwoPanner.connect(masterGain);
 
-  trackOnePanner.connect(context.destination);
-  trackTwoPanner.connect(context.destination);
+  masterGain.connect(context.destination);
 
   context.listener.setOrientation(0, 0, -1, 0, 1, 0);
 
@@ -79,12 +107,11 @@ export function startPreview(previewBuffers, previewParameters) {
     trackTwoSource,
     trackOnePanner,
     trackTwoPanner,
-    requestAnimationFrameToken,
     context,
     parameters: previewParameters
   };
 
-  const requestAnimationFrameToken = requestAnimationFrame(
+  preview.requestAnimationFrameToken = requestAnimationFrame(
     previewAnimationFrame.bind(null, preview)
   );
 

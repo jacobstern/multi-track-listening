@@ -18,7 +18,9 @@
 
 #define DEFAULT_BUFFER_SAMPLES 65536
 #define STANDARD_SAMPLE_RATE 44100
-#define FADEOUT_DURATION 1.0f
+
+/* Mixing constants */
+#define FADEOUT_DURATION 0.8f
 
 extern char *optarg;
 
@@ -670,6 +672,8 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
     ALsizei total_samples = STANDARD_SAMPLE_RATE * output_length_seconds;
     ALsizei processed_samples = 0;
 
+    float fadeout_start_time = (float)output_length_seconds - FADEOUT_DURATION;
+
     mashup_buffers = buffer_list_new();
     while (processed_samples < total_samples)
     {
@@ -691,9 +695,17 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
             alSource3f(source_l, AL_POSITION, (ALfloat)cos(angle + M_PI), 0.0f, (ALfloat)sin(angle + M_PI));
             alSource3f(source_r, AL_POSITION, (ALfloat)cos(angle), 0.0f, (ALfloat)sin(angle));
 
-            if (output_length_seconds - current_time_seconds < FADEOUT_DURATION)
+            if (current_time_seconds >= output_length_seconds)
             {
-                float fadeout_gain = ((float)output_length_seconds - current_time_seconds) / FADEOUT_DURATION;
+                alSourcef(source_l, AL_GAIN, 0.0f);
+                alSourcef(source_r, AL_GAIN, 0.0f);
+            }
+            else if (current_time_seconds >= fadeout_start_time)
+            {
+                // See https://webaudio.github.io/web-audio-api/#dom-audioparam-exponentialramptovalueattime
+                float fadeout_gain = powf(
+                    0.01f,
+                    (current_time_seconds - fadeout_start_time) / FADEOUT_DURATION);
                 for (int i = 0; i < 2; i++)
                 {
                     alSourcef(sources[i], AL_GAIN, fadeout_gain);
