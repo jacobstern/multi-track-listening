@@ -47,10 +47,7 @@ defmodule MultiTrackListeningWeb.MixController do
     end
   end
 
-  def finalize(conn, %{"id" => id}) do
-    mix = Mixes.get_mix!(id)
-    changeset = Mixes.change_mix(mix)
-
+  defp render_finalize_page(conn, mix, changeset) do
     cond do
       is_nil(mix.track_one) ->
         redirect(conn, to: Routes.mix_path(conn, :new_track_one, mix))
@@ -65,6 +62,37 @@ defmodule MultiTrackListeningWeb.MixController do
           track_two_url: Storage.file_url(mix.track_two.file_uuid),
           changeset: changeset
         )
+    end
+  end
+
+  def finalize(conn, %{"id" => id}) do
+    mix = Mixes.get_mix!(id)
+    changeset = Mixes.change_mix(mix)
+    render_finalize_page(conn, mix, changeset)
+  end
+
+  def finalize_submit(conn, %{"id" => id, "mix" => params}) do
+    mix = Mixes.get_mix!(id)
+
+    case Mixes.update_mix(mix, params) do
+      {:ok, mix} ->
+        Mixes.start_render(mix)
+        redirect(conn, to: Routes.mix_path(conn, :render_status, mix))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render_finalize_page(conn, mix, changeset)
+    end
+  end
+
+  def render_status(conn, %{"id" => id}) do
+    mix = Mixes.get_mix!(id)
+
+    case Mixes.get_current_render(mix) do
+      current_render when not is_nil(current_render) ->
+        render(conn, "render-status.html", mix: mix, current_render: current_render)
+
+      _ ->
+        redirect(conn, to: Routes.mix_path(conn, :finalize, mix))
     end
   end
 end

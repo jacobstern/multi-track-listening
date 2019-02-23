@@ -7,7 +7,7 @@ defmodule MultiTrackListening.Mixes do
   alias MultiTrackListening.Repo
   alias MultiTrackListening.Storage
 
-  alias MultiTrackListening.Mixes.{Mix, TrackUpload, Track}
+  alias MultiTrackListening.Mixes.{Mix, TrackUpload, Track, Render}
 
   @doc """
   Gets a single mix.
@@ -64,6 +64,16 @@ defmodule MultiTrackListening.Mixes do
     mix
     |> Mix.changeset(attrs)
     |> Repo.update()
+  end
+
+  def start_render(%Mix{} = mix) do
+    render = Repo.insert!(%Render{mix: mix})
+    render
+  end
+
+  def get_current_render(%Mix{id: mix_id}) do
+    from(r in Render, where: r.mix_id == ^mix_id, order_by: [desc: r.inserted_at], limit: 1)
+    |> Repo.one()
   end
 
   @doc """

@@ -42,14 +42,16 @@ function loadAudioBuffer(url, clientUuid) {
 function makePreviewStopHandler(previewBuffers, stopPreview) {
   const handler = {
     handleEvent: event => {
+      event.preventDefault();
       const previewButton = event.target;
+
       previewButton.removeEventListener('click', handler);
       previewButton.addEventListener(
         'click',
         makePreviewPlayHandler(previewBuffers)
       );
       stopPreview();
-      previewButton.value = 'Preview';
+      previewButton.innerText = 'Preview';
     }
   };
   return handler;
@@ -58,6 +60,7 @@ function makePreviewStopHandler(previewBuffers, stopPreview) {
 function makePreviewPlayHandler(previewBuffers) {
   const handler = {
     handleEvent: event => {
+      event.preventDefault();
       const previewButton = event.target;
 
       const previewWithBuffers = buffers => {
@@ -73,7 +76,7 @@ function makePreviewPlayHandler(previewBuffers) {
         };
         const stopPreview = MixPreview.startPreview(buffers, previewParameters);
         previewButton.disabled = false;
-        previewButton.value = 'Stop Preview';
+        previewButton.innerText = 'Stop';
         previewButton.removeEventListener('click', handler);
         previewButton.addEventListener(
           'click',

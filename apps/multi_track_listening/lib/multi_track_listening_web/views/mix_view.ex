@@ -12,4 +12,8 @@ defmodule MultiTrackListeningWeb.MixView do
   def render("scripts.finalize.html", assigns) do
     render_script_tag(assigns.conn, "finalize-mix.js")
   end
+
+  def display_mix_render_status(:requested) do
+    "Requested"
+  end
 end

@@ -7,7 +7,7 @@ defmodule MultiTrackListening.Repo.Migrations.CreateMixParameters do
       add :track_two_start, :integer, null: false
       add :mix_duration, :integer, null: false
 
-      add :mix_id, references(:mixes)
+      add :mix_id, references(:mixes, on_delete: :delete_all)
 
       timestamps()
     end

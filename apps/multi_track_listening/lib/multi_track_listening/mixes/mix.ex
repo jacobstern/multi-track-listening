@@ -7,7 +7,7 @@ defmodule MultiTrackListening.Mixes.Mix do
     embeds_one :track_one, Track, on_replace: :delete
     embeds_one :track_two, Track, on_replace: :delete
 
-    has_one :parameters, MixParameters, on_replace: :delete
+    has_one :parameters, MixParameters
 
     timestamps()
   end

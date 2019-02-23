@@ -1,6 +1,6 @@
 <h2>Finalize Mix</h2>
 
-<%= form_for @changeset, Routes.mix_path(@conn, :create_track_one, @mix), fn f -> %>
+<%= form_for @changeset, Routes.mix_path(@conn, :finalize_submit, @mix), fn f -> %>
 
   <%= inputs_for f, :parameters, fn pf -> %>
     <%= label pf, :track_one_start %>
@@ -15,14 +15,18 @@
     <%= number_input pf, :mix_duration, step: 1, min: 5, max: 90 %>
     <%= error_tag pf, :mix_duration %>
   <% end %>
+
+
+  <%= submit "Preview", id: "preview_button",
+    data: [
+      track_one_client_uuid: @mix.track_one.client_uuid,
+      track_two_client_uuid: @mix.track_two.client_uuid,
+      track_one_url: @track_one_url,
+      track_two_url: @track_two_url
+    ] %>
+
+  <span id="preview_status"></span>
+
+  <%= submit "Render" %>
+
 <% end %>
-
-<%= tag :input, value: "Preview", type: "button", id: "preview_button",
-  data: [
-    track_one_client_uuid: @mix.track_one.client_uuid,
-    track_two_client_uuid: @mix.track_two.client_uuid,
-    track_one_url: @track_one_url,
-    track_two_url: @track_two_url
-  ] %>
-
-<span id="preview_status"></span>
