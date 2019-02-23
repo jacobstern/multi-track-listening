@@ -4,7 +4,7 @@ defmodule MultiTrackListening.Mixes.Render do
 
   alias MultiTrackListening.Mixes.Mix
 
-  defenum(StatusEnum, requested: 0, in_progress: 1, finished: 2, error: 3, canceled: 4)
+  defenum(StatusEnum, requested: 0, in_progress: 1, finished: 2, error: 3, canceled: 4, aborted: 5)
 
   schema "mix_renders" do
     field :result_file_uuid, :string

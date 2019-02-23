@@ -1,5 +1,0 @@
-<h2>Render Status</h2>
-
-<span>
-  <%= display_mix_render_status @current_render.status %>
-</span>

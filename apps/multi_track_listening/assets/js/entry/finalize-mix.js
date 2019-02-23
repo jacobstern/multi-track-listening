@@ -65,7 +65,10 @@ function loadAudioBuffer(url, clientUuid) {
 function makePreviewStopHandler(previewBuffers, stopPreview) {
   const handler = {
     handleEvent: event => {
-      event.preventDefault();
+      if (event.type === 'click') {
+        event.preventDefault();
+      }
+
       const previewButton = document.getElementById(pageIds.previewButton);
       const finalizeMixForm = document.getElementById(pageIds.finalizeMixForm);
 

@@ -2,6 +2,7 @@ defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
   alias MultiTrackListening.Mixes
+  alias MultiTrackListening.Mixes.Render
   alias MultiTrackListening.Storage
 
   def create(conn, _params) do
@@ -71,28 +72,25 @@ defmodule MultiTrackListeningWeb.MixController do
     render_finalize_page(conn, mix, changeset)
   end
 
-  def finalize_submit(conn, %{"id" => id, "mix" => params}) do
+  def create_mix_render(conn, %{"id" => id, "mix" => params}) do
     mix = Mixes.get_mix!(id)
 
     case Mixes.update_mix(mix, params) do
       {:ok, mix} ->
-        Mixes.start_render(mix)
-        redirect(conn, to: Routes.mix_path(conn, :render_status, mix))
+        mix_render = Mixes.start_render(mix)
+
+        redirect(conn,
+          to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id)
+        )
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render_finalize_page(conn, mix, changeset)
     end
   end
 
-  def render_status(conn, %{"id" => id}) do
+  def mix_render(conn, %{"id" => id, "render_id" => render_id}) do
     mix = Mixes.get_mix!(id)
-
-    case Mixes.get_current_render(mix) do
-      current_render when not is_nil(current_render) ->
-        render(conn, "render-status.html", mix: mix, current_render: current_render)
-
-      _ ->
-        redirect(conn, to: Routes.mix_path(conn, :finalize, mix))
-    end
+    mix_render = Mixes.get_mix_render!(id, render_id)
+    render(conn, "mix-render.html", mix: mix, mix_render: mix_render)
   end
 end

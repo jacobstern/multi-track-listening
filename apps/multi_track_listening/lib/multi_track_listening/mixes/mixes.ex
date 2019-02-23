@@ -76,6 +76,10 @@ defmodule MultiTrackListening.Mixes do
     |> Repo.one()
   end
 
+  def get_mix_render!(mix_id, render_id) do
+    Repo.get_by!(Render, mix_id: mix_id, id: render_id)
+  end
+
   @doc """
   Deletes a Mix.
 
