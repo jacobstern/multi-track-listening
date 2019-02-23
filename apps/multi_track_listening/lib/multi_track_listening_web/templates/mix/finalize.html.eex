@@ -1,6 +1,6 @@
 <h2>Finalize Mix</h2>
 
-<%= form_for @changeset, Routes.mix_path(@conn, :finalize_submit, @mix), fn f -> %>
+<%= form_for @changeset, Routes.mix_path(@conn, :finalize_submit, @mix), [id: "finalize_mix_form"], fn f -> %>
 
   <%= inputs_for f, :parameters, fn pf -> %>
     <%= label pf, :track_one_start %>

@@ -3,6 +3,7 @@ import * as MixPreview from '../mix-preview';
 import * as FileCache from '../file-cache';
 
 const pageIds = {
+  finalizeMixForm: 'finalize_mix_form',
   previewButton: 'preview_button',
   previewStatus: 'preview_status',
   trackOneStartInput: 'mix_parameters_track_one_start',
@@ -12,6 +13,28 @@ const pageIds = {
 
 function loadAudioBufferFetch(url) {
   return fetch(url).then(response => response.arrayBuffer());
+}
+
+function suppressEnterKeyHandler(event) {
+  if (event.keyCode == 13 || event.keyCode == 32) {
+    event.preventDefault();
+  }
+}
+
+function getAllFormInputs() {
+  return document.querySelectorAll(`#${pageIds.finalizeMixForm} input`);
+}
+
+function suppressEnterKeySubmit() {
+  getAllFormInputs().forEach(input => {
+    input.addEventListener('keypress', suppressEnterKeyHandler);
+  });
+}
+
+function enableEnterKeySubmit() {
+  getAllFormInputs().forEach(input => {
+    input.removeEventListener('keypress', suppressEnterKeyHandler);
+  });
 }
 
 function getArrayBufferFromBlob(blob) {
@@ -43,15 +66,21 @@ function makePreviewStopHandler(previewBuffers, stopPreview) {
   const handler = {
     handleEvent: event => {
       event.preventDefault();
-      const previewButton = event.target;
+      const previewButton = document.getElementById(pageIds.previewButton);
+      const finalizeMixForm = document.getElementById(pageIds.finalizeMixForm);
 
+      // In makePreviewPlayHandler(), this event is applied to both listeners at once
       previewButton.removeEventListener('click', handler);
+      finalizeMixForm.removeEventListener('input', handler);
+
       previewButton.addEventListener(
         'click',
         makePreviewPlayHandler(previewBuffers)
       );
       stopPreview();
       previewButton.innerText = 'Preview';
+
+      enableEnterKeySubmit();
     }
   };
   return handler;
@@ -61,10 +90,16 @@ function makePreviewPlayHandler(previewBuffers) {
   const handler = {
     handleEvent: event => {
       event.preventDefault();
-      const previewButton = event.target;
 
+      const previewButton = document.getElementById(pageIds.previewButton);
       const previewWithBuffers = buffers => {
-        const [trackOneStartInput, trackTwoStartInput, mixDurationInput] = [
+        const [
+          finalizeMixForm,
+          trackOneStartInput,
+          trackTwoStartInput,
+          mixDurationInput
+        ] = [
+          pageIds.finalizeMixForm,
           pageIds.trackOneStartInput,
           pageIds.trackTwoStartInput,
           pageIds.mixDurationInput
@@ -78,10 +113,15 @@ function makePreviewPlayHandler(previewBuffers) {
         previewButton.disabled = false;
         previewButton.innerText = 'Stop';
         previewButton.removeEventListener('click', handler);
-        previewButton.addEventListener(
-          'click',
-          makePreviewStopHandler(buffers, stopPreview)
-        );
+
+        const stopPreviewHandler = makePreviewStopHandler(buffers, stopPreview);
+        previewButton.addEventListener('click', stopPreviewHandler);
+        finalizeMixForm.addEventListener('input', stopPreviewHandler);
+
+        // This is somewhat evil, but it does prevent the awkward behavior of
+        // Enter stopping the preview. The behavior will be enabled again when
+        // the form is edited or preview is stopped by clicking the button.
+        suppressEnterKeySubmit();
       };
 
       if (previewBuffers) {
