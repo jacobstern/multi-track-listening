@@ -68,6 +68,7 @@ defmodule MultiTrackListening.Mixes do
 
   def start_render(%Mix{} = mix) do
     render = Repo.insert!(%Render{mix: mix})
+    {:do_render, [mix, render]} |> Honeydew.async(:mix_render_queue)
     render
   end
 
@@ -78,6 +79,21 @@ defmodule MultiTrackListening.Mixes do
 
   def get_mix_render!(mix_id, render_id) do
     Repo.get_by!(Render, mix_id: mix_id, id: render_id)
+  end
+
+  def update_render!(render, updates) do
+    Ecto.Changeset.change(render, updates) |> Repo.update!()
+  end
+
+  def update_render_when_not_canceled(render, updates) do
+    case from(r in Render,
+           where: r.id == ^render.id and r.status != 4 and r.status != 5,
+           select: r
+         )
+         |> Repo.update_all(set: updates) do
+      {1, found} -> {:ok, found}
+      {_, _} -> {:error, :canceled}
+    end
   end
 
   @doc """

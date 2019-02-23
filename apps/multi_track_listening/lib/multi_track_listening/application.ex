@@ -16,6 +16,9 @@ defmodule MultiTrackListening.Application do
       # {MultiTrackListening.Worker, arg},
     ]
 
+    :ok = Honeydew.start_queue(:mix_render_queue)
+    :ok = Honeydew.start_workers(:mix_render_queue, MultiTrackListening.Mixes.RenderWorker)
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: MultiTrackListening.Supervisor]

@@ -25,7 +25,7 @@ defmodule MultiTrackListeningWeb.Router do
     post "/mixes/:id/track-two", MixController, :create_track_two
     get "/mixes/:id/finalize", MixController, :finalize
     put "/mixes/:id/finalize", MixController, :create_mix_render
-    get "/mixes/:id/render/:render_id", MixController, :mix_render
+    get "/mixes/:id/renders/:render_id", MixController, :mix_render
   end
 
   # Other scopes may use custom stacks.

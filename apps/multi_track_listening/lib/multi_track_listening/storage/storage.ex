@@ -41,4 +41,9 @@ defmodule MultiTrackListening.Storage do
   def file_url(uuid) do
     "/uploads/#{uuid}"
   end
+
+  @spec copy_file_locally!(String.t(), File.Path.t()) :: :ok
+  def copy_file_locally!(uuid, destination_path) do
+    File.cp!(generate_local_path(uuid), destination_path)
+  end
 end

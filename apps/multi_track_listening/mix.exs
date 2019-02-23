@@ -48,7 +48,8 @@ defmodule MultiTrackListening.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:uuid, "~> 1.1"},
-      {:ecto_enum, "~> 1.2"}
+      {:ecto_enum, "~> 1.2"},
+      {:honeydew, "~> 1.3.0"}
     ]
   end
 
