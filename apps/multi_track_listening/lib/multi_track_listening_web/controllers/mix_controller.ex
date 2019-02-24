@@ -58,8 +58,6 @@ defmodule MultiTrackListeningWeb.MixController do
       true ->
         render(conn, "finalize.html",
           mix: mix,
-          track_one_url: Storage.file_url(mix.track_one.file_uuid),
-          track_two_url: Storage.file_url(mix.track_two.file_uuid),
           changeset: changeset
         )
     end

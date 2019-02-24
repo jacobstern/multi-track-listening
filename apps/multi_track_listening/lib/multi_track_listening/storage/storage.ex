@@ -3,6 +3,8 @@ defmodule MultiTrackListening.Storage do
   The Storage context.
   """
 
+  @type uuid_t() :: String.t()
+
   defmodule InvalidFileError do
     defexception [:message]
   end
@@ -10,13 +12,14 @@ defmodule MultiTrackListening.Storage do
   import Ecto.Query, warn: false
   alias MultiTrackListening.Repo
   alias MultiTrackListening.Storage
+  alias Plug.Conn
 
   defp generate_local_path(uuid) do
     priv = :code.priv_dir(:multi_track_listening)
     Path.join([priv, "media", uuid])
   end
 
-  @spec persist_file(File.Path.t(), String.t()) :: String.t()
+  @spec persist_file(File.Path.t(), uuid_t()) :: uuid_t()
   def persist_file(file_path, content_type) do
     uuid = UUID.uuid4()
     File.cp!(file_path, generate_local_path(uuid))
@@ -31,18 +34,22 @@ defmodule MultiTrackListening.Storage do
     end
   end
 
-  @spec delete_file(String.t()) :: :ok
+  @spec delete_file(uuid_t()) :: :ok
   def delete_file(uuid) do
     get_file(uuid) |> Repo.delete!()
     File.rm!(generate_local_path(uuid))
   end
 
-  @spec file_url(String.t()) :: String.t()
-  def file_url(uuid) do
-    "/uploads/#{uuid}"
+  @spec serve_file!(uuid_t(), Plug.Conn.t()) :: Plug.Conn.t()
+  def serve_file!(uuid, conn) do
+    %Storage.File{content_type: content_type} = get_file(uuid)
+
+    conn
+    |> Conn.put_resp_content_type(content_type)
+    |> Conn.send_file(200, generate_local_path(uuid))
   end
 
-  @spec copy_file_locally!(String.t(), File.Path.t()) :: :ok
+  @spec copy_file_locally!(uuid_t(), File.Path.t()) :: :ok
   def copy_file_locally!(uuid, destination_path) do
     File.cp!(generate_local_path(uuid), destination_path)
   end

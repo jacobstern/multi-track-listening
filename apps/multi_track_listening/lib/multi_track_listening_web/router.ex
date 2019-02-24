@@ -18,6 +18,8 @@ defmodule MultiTrackListeningWeb.Router do
 
     get "/", HomeController, :index
 
+    get "/uploads/:uuid", StorageController, :serve_file
+
     post "/mixes/create", MixController, :create
     get "/mixes/:id/track-one", MixController, :new_track_one
     post "/mixes/:id/track-one", MixController, :create_track_one
