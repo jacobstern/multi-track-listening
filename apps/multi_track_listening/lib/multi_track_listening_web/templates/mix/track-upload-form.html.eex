@@ -7,7 +7,11 @@
     <%= text_input f, :name, required: true %>
     <%= error_tag f, :name %>
 
-    <%= hidden_input f, :client_uuid %>
+    <%= if @track do %>
+      <%= hidden_input f, :client_uuid, value: @track.client_uuid %>
+    <% else %>
+      <%= hidden_input f, :client_uuid %>
+    <% end %>
 
     <%= submit "Upload", id: "track_upload_submit" %>
 <% end %>

@@ -2,7 +2,6 @@ defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
   alias MultiTrackListening.Mixes
-  alias MultiTrackListening.Storage
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()

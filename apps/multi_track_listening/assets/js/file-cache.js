@@ -13,3 +13,7 @@ export function putFile(key, file) {
 export function getFileBlob(key) {
   return store.getItem(key);
 }
+
+export function removeFile(key) {
+  return store.removeItem(key);
+}

@@ -34,11 +34,19 @@ function handleFormSubmit(event) {
   const file = fileInput.files[0];
   if (file) {
     const clientUuidInput = document.getElementById(pageIds.uuidInput);
+    const previousValue = clientUuidInput.value;
+
     const uuid = uniqid();
 
     clientUuidInput.value = uuid;
     event.preventDefault();
     FileCache.putFile(uuid, file)
+      .then(() => {
+        if (previousValue) {
+          // Previously cached file no longer relevant
+          FileCache.removeFile(previousValue);
+        }
+      })
       .then(() => {
         event.target.submit();
       })
