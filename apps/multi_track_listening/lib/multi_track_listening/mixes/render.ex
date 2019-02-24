@@ -6,6 +6,10 @@ defmodule MultiTrackListening.Mixes.Render do
 
   defenum(StatusEnum, requested: 0, in_progress: 1, finished: 2, error: 3, canceled: 4, aborted: 5)
 
+  def is_canceled(render) do
+    render.status == :canceled || render.status == :aborted
+  end
+
   schema "mix_renders" do
     field :result_file_uuid, :string
     field :status, StatusEnum, default: :requested

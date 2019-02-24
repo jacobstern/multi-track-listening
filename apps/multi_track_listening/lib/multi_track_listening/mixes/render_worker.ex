@@ -1,40 +1,54 @@
 defmodule MultiTrackListening.Mixes.RenderWorker do
   @behaviour Honeydew.Worker
 
+  alias MultiTrackCruncher.Cruncher
   alias MultiTrackListening.Mixes
+  alias MultiTrackListening.Mixes.{Mix}
   alias MultiTrackListening.Storage
 
   defp unique_temp_path() do
     uuid = UUID.uuid4()
     priv = :code.priv_dir(:multi_track_listening)
-    Path.join([priv, "tmp", uuid])
+    Path.join(priv, "tmp/#{uuid}")
   end
 
-  defp should_cancel(render) do
-    render.status == :canceled || render.status == :aborted
-  end
+  def do_render(mix = %Mix{parameters: parameters}, render) do
+    with {:ok, _} <- Mixes.update_render_when_not_canceled(render, status: :in_progress) do
+      temp_directory = unique_temp_path()
+      File.mkdir!(temp_directory)
 
-  def do_render(mix, render) do
-    check_cancel = fn ->
-      if not should_cancel(Mixes.get_mix_render!(mix.id, render.id)) do
-        :ok
-      end
-    end
+      [track_one_path, track_two_path, destination_path] =
+        Enum.map(
+          ["track_one.mp3", "track_two.mp3", "output.mp3"],
+          &Path.join(temp_directory, &1)
+        )
 
-    {:ok, _} = Mixes.update_render_when_not_canceled(render, status: :in_progress)
+      try do
+        Storage.copy_file_locally!(mix.track_one.file_uuid, track_one_path)
+        Storage.copy_file_locally!(mix.track_two.file_uuid, track_two_path)
 
-    track_one_local_path = unique_temp_path()
-    track_two_local_path = unique_temp_path()
-    output_path = unique_temp_path()
+        Cruncher.crunch_files(track_one_path, track_two_path, destination_path,
+          mix_duration: parameters.mix_duration,
+          start_l: parameters.track_one_start,
+          start_r: parameters.track_two_start
+        )
 
-    try do
-      with :ok <- check_cancel.() do
-        Storage.copy_file_locally!(mix.track_one.file_uuid, track_one_local_path)
-        Storage.copy_file_locally!(mix.track_two.file_uuid, track_two_local_path)
-      end
-    after
-      for path <- [track_one_local_path, track_two_local_path, output_path] do
-        File.rm(path)
+        file_uuid = Storage.persist_file(destination_path, "audio/mpeg")
+
+        Mixes.update_render_when_not_canceled(render,
+          status: :finished,
+          result_file_uuid: file_uuid
+        )
+      rescue
+        e ->
+          Mixes.update_render_when_not_canceled(render, status: :error)
+          raise e
+      after
+        for path <- [track_one_path, track_two_path, destination_path] do
+          File.rm(path)
+        end
+
+        File.rmdir(temp_directory)
       end
     end
   end

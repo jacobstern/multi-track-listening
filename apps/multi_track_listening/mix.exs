@@ -49,7 +49,8 @@ defmodule MultiTrackListening.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:uuid, "~> 1.1"},
       {:ecto_enum, "~> 1.2"},
-      {:honeydew, "~> 1.3.0"}
+      {:honeydew, "~> 1.3.0"},
+      {:multi_track_cruncher, in_umbrella: true}
     ]
   end
 

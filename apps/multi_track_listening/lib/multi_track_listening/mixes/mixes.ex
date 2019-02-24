@@ -91,7 +91,7 @@ defmodule MultiTrackListening.Mixes do
            select: r
          )
          |> Repo.update_all(set: updates) do
-      {1, found} -> {:ok, found}
+      {1, [found]} -> {:ok, found}
       {_, _} -> {:error, :canceled}
     end
   end
