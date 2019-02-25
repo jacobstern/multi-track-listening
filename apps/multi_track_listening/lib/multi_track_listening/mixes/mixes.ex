@@ -66,32 +66,39 @@ defmodule MultiTrackListening.Mixes do
     |> Repo.update()
   end
 
-  def start_render(%Mix{} = mix) do
-    render = Repo.insert!(%Render{mix: mix})
-    {:do_render, [mix, render]} |> Honeydew.async(:mix_render_queue)
-    render
+  def create_render(%Mix{} = mix) do
+    Repo.insert!(%Render{mix: mix})
+  end
+
+  def start_render_worker(%Mix{id: mix_id}, %Render{id: render_id}, on_update) do
+    {:do_render, [mix_id, render_id, on_update]} |> Honeydew.async(:mix_render_queue)
   end
 
   def get_current_render(%Mix{id: mix_id}) do
     from(r in Render, where: r.mix_id == ^mix_id, order_by: [desc: r.inserted_at], limit: 1)
     |> Repo.one()
+    |> Repo.preload(:mix)
+  end
+
+  def get_render!(render_id) do
+    Repo.get!(Render, render_id) |> Repo.preload(:mix)
   end
 
   def get_mix_render!(mix_id, render_id) do
-    Repo.get_by!(Render, mix_id: mix_id, id: render_id)
+    Repo.get_by!(Render, mix_id: mix_id, id: render_id) |> Repo.preload(:mix)
   end
 
   def update_render!(render, updates) do
     Ecto.Changeset.change(render, updates) |> Repo.update!()
   end
 
-  def update_render_when_not_canceled(render, updates) do
+  def update_render_when_not_canceled(render_id, updates) do
     case from(r in Render,
-           where: r.id == ^render.id and r.status != 4 and r.status != 5,
+           where: r.id == ^render_id and r.status != 4 and r.status != 5,
            select: r
          )
-         |> Repo.update_all(set: updates) do
-      {1, [found]} -> {:ok, found}
+         |> Repo.update_all(set: updates ++ [updated_at: NaiveDateTime.utc_now()]) do
+      {1, [found]} -> {:ok, found |> Repo.preload(:mix)}
       {_, _} -> {:error, :canceled}
     end
   end

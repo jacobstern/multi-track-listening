@@ -1,6 +1,7 @@
 defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
+  alias MultiTrackListeningWeb.Endpoint
   alias MultiTrackListening.Mixes
 
   def create(conn, _params) do
@@ -73,7 +74,16 @@ defmodule MultiTrackListeningWeb.MixController do
 
     case Mixes.update_mix(mix, params) do
       {:ok, mix} ->
-        mix_render = Mixes.start_render(mix)
+        mix_render = Mixes.create_render(mix)
+
+        on_update = fn updated ->
+          Endpoint.broadcast!("mix_renders:#{mix_render.id}", "update", %{
+            # TODO: Add view function for this
+            status: inspect(updated.status)
+          })
+        end
+
+        Mixes.start_render_worker(mix, mix_render, on_update)
 
         redirect(conn,
           to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id)

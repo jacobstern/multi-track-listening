@@ -12,6 +12,8 @@ defmodule MultiTrackListening.Mixes.Render do
 
   schema "mix_renders" do
     field :result_file_uuid, :string
+    field :track_one_name, :string
+    field :track_two_name, :string
     field :status, StatusEnum, default: :requested
 
     belongs_to :mix, Mix

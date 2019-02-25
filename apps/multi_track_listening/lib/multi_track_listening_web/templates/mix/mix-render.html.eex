@@ -2,4 +2,10 @@
 
 <span>
   <%= display_mix_render_status @mix_render.status %>
+
+  <%= if @mix_render.status == :finished do %>
+    <%= content_tag :audio, nil,
+        controls: true,
+        src: Routes.storage_path(@conn, :serve_file, @mix_render.result_file_uuid) %>
+  <% end %>
 </span>

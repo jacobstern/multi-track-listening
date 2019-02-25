@@ -1,6 +1,8 @@
 defmodule MultiTrackListeningWeb.UserSocket do
   use Phoenix.Socket
 
+  channel "mix_renders:*", MultiTrackListeningWeb.MixRenderChannel
+
   ## Channels
   # channel "room:*", MultiTrackListeningWeb.RoomChannel
 

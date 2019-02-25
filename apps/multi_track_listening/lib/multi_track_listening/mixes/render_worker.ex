@@ -12,8 +12,29 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
     Path.join(priv, "tmp/#{uuid}")
   end
 
-  def do_render(mix = %Mix{parameters: parameters}, render) do
-    with {:ok, _} <- Mixes.update_render_when_not_canceled(render, status: :in_progress) do
+  def do_render(
+        mix_id,
+        render_id,
+        notify_update
+      ) do
+    update_and_notify = fn updates ->
+      with result = {:ok, render} <- Mixes.update_render_when_not_canceled(render_id, updates) do
+        notify_update.(render)
+        result
+      else
+        result -> result
+      end
+    end
+
+    %Mix{parameters: parameters, track_one: track_one, track_two: track_two} =
+      Mixes.get_mix!(mix_id)
+
+    with {:ok, _} <-
+           update_and_notify.(
+             status: :in_progress,
+             track_one_name: track_one.name,
+             track_two_name: track_two.name
+           ) do
       temp_directory = unique_temp_path()
       File.mkdir!(temp_directory)
 
@@ -24,24 +45,25 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
         )
 
       try do
-        Storage.copy_file_locally!(mix.track_one.file_uuid, track_one_path)
-        Storage.copy_file_locally!(mix.track_two.file_uuid, track_two_path)
+        Storage.copy_file_locally!(track_one.file_uuid, track_one_path)
+        Storage.copy_file_locally!(track_two.file_uuid, track_two_path)
 
-        Cruncher.crunch_files(track_one_path, track_two_path, destination_path,
-          mix_duration: parameters.mix_duration,
-          start_l: parameters.track_one_start,
-          start_r: parameters.track_two_start
-        )
+        :ok =
+          Cruncher.crunch_files(track_one_path, track_two_path, destination_path,
+            mix_duration: parameters.mix_duration,
+            start_l: parameters.track_one_start,
+            start_r: parameters.track_two_start
+          )
 
         file_uuid = Storage.persist_file(destination_path, "audio/mpeg")
 
-        Mixes.update_render_when_not_canceled(render,
+        update_and_notify.(
           status: :finished,
           result_file_uuid: file_uuid
         )
       rescue
         e ->
-          Mixes.update_render_when_not_canceled(render, status: :error)
+          update_and_notify.(status: :error)
           raise e
       after
         for path <- [track_one_path, track_two_path, destination_path] do
