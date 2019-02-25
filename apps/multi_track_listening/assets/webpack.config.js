@@ -17,10 +17,11 @@ function generateDynamicEntries() {
   }, {});
 }
 
-module.exports = (/* env, options */) => ({
+module.exports = env => ({
+  mode: env.production ? 'production' : 'development',
   optimization: {
     minimizer: [
-      new UglifyJsPlugin({ cache: true, parallel: true, sourceMap: false }),
+      new UglifyJsPlugin({ cache: true, parallel: true, sourceMap: true }),
       new OptimizeCSSAssetsPlugin({})
     ]
   },
@@ -39,10 +40,14 @@ module.exports = (/* env, options */) => ({
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader']
+        use: [
+          { loader: MiniCssExtractPlugin.loader, options: { sourceMap: true } },
+          { loader: 'css-loader', options: { sourceMap: true } }
+        ]
       }
     ]
   },
+  devtool: env.production ? 'cheap-module-source-map' : 'source-map',
   plugins: [
     new MiniCssExtractPlugin({
       filename: '../css/[name].css'

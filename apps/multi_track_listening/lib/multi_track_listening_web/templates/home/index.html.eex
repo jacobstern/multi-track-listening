@@ -1,3 +1,7 @@
-<%= form_tag Routes.mix_path(@conn, :create) do %>
-  <%= submit "Create a new mix" %>
-<% end %>
+<section class="section">
+  <div class="container">
+    <%= form_tag Routes.mix_path(@conn, :create) do %>
+      <%= submit "Create a Mix", class: "button is-primary" %>
+    <% end %>
+  </div>
+</section>

@@ -14,8 +14,7 @@ config :multi_track_listening, MultiTrackListeningWeb.Endpoint,
   watchers: [
     node: [
       "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
+      "--env",
       "--watch-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]

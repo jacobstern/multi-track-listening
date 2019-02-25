@@ -2,12 +2,15 @@
   "repository": {},
   "license": "MIT",
   "scripts": {
-    "deploy": "webpack --mode production",
-    "watch": "webpack --mode development --watch",
-    "lint": "eslint ."
+    "deploy": "webpack --env --env.production",
+    "watch": "webpack --env --watch",
+    "lint": "eslint .",
+    "stats": "webpack --env --env.production --profile --json > webpack-stats.json"
   },
   "dependencies": {
+    "bulma": "^0.7.4",
     "localforage": "^1.7.3",
+    "normalize.css": "^8.0.1",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "uniqid": "^5.0.3"

@@ -54,3 +54,6 @@ npm-debug.log
 priv/favicon.ico
 priv/robots.txt
 priv/images/phoenix.png
+
+# Webpack stats
+webpack-stats.json
