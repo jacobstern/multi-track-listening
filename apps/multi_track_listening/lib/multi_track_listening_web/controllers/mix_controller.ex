@@ -1,7 +1,7 @@
 defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
-  alias MultiTrackListeningWeb.Endpoint
+  alias MultiTrackListeningWeb.{Endpoint, MixView}
   alias MultiTrackListening.Mixes
 
   def create(conn, _params) do
@@ -77,10 +77,8 @@ defmodule MultiTrackListeningWeb.MixController do
         mix_render = Mixes.create_render(mix)
 
         on_update = fn updated ->
-          Endpoint.broadcast!("mix_renders:#{mix_render.id}", "update", %{
-            # TODO: Add view function for this
-            status: inspect(updated.status)
-          })
+          payload = MixView.render("mix-render.json", mix_render: updated)
+          Endpoint.broadcast!("mix_renders:#{updated.id}", "update", payload)
         end
 
         Mixes.start_render_worker(mix, mix_render, on_update)

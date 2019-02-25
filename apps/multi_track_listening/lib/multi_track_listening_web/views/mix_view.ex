@@ -1,6 +1,9 @@
 defmodule MultiTrackListeningWeb.MixView do
   use MultiTrackListeningWeb, :view
 
+  alias MultiTrackListeningWeb.Endpoint
+  alias MultiTrackListeningWeb.Router.Helpers, as: Routes
+
   def render("scripts.track-one.html", assigns) do
     render_script_tag(assigns.conn, "track-upload.js")
   end
@@ -17,12 +20,25 @@ defmodule MultiTrackListeningWeb.MixView do
     render_script_tag(assigns.conn, "mix-render.js")
   end
 
+  def render("mix-render.json", %{mix_render: mix_render}) do
+    %{
+      status: mix_render.status,
+      status_text: display_mix_render_status(mix_render.status),
+      result_url: mix_render_result_url(mix_render)
+    }
+  end
+
+  def mix_render_result_url(mix_render) do
+    if mix_render.result_file_uuid do
+      Routes.storage_url(Endpoint, :serve_file, mix_render.result_file_uuid)
+    end
+  end
+
   def display_mix_render_status(render_status) do
     strings = %{
-      requested: "Requested",
-      in_progress: "In progress",
-      finished: "Finished",
-      error: "Error",
+      in_progress: "Working on it. This may take a minute.",
+      finished: "Done! You can now upload and share the mix.",
+      error: "There was an error rendering this mix. Please try again later.",
       canceled: "Canceled",
       aborted: "Aborted"
     }

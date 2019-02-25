@@ -1,11 +1,12 @@
 <h2>Render Status</h2>
 
-<span>
-  <%= display_mix_render_status @mix_render.status %>
+<div>Rendering...</div>
 
-  <%= if @mix_render.status == :finished do %>
-    <%= content_tag :audio, nil,
-        controls: true,
-        src: Routes.storage_path(@conn, :serve_file, @mix_render.result_file_uuid) %>
-  <% end %>
-</span>
+<div id="render_status">
+  <%= display_mix_render_status @mix_render.status %>
+</div>
+
+<%= content_tag :audio, nil,
+  id: "result_audio",
+  controls: true,
+  src: mix_render_result_url(@mix_render) %>

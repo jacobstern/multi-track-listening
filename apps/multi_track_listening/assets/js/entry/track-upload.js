@@ -44,7 +44,7 @@ function handleFormSubmit(event) {
       .then(() => {
         if (previousValue) {
           // Previously cached file no longer relevant
-          FileCache.removeFile(previousValue);
+          return FileCache.removeFile(previousValue);
         }
       })
       .then(() => {
