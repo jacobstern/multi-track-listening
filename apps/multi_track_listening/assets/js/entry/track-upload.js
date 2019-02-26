@@ -39,6 +39,7 @@ function fixFileInput() {
 function handleFormSubmit(event) {
   const submitButton = document.getElementById(pageIds.submit);
   submitButton.disabled = true;
+  submitButton.classList.add('is-loading');
 
   const fileInput = document.getElementById(pageIds.fileInput);
   const file = fileInput.files[0];

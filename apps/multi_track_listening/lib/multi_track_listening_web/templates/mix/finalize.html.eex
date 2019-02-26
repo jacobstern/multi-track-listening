@@ -2,6 +2,13 @@
   <div class="container">
     <h1 class="title">Finalize Mix</h1>
 
+    <h2 class="subtitle">
+      Mixing
+      <%= content_tag :i, @mix.track_one.name %>
+      and
+      <%= content_tag :i, @mix.track_two.name %>
+    </h2>
+
     <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "finalize_mix_form"], fn f -> %>
 
       <%= inputs_for f, :parameters, fn pf -> %>
@@ -40,7 +47,7 @@
         <div class="control">
           <%# Since this button is declared earlier in markup, client-side preview will
               be the default submit action. %>      
-          <%= submit "Preview", class: "button preview-button is-primary", id: "preview_button",
+          <%= submit "Preview", class: "button is-primary", id: "preview_button",
             data: [
               track_one_client_uuid: @mix.track_one.client_uuid,
               track_two_client_uuid: @mix.track_two.client_uuid,
@@ -55,7 +62,9 @@
         </div>
       </div>
 
-      <%= submit "Render" %>
+      <p class="finalize-mix__description">Once you're happy with the preview, render it so you can share or save the result!</p>
+
+      <%= submit "Render", class: "button is-danger" %>
 
     <% end %>
   </div>

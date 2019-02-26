@@ -1,0 +1,7 @@
+@import './bem.scss';
+
+.finalize-mix {
+  @include e('description') {
+    margin: 1.5em 0 0.5em;
+  }
+}
