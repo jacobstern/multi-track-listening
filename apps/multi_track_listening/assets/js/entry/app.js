@@ -1,2 +1,2 @@
 import 'phoenix_html';
-import '../../css/app.css';
+import '../../css/app.scss';

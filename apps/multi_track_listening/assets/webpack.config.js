@@ -39,11 +39,13 @@ module.exports = env => ({
         }
       },
       {
-        test: /\.css$/,
-        use: [
-          { loader: MiniCssExtractPlugin.loader, options: { sourceMap: true } },
-          { loader: 'css-loader', options: { sourceMap: true } }
-        ]
+        test: /\.scss$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'].map(
+          loader => ({
+            loader,
+            options: { sourceMap: true }
+          })
+        )
       }
     ]
   },
