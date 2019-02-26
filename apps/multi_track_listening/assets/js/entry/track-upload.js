@@ -7,7 +7,9 @@ const pageIds = {
   nameInput: 'track_upload_name',
   fileInput: 'track_upload_file',
   uuidInput: 'track_upload_client_uuid',
-  submit: 'track_upload_submit'
+  submit: 'track_upload_submit',
+  pseudoFileName: 'pseudo_file_name',
+  fileInputRoot: 'file_input_root'
 };
 
 function guessTrackName(fileName) {
@@ -17,12 +19,20 @@ function guessTrackName(fileName) {
     .replace(trackNumberRegex, '');
 }
 
-function handleFileInputChange(event) {
-  const file = event.target.files[0];
+function fixFileInput() {
+  const fileInput = document.getElementById(pageIds.fileInput);
+  const file = fileInput.files[0];
   if (file) {
     const trackName = guessTrackName(file.name);
-    const nameInput = document.getElementById(pageIds.nameInput);
+    const [nameInput, pseudoFileName, fileInputRoot] = [
+      pageIds.nameInput,
+      pageIds.pseudoFileName,
+      pageIds.fileInputRoot
+    ].map(Document.prototype.getElementById.bind(document));
     nameInput.value = trackName;
+    pseudoFileName.classList.remove('is-hidden');
+    pseudoFileName.innerText = file.name;
+    fileInputRoot.classList.add('has-name');
   }
 }
 
@@ -57,8 +67,10 @@ function handleFormSubmit(event) {
 }
 
 PageLifecycle.ready(() => {
+  fixFileInput(); // Need to apply correct UI if file input is already populated
+
   const fileInput = document.getElementById(pageIds.fileInput);
-  fileInput.addEventListener('change', handleFileInputChange);
+  fileInput.addEventListener('change', fixFileInput);
 
   const form = document.getElementById('track_upload_form');
   form.addEventListener('submit', handleFormSubmit);

@@ -1,2 +1,9 @@
-@import '../node_modules/normalize.css/normalize.css';
 @import '../node_modules/bulma/bulma.sass';
+
+.help-block {
+  display: flex;
+  margin-top: 0.3rem;
+  color: $danger;
+  font-size: $size-normal;
+  line-height: $body-line-height;
+}

@@ -1,17 +1,49 @@
-<%= form_for @changeset, @action, [multipart: true, method: :post, id: "track_upload_form"], fn f -> %>
-    <%= label f, :file %>
-    <%= file_input f, :file, required: true, accept: ".mp3" %>
-    <%= error_tag f, :file %>
+<%= form_for @changeset, @action,
+  [multipart: true, method: :post, id: "track_upload_form", class: "track-upload-form"],
+  fn f -> %>
 
-    <%= label f, :name %>
-    <%= text_input f, :name, required: true %>
+  <div class="field">
+    <%= label f, :file, class: "label" %>
+    <div class="file" id="file_input_root">
+      <label class="file-label">
+        <%= file_input f, :file, required: true, accept: ".mp3", class: "file-input" %>
+        <span class="file-cta">
+          <span class="file-icon">
+            <i class="fas fa-upload"></i>
+          </span>
+
+          <span class="file-label">
+            Choose a file…
+          </span>
+        </span>
+        <span id="pseudo_file_name" class="file-name is-hidden"></span>
+      </label>
+    </div>
+  </div>
+
+  <%= error_tag f, :file %>
+
+  <div class="field">
+    <%= label f, :name, class: "label" %>
+    <div class="field-body">
+      <div class="control">
+        <%= text_input f, :name, class: "input", required: true %>
+      </div>
+    </div>
     <%= error_tag f, :name %>
+  </div>
 
-    <%= if @track do %>
-      <%= hidden_input f, :client_uuid, value: @track.client_uuid %>
-    <% else %>
-      <%= hidden_input f, :client_uuid %>
-    <% end %>
+  <%= if @track do %>
+    <%= hidden_input f, :client_uuid, value: @track.client_uuid %>
+  <% else %>
+    <%= hidden_input f, :client_uuid %>
+  <% end %>
 
-    <%= submit "Upload", id: "track_upload_submit" %>
+  <div class="field">
+    <div class="field-body">
+      <div class="control">
+        <%= submit "Upload", id: "track_upload_submit", class: "button is-primary" %>
+      </div>
+    </div>
+  </div>
 <% end %>

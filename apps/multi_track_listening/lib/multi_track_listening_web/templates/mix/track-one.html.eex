@@ -1,4 +1,12 @@
-<h2>Upload First Track</h2>
+<section class="section">  
+  <div class="container">
+    <h1 class="title">New Mix – Upload Track One</h1>
 
-<%= render "track-upload-form.html", Map.merge(assigns,
-  %{ action: Routes.mix_path(@conn, :create_track_one, @mix), track: @mix.track_one }) %>
+    <div class="content">
+      <p>Please upload an MP3 file.</p>
+    </div>
+
+    <%= render "track-upload-form.html", Map.merge(assigns,
+      %{ action: Routes.mix_path(@conn, :create_track_one, @mix), track: @mix.track_one }) %>
+  </div>
+</section>

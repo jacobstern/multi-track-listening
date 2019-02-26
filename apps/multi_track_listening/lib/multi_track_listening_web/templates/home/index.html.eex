@@ -1,5 +1,25 @@
-<section class="section">
+<section class="hero is-dark">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Multi-Track Listening
+      </h1>
+      <h2 class="subtitle is-uppercase">
+        It's like they're drifting around my head
+      </h2>
+    </div>
+  </div>
+</section>
+<section class="section">  
   <div class="container">
+
+    <div class="content">
+      <p class="is-size-6">
+        Multi-Track Listening is a new way to experience music! Create your own mix
+        or check out some of the user generated content below.
+      </p>
+    </div>
+
     <%= form_tag Routes.mix_path(@conn, :create) do %>
       <%= submit "Create a Mix", class: "button is-primary" %>
     <% end %>
