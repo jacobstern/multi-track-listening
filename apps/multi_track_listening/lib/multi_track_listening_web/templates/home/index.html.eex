@@ -12,14 +12,6 @@
 </section>
 <section class="section">  
   <div class="container">
-
-    <div class="content">
-      <p class="is-size-6">
-        Multi-Track Listening is a new way to experience music! Create your own mix
-        or check out some of the user generated content below.
-      </p>
-    </div>
-
     <%= form_tag Routes.mix_path(@conn, :create) do %>
       <%= submit "Create a Mix", class: "button is-primary" %>
     <% end %>

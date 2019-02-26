@@ -1,34 +1,62 @@
-<h2>Finalize Mix</h2>
+<section class="section finalize-mix">
+  <div class="container">
+    <h1 class="title">Finalize Mix</h1>
 
-<%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "finalize_mix_form"], fn f -> %>
+    <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "finalize_mix_form"], fn f -> %>
 
-  <%= inputs_for f, :parameters, fn pf -> %>
-    <%= label pf, :track_one_start %>
-    <%= number_input pf, :track_one_start, step: 1, min: 0 %>
-    <%= error_tag pf, :track_one_start %>
+      <%= inputs_for f, :parameters, fn pf -> %>
+        <div class="field">
+          <%= label pf, :track_one_start, class: "label" %>
+          <div class="field-body">
+            <div class="control">
+              <%= number_input pf, :track_one_start, class: "input", step: 1, min: 0 %>
+            </div>
+          </div>
+          <%= error_tag pf, :track_one_start %>
+        </div>
 
-    <%= label pf, :track_two_start %>
-    <%= number_input pf, :track_two_start, step: 1, min: 0 %>
-    <%= error_tag pf, :track_two_start %>
+        <div class="field">
+          <%= label pf, :track_two_start, class: "label" %>
+          <div class="field-body">
+            <div class="control">
+              <%= number_input pf, :track_two_start, class: "input", step: 1, min: 0 %>
+            </div>
+          </div>
+          <%= error_tag pf, :track_two_start %>
+        </div>
 
-    <%= label pf, :mix_duration %>
-    <%= number_input pf, :mix_duration, step: 1, min: 5, max: 90 %>
-    <%= error_tag pf, :mix_duration %>
-  <% end %>
+        <div class="field">
+          <%= label pf, :mix_duration, class: "label" %>
+          <div class="field-body">
+            <div class="control">
+              <%= number_input pf, :mix_duration, class: "input", step: 1, min: 5, max: 90 %>
+            </div>
+          </div>
+          <%= error_tag pf, :mix_duration %>
+        </div>
+      <% end %>
 
-  <%# Since this button is declared earlier in markup, client-side preview will
-      be the default submit action. %>
-  
-  <%= submit "Preview", id: "preview_button",
-    data: [
-      track_one_client_uuid: @mix.track_one.client_uuid,
-      track_two_client_uuid: @mix.track_two.client_uuid,
-      track_one_url: Routes.storage_url(@conn, :serve_file, @mix.track_one.file_uuid),
-      track_two_url: Routes.storage_url(@conn, :serve_file, @mix.track_two.file_uuid)
-    ] %>
+      <div class="field is-grouped">
+        <div class="control">
+          <%# Since this button is declared earlier in markup, client-side preview will
+              be the default submit action. %>      
+          <%= submit "Preview", class: "button preview-button is-primary", id: "preview_button",
+            data: [
+              track_one_client_uuid: @mix.track_one.client_uuid,
+              track_two_client_uuid: @mix.track_two.client_uuid,
+              track_one_url: Routes.storage_url(@conn, :serve_file, @mix.track_one.file_uuid),
+              track_two_url: Routes.storage_url(@conn, :serve_file, @mix.track_two.file_uuid)
+            ] %>
+          <span id="preview_error" class="help is-danger is-hidden"></span>
+        </div>
+        <div class="control">
+          <%= content_tag :button, "Stop Preview", class: "button is-secondary",
+            id: "stop_preview_button", disabled: true %>
+        </div>
+      </div>
 
-  <span id="preview_status"></span>
+      <%= submit "Render" %>
 
-  <%= submit "Render" %>
-
-<% end %>
+    <% end %>
+  </div>
+</section>

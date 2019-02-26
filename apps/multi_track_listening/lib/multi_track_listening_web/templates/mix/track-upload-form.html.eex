@@ -19,9 +19,8 @@
         <span id="pseudo_file_name" class="file-name is-hidden"></span>
       </label>
     </div>
+    <%= error_tag f, :file %>
   </div>
-
-  <%= error_tag f, :file %>
 
   <div class="field">
     <%= label f, :name, class: "label" %>
