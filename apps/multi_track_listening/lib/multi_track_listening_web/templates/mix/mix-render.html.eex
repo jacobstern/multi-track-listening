@@ -1,12 +1,46 @@
-<h2>Render Status</h2>
+<section class="section mix-render">
+  <div class="container">
+    <h1 class="title">Rendering Mix</h1>
 
-<div>Rendering...</div>
+    <h2 class="subtitle">
+      Mixing
+      <%= content_tag :i, @mix.track_one.name %>
+      and
+      <%= content_tag :i, @mix.track_two.name %>
+    </h2>
 
-<div id="render_status">
-  <%= display_mix_render_status @mix_render.status %>
-</div>
+    <%= case @mix_render.status do %>
+      <%= :finished -> %>
+        <progress id="render_progress" class="progress is-success mix-render__progress" 
+          value="100" max="100">
+          100%
+        </progress>
+      <%= :error -> %>
+        <progress id="render_progress" class="progress is-danger mix-render__progress"
+          value="15" max="100">
+          15%
+        </progress>
+      <%= _ -> %>
+        <progress id="render_progress" class="progress mix-render__progress" max="100">
+          0%
+        </progress>
+    <% end %>
 
-<%= content_tag :audio, nil,
-  id: "result_audio",
-  controls: true,
-  src: mix_render_result_url(@mix_render) %>
+    <%= if @mix_render.status == :error do %>
+      <p id="render_status" class="mix-render__status-text has-text-danger">
+        <%= display_mix_render_status @mix_render.status %>
+      </p>
+    <% else %>
+      <p id="render_status" class="mix-render__status-text">
+        <%= display_mix_render_status @mix_render.status %>
+      </p>
+    <% end %>
+
+    <%= content_tag :audio, nil,
+      id: "result_audio",
+      class: "is-hidden",
+      controls: true,
+      src: mix_render_result_url(@mix_render) %>
+
+  </div>
+</section>

@@ -3,15 +3,34 @@ import * as PageLifecycle from '../page-lifecycle';
 
 const pageIds = {
   renderStatus: 'render_status',
-  resultAudio: 'result_audio'
+  resultAudio: 'result_audio',
+  renderProgress: 'render_progress'
 };
 
 function updateRender(render) {
   const renderStatus = document.getElementById(pageIds.renderStatus);
-  renderStatus.innerText = render.status_text;
+  const renderProgress = document.getElementById(pageIds.renderProgress);
+
+  if (render.status_text) {
+    renderStatus.innerText = render.status_text;
+  } else {
+    renderStatus.innerText = '';
+  }
+
+  if (render.status === 'error') {
+    renderStatus.classList.add('has-text-danger');
+    renderProgress.innerText = '15%';
+    renderProgress.value = 15;
+    renderProgress.classList.add('is-danger');
+  } else if (render.status === 'finished') {
+    renderProgress.innerText = '100%';
+    renderProgress.value = 100;
+    renderProgress.classList.add('is-success');
+  }
 
   if (render.result_url) {
     const resultAudio = document.getElementById(pageIds.resultAudio);
+    resultAudio.classList.remove('is-hidden');
     resultAudio.src = render.result_url;
   }
 }
