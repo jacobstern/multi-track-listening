@@ -2,8 +2,10 @@ import uniqid from 'uniqid';
 
 import * as PageLifecycle from '../page-lifecycle';
 import * as FileCache from '../file-cache';
+import { getElements } from '../dom-helpers';
 
 const pageIds = {
+  trackUploadForm: 'track_upload_form',
   nameInput: 'track_upload_name',
   fileInput: 'track_upload_file',
   uuidInput: 'track_upload_client_uuid',
@@ -24,11 +26,11 @@ function fixFileInput() {
   const file = fileInput.files[0];
   if (file) {
     const trackName = guessTrackName(file.name);
-    const [nameInput, pseudoFileName, fileInputRoot] = [
+    const [nameInput, pseudoFileName, fileInputRoot] = getElements([
       pageIds.nameInput,
       pageIds.pseudoFileName,
       pageIds.fileInputRoot
-    ].map(Document.prototype.getElementById.bind(document));
+    ]);
     nameInput.value = trackName;
     pseudoFileName.classList.remove('is-hidden');
     pseudoFileName.innerText = file.name;
@@ -37,11 +39,12 @@ function fixFileInput() {
 }
 
 function handleFormSubmit(event) {
-  const submitButton = document.getElementById(pageIds.submit);
+  const [submitButton, fileInput] = getElements([
+    pageIds.submit,
+    pageIds.fileInput
+  ]);
   submitButton.disabled = true;
   submitButton.classList.add('is-loading');
-
-  const fileInput = document.getElementById(pageIds.fileInput);
   const file = fileInput.files[0];
   if (file) {
     const clientUuidInput = document.getElementById(pageIds.uuidInput);
@@ -70,9 +73,10 @@ function handleFormSubmit(event) {
 PageLifecycle.ready(() => {
   fixFileInput(); // Need to apply correct UI if file input is already populated
 
-  const fileInput = document.getElementById(pageIds.fileInput);
+  const [fileInput, form] = getElements([
+    pageIds.fileInput,
+    pageIds.trackUploadForm
+  ]);
   fileInput.addEventListener('change', fixFileInput);
-
-  const form = document.getElementById('track_upload_form');
   form.addEventListener('submit', handleFormSubmit);
 });

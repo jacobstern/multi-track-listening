@@ -1,5 +1,6 @@
 import { Socket } from 'phoenix';
 import * as PageLifecycle from '../page-lifecycle';
+import { getElements } from '../dom-helpers';
 
 const pageIds = {
   renderStatus: 'render_status',
@@ -8,8 +9,10 @@ const pageIds = {
 };
 
 function updateRender(render) {
-  const renderStatus = document.getElementById(pageIds.renderStatus);
-  const renderProgress = document.getElementById(pageIds.renderProgress);
+  const [renderStatus, renderProgress] = getElements([
+    pageIds.renderStatus,
+    pageIds.renderProgress
+  ]);
 
   if (render.status_text) {
     renderStatus.innerText = render.status_text;
