@@ -36,7 +36,7 @@ defmodule MultiTrackListeningWeb.MixView do
 
   def display_mix_render_status(render_status) do
     %{
-      finished: "Done! You can now upload and share the mix.",
+      finished: "Done! You can now post or download the mix.",
       error: "There was an error rendering this mix. Please try again later."
     }[render_status]
   end

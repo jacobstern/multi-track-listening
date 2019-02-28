@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <p class="finalize-mix__description">Once you're happy with the preview, render it so you can share or save the result!</p>
+      <p class="finalize-mix__description">Once you're happy with the preview, render it so you can share or download the result.</p>
 
       <%= submit "Render", class: "button is-danger" %>
 
