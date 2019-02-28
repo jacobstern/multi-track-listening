@@ -51,6 +51,17 @@ static inline int min(int a, int b)
     return a < b ? a : b;
 }
 
+typedef struct program_args
+{
+    char *infile_l;
+    char *infile_r;
+    char *outfile;
+    int start_l;
+    int start_r;
+    int mix_duration;
+    float drifting_speed;
+} program_args_t;
+
 typedef struct buffer
 {
     uint8_t *bytes;
@@ -124,70 +135,66 @@ void buffer_list_free(buffer_list_t *buffer_list)
     free(buffer_list);
 }
 
-result_t parse_args(int argc, char **argv,
-                    char **infile_l, char **infile_r, char **outfile,
-                    int *out_start_l, int *out_start_r, int *out_mix_duration)
+result_t parse_args(int argc, char **argv, program_args_t *program_args)
 {
-    *outfile = NULL;
-
     static struct option long_options[] =
         {
             {"outfile", required_argument, NULL, 'o'},
             {"start-l", required_argument, NULL, 'l'},
             {"start-r", required_argument, NULL, 'r'},
             {"mix-duration", required_argument, NULL, 'd'},
+            {"drifting-speed", required_argument, NULL, 's'},
             {0, 0, 0, 0}};
 
+    char *outfile = NULL;
     int c;
     int long_option_index = 0;
-    int start_l, start_r, duration;
+    int start_l = INT_MAX, start_r = INT_MAX, duration = INT_MAX;
+    float drifting_speed = NAN;
 
     while ((c = getopt_long(argc, argv, "o:d:", long_options, &long_option_index)) != -1)
     {
         switch (c)
         {
         case 'o':
-            *outfile = optarg;
+            outfile = optarg;
             break;
         case 'l':
             start_l = strtoimax(optarg, NULL, 10);
             if (errno == ERANGE)
             {
+                fprintf(stderr, "Invalid integer value for start_l: %s\n", optarg);
                 errno = 0;
-            }
-            else
-            {
-                *out_start_l = start_l;
+                return RESULT_FAILURE;
             }
             break;
         case 'r':
             start_r = strtoimax(optarg, NULL, 10);
             if (errno == ERANGE)
             {
+                fprintf(stderr, "Invalid integer value for start_r: %s\n", optarg);
                 errno = 0;
-            }
-            else
-            {
-                *out_start_r = start_r;
+                return RESULT_FAILURE;
             }
             break;
         case 'd':
             duration = strtoimax(optarg, NULL, 10);
             if (errno == ERANGE)
             {
+                fprintf(stderr, "Invalid integer value for duration: %s\n", optarg);
                 errno = 0;
-            }
-            else
-            {
-                *out_mix_duration = duration;
+                return RESULT_FAILURE;
             }
             break;
+        case 's':
+            drifting_speed = strtof(optarg, NULL);
+            break;
         case '?':
-            return RESULT_FAILURE; // getopt provides an info message to stdout
+            return RESULT_FAILURE;
         }
     }
 
-    if (*outfile == NULL)
+    if (outfile == NULL)
     {
         fprintf(stderr, "missing required option --outfile'\n");
         return RESULT_FAILURE;
@@ -200,8 +207,29 @@ result_t parse_args(int argc, char **argv,
         return RESULT_FAILURE;
     }
 
-    *infile_l = argv[optind];
-    *infile_r = argv[optind + 1];
+    program_args->infile_l = argv[optind];
+    program_args->infile_r = argv[optind + 1];
+    program_args->outfile = outfile;
+
+    if (duration < INT_MAX)
+    {
+        program_args->mix_duration = duration;
+    }
+
+    if (start_l < INT_MAX)
+    {
+        program_args->start_l = start_l;
+    }
+
+    if (start_r < INT_MAX)
+    {
+        program_args->start_r = start_r;
+    }
+
+    if (!isnan(drifting_speed))
+    {
+        program_args->drifting_speed = drifting_speed;
+    }
 
     return RESULT_SUCCESS;
 }
@@ -526,7 +554,8 @@ result_t al_buffer_data_from_list(buffer_list_t *buffers, ALsizei count, ALuint 
     return RESULT_SUCCESS;
 }
 
-result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int output_length_seconds,
+result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r,
+                       int output_length_seconds, float drifting_speed,
                        buffer_list_t **out_mashup_buffers)
 {
     // resources declared upfront for error label
@@ -690,7 +719,8 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r, int o
         for (int batch = 0; batch < 60; batch++)
         {
             float current_time_seconds = initial_time_seconds + batch / 60.0f;
-            float angle = fmodf(current_time_seconds * M_PI * 2.0f / 10.0f, M_PI * 2.0f);
+            float angle = fmodf(current_time_seconds * M_PI * 2.0f * drifting_speed / 60.0f,
+                                M_PI * 2.0f);
 
             alSource3f(source_l, AL_POSITION, (ALfloat)cos(angle + M_PI), 0.0f, (ALfloat)sin(angle + M_PI));
             alSource3f(source_r, AL_POSITION, (ALfloat)cos(angle), 0.0f, (ALfloat)sin(angle));
@@ -831,31 +861,42 @@ result_t float_pcm_from_mp3(char *filename, int offset_seconds, buffer_list_t **
 
 int main(int argc, char **argv)
 {
-    char *outfile, *infile_l, *infile_r;
-    int start_l = 0, start_r = 0, mix_duration = 90;
     result_t result;
 
-    result = parse_args(argc, argv, &infile_l, &infile_r, &outfile, &start_l, &start_r,
-                        &mix_duration);
+    program_args_t program_args;
+    program_args.mix_duration = 90;
+    program_args.start_l = 0;
+    program_args.start_r = 0;
+    program_args.drifting_speed = 6.0f;
+    result = parse_args(argc, argv, &program_args);
 
     if (is_failure(result))
     {
         return EXIT_FAILURE;
     }
 
-    if (mix_duration <= 0 || mix_duration > 90)
+    if (program_args.mix_duration <= 0 || program_args.mix_duration > 90)
     {
-        fprintf(stderr, "invalid mix duration %i\n", mix_duration);
+        fprintf(stderr, "invalid mix duration %i\n", program_args.mix_duration);
+        return EXIT_FAILURE;
     }
 
-    if (start_l < 0)
+    if (program_args.start_l < 0)
     {
-        fprintf(stderr, "invalid start_l %i\n", start_l);
+        fprintf(stderr, "invalid start_l %i\n", program_args.start_l);
+        return EXIT_FAILURE;
     }
 
-    if (start_r < 0)
+    if (program_args.start_r < 0)
     {
-        fprintf(stderr, "invalid start_r %i\n", start_r);
+        fprintf(stderr, "invalid start_r %i\n", program_args.start_r);
+        return EXIT_FAILURE;
+    }
+
+    if (program_args.drifting_speed < 0.0f || program_args.drifting_speed > 20.0f)
+    {
+        fprintf(stderr, "invalid drifting speed %f\n", program_args.drifting_speed);
+        return EXIT_FAILURE;
     }
 
     result = initialize_libraries();
@@ -866,7 +907,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_input_l;
-    result = float_pcm_from_mp3(infile_l, start_l, &mashup_input_l);
+    result = float_pcm_from_mp3(program_args.infile_l, program_args.start_l, &mashup_input_l);
 
     if (is_failure(result))
     {
@@ -874,7 +915,7 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_input_r;
-    result = float_pcm_from_mp3(infile_r, start_r, &mashup_input_r);
+    result = float_pcm_from_mp3(program_args.infile_r, program_args.start_r, &mashup_input_r);
 
     if (is_failure(result))
     {
@@ -882,7 +923,8 @@ int main(int argc, char **argv)
     }
 
     buffer_list_t *mashup_buffers;
-    result = mashup_tracks(mashup_input_l, mashup_input_r, mix_duration, &mashup_buffers);
+    result = mashup_tracks(mashup_input_l, mashup_input_r, program_args.mix_duration,
+                           program_args.drifting_speed, &mashup_buffers);
 
     if (is_failure(result))
     {
@@ -918,7 +960,7 @@ int main(int argc, char **argv)
 
     // fprintf(stderr, "encoded %i buffers\n", buffer_list_length(mp3_buffers));
 
-    write_buffers(outfile, mp3_buffers);
+    write_buffers(program_args.outfile, mp3_buffers);
 
     buffer_list_free(mp3_buffers);
     mp3_buffers = NULL;
