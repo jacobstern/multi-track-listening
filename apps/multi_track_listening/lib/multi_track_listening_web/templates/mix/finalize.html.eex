@@ -11,6 +11,18 @@
 
     <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "finalize_mix_form"], fn f -> %>
 
+      <div class="field is-grouped">
+        <div class="control">
+          <%= link "Change Track One", to: Routes.mix_path(@conn, :new_track_one, @mix),
+            class: "is-link" %>
+        </div>
+
+        <div class="control">
+          <%= link "Change Track Two", to: Routes.mix_path(@conn, :new_track_two, @mix),
+            class: "is-link" %>
+        </div>
+      </div>
+
       <%= inputs_for f, :parameters, fn pf -> %>
         <div class="field">
           <%= label pf, :track_one_start, class: "label" %>

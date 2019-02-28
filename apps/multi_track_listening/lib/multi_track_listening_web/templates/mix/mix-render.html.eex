@@ -26,6 +26,13 @@
         </progress>
     <% end %>
 
+    <div class="field">
+      <div class="control">
+        <%= link "Back to Mix", to: Routes.mix_path(@conn, :finalize, @mix),
+          class: "is-link" %>
+      </div>
+    </div>
+
     <%= if @mix_render.status == :error do %>
       <p id="render_status" class="mix-render__status-text has-text-danger">
         <%= display_mix_render_status @mix_render.status %>
