@@ -10,17 +10,17 @@
     </h2>
 
     <%= case @mix_render.status do %>
-      <%= :finished -> %>
+      <% :finished -> %>
         <progress id="render_progress" class="progress is-success mix-render__progress" 
           value="100" max="100">
           100%
         </progress>
-      <%= :error -> %>
+      <% :error -> %>
         <progress id="render_progress" class="progress is-danger mix-render__progress"
           value="15" max="100">
           15%
         </progress>
-      <%= _ -> %>
+      <% _ -> %>
         <progress id="render_progress" class="progress mix-render__progress" max="100">
           0%
         </progress>
@@ -28,7 +28,7 @@
 
     <div class="field">
       <div class="control">
-        <%= link "Back to Mix", to: Routes.mix_path(@conn, :finalize, @mix),
+        <%= link "Back to Mix", to: Routes.mix_path(@conn, :parameters, @mix),
           class: "is-link" %>
       </div>
     </div>

@@ -12,8 +12,8 @@ defmodule MultiTrackListeningWeb.MixView do
     render_script_tag(assigns.conn, "track-upload.js")
   end
 
-  def render("scripts.finalize.html", assigns) do
-    render_script_tag(assigns.conn, "finalize-mix.js")
+  def render("scripts.parameters.html", assigns) do
+    render_script_tag(assigns.conn, "mix-parameters.js")
   end
 
   def render("scripts.mix-render.html", assigns) do

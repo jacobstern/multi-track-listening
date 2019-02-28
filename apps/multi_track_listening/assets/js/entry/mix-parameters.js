@@ -3,7 +3,7 @@ import * as MixPreview from '../mix-preview';
 import * as FileCache from '../file-cache';
 
 const pageIds = {
-  finalizeMixForm: 'finalize_mix_form',
+  mixParametersForm: 'mix_parameters_form',
   previewButton: 'preview_button',
   stopPreviewButton: 'stop_preview_button',
   trackOneStartInput: 'mix_parameters_track_one_start',

@@ -40,14 +40,14 @@ defmodule MultiTrackListeningWeb.MixController do
     case Mixes.persist_track_upload(params) do
       {:ok, track} ->
         updated = Mixes.update_track_two(mix, track)
-        redirect(conn, to: Routes.mix_path(conn, :finalize, updated))
+        redirect(conn, to: Routes.mix_path(conn, :parameters, updated))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "track-two.html", mix: mix, changeset: changeset)
     end
   end
 
-  defp render_finalize_page(conn, mix, changeset) do
+  defp render_parameters_page(conn, mix, changeset) do
     cond do
       is_nil(mix.track_one) ->
         redirect(conn, to: Routes.mix_path(conn, :new_track_one, mix))
@@ -56,17 +56,17 @@ defmodule MultiTrackListeningWeb.MixController do
         redirect(conn, to: Routes.mix_path(conn, :new_track_two, mix))
 
       true ->
-        render(conn, "finalize.html",
+        render(conn, "parameters.html",
           mix: mix,
           changeset: changeset
         )
     end
   end
 
-  def finalize(conn, %{"id" => id}) do
+  def parameters(conn, %{"id" => id}) do
     mix = Mixes.get_mix!(id)
     changeset = Mixes.change_mix(mix)
-    render_finalize_page(conn, mix, changeset)
+    render_parameters_page(conn, mix, changeset)
   end
 
   def create_mix_render(conn, %{"id" => id, "mix" => params}) do
@@ -88,7 +88,7 @@ defmodule MultiTrackListeningWeb.MixController do
         )
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render_finalize_page(conn, mix, changeset)
+        render_parameters_page(conn, mix, changeset)
     end
   end
 
