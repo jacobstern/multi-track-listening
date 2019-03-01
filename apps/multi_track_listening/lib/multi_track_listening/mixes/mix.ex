@@ -3,6 +3,15 @@ defmodule MultiTrackListening.Mixes.Mix do
   import Ecto.Changeset
   alias MultiTrackListening.Mixes.{Track, MixParameters}
 
+  @type t :: %__MODULE__{
+          id: integer,
+          track_one: Track.t(),
+          track_two: Track.t(),
+          parameters: MixParameters.t(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   schema "mixes" do
     embeds_one :track_one, Track, on_replace: :delete
     embeds_one :track_two, Track, on_replace: :delete

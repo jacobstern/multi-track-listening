@@ -2,6 +2,14 @@ defmodule MultiTrackListening.Mixes.Track do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias MultiTrackListening.Storage
+
+  @type t :: %__MODULE__{
+          name: String.t(),
+          client_uuid: String.t(),
+          file_uuid: Storage.uuid_t()
+        }
+
   embedded_schema do
     field(:name, :string)
     field(:client_uuid, :string)

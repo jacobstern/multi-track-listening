@@ -4,6 +4,17 @@ defmodule MultiTrackListening.Mixes.MixParameters do
 
   alias MultiTrackListening.Mixes.Mix
 
+  @type t :: %__MODULE__{
+          id: integer,
+          mix_duration: integer,
+          track_one_start: integer,
+          track_two_start: integer,
+          mix_id: integer,
+          mix: Mix.t(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   schema "mix_parameters" do
     field :mix_duration, :integer, default: 90
     field :track_one_start, :integer, default: 0

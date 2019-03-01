@@ -24,7 +24,7 @@ defmodule MultiTrackListening.Storage do
     Repo.insert!(%Storage.File{backend: "local", content_type: content_type, uuid: uuid})
   end
 
-  @spec persist_file(File.Path.t(), uuid_t()) :: uuid_t()
+  @spec persist_file(Path.t(), uuid_t()) :: uuid_t()
   def persist_file(file_path, content_type) do
     %Storage.File{uuid: uuid} = create_file_record(content_type)
     File.cp!(file_path, generate_local_path(uuid))
@@ -53,7 +53,7 @@ defmodule MultiTrackListening.Storage do
     |> Conn.send_file(200, generate_local_path(uuid))
   end
 
-  @spec copy_file_locally!(uuid_t(), File.Path.t()) :: :ok
+  @spec copy_file_locally!(uuid_t(), Path.t()) :: :ok
   def copy_file_locally!(uuid, destination_path) do
     File.cp!(generate_local_path(uuid), destination_path)
   end
