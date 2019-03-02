@@ -1,7 +1,0 @@
-@import './bem.scss';
-
-.mix-parameters {
-  @include element('description') {
-    margin: 1.5em 0 0.5em;
-  }
-}

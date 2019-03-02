@@ -1,12 +1,3 @@
-@import './bem.scss';
-
-.mix-render {
-  @include element('status-text') {
-    margin-bottom: 1.5em;
-    font-size: $size-normal;
-  }
-
-  @include element('progress') {
-    max-width: 600px;
-  }
+.mix-render-progress {
+  max-width: 600px;
 }

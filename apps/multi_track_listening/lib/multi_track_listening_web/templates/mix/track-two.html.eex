@@ -2,9 +2,7 @@
   <div class="container">
     <h1 class="title">New Mix – Upload Track Two</h1>
 
-    <div class="content">
-      <p>Upload another file for multi-track listening!</p>
-    </div>
+    <p class="common-form-description">Upload another file for multi-track listening!</p>
 
     <%= render "track-upload-form.html", Map.merge(assigns,
       %{ action: Routes.mix_path(@conn, :create_track_two, @mix), track: @mix.track_two }) %>

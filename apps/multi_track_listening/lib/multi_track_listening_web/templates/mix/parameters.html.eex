@@ -1,27 +1,15 @@
-<section class="section mix-parameters">
+<section class="section">
   <div class="container">
-    <h1 class="title">Modify Parameters</h1>
+    <h1 class="title">Mix Parameters</h1>
 
-    <h2 class="subtitle">
-      Mixing
-      <%= content_tag :i, @mix.track_one.name %>
+    <p class="common-form-description">
+      Mixing <%= content_tag :i, @mix.track_one.name %>
       and
-      <%= content_tag :i, @mix.track_two.name %>
-    </h2>
+      <%= content_tag :i, @mix.track_two.name %>.
+    </p>
+      
 
     <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "mix_parameters_form"], fn f -> %>
-
-      <div class="field is-grouped">
-        <div class="control">
-          <%= link "Change Track One", to: Routes.mix_path(@conn, :new_track_one, @mix),
-            class: "is-link" %>
-        </div>
-
-        <div class="control">
-          <%= link "Change Track Two", to: Routes.mix_path(@conn, :new_track_two, @mix),
-            class: "is-link" %>
-        </div>
-      </div>
 
       <%= inputs_for f, :parameters, fn pf -> %>
         <div class="field">
@@ -58,7 +46,7 @@
       <div class="field is-grouped">
         <div class="control">
           <%# Since this button is declared earlier in markup, client-side preview will
-              be the default submit action. %>      
+              be the default submit action. %>
           <%= submit "Preview", class: "button is-primary", id: "preview_button",
             data: [
               track_one_client_uuid: @mix.track_one.client_uuid,
@@ -74,7 +62,7 @@
         </div>
       </div>
 
-      <p class="mix-parameters__description">Once you're happy with the preview, render it so you can share or download the result.</p>
+      <p class="common-form-description">Once you're happy with the preview, render it so you can share or download the result!</p>
 
       <%= submit "Render", class: "button is-danger" %>
 

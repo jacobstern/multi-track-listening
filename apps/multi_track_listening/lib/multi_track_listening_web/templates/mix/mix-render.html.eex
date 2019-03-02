@@ -1,44 +1,43 @@
-<section class="section mix-render">
+<section class="section">
   <div class="container">
     <h1 class="title">Rendering Mix</h1>
 
-    <h2 class="subtitle">
-      Mixing
-      <%= content_tag :i, @mix.track_one.name %>
+    <p class="common-form-description">
+      Mixing <%= content_tag :i, @mix.track_one.name %>
       and
-      <%= content_tag :i, @mix.track_two.name %>
-    </h2>
-
-    <%= case @mix_render.status do %>
-      <% :finished -> %>
-        <progress id="render_progress" class="progress is-success mix-render__progress" 
-          value="100" max="100">
-          100%
-        </progress>
-      <% :error -> %>
-        <progress id="render_progress" class="progress is-danger mix-render__progress"
-          value="15" max="100">
-          15%
-        </progress>
-      <% _ -> %>
-        <progress id="render_progress" class="progress mix-render__progress" max="100">
-          0%
-        </progress>
-    <% end %>
+      <%= content_tag :i, @mix.track_two.name %>.
+    </p>
 
     <div class="field">
       <div class="control">
-        <%= link "Back to Mix", to: Routes.mix_path(@conn, :parameters, @mix),
+        <%= link "Back to Parameters", to: Routes.mix_path(@conn, :parameters, @mix),
           class: "is-link" %>
       </div>
     </div>
 
+    <%= case @mix_render.status do %>
+      <% :finished -> %>
+        <progress id="render_progress" class="progress is-success mix-render-progress" 
+          value="100" max="100">
+          100%
+        </progress>
+      <% :error -> %>
+        <progress id="render_progress" class="progress is-danger mix-render-progress"
+          value="15" max="100">
+          15%
+        </progress>
+      <% _ -> %>
+        <progress id="render_progress" class="progress mix-render-progress" max="100">
+          0%
+        </progress>
+    <% end %>
+
     <%= if @mix_render.status == :error do %>
-      <p id="render_status" class="mix-render__status-text has-text-danger">
+      <p id="render_status" class="common-form-description has-text-danger">
         <%= display_mix_render_status @mix_render.status %>
       </p>
     <% else %>
-      <p id="render_status" class="mix-render__status-text">
+      <p id="render_status" class="common-form-description">
         <%= display_mix_render_status @mix_render.status %>
       </p>
     <% end %>
