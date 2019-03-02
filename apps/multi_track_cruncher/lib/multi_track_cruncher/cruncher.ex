@@ -10,6 +10,7 @@ defmodule MultiTrackCruncher.Cruncher do
     |> List.flatten()
   end
 
+  @spec crunch_files(Path.t(), Path.t(), Path.t(), keyword()) :: :ok | {:error, :exit}
   def crunch_files(track_one_path, track_two_path, destination_path, opts \\ []) do
     cruncher_path = Path.join([:code.priv_dir(:multi_track_cruncher), "c", "cruncher"])
     cruncher_base_args = [track_one_path, track_two_path, "-o", destination_path]
@@ -20,7 +21,7 @@ defmodule MultiTrackCruncher.Cruncher do
 
     receive do
       {^port, {:exit_status, 0}} -> :ok
-      {^port, {:exit_status, _}} -> {:error, :unknown}
+      {^port, {:exit_status, _}} -> {:error, :exit}
     end
   end
 end

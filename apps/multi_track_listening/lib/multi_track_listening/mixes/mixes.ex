@@ -155,7 +155,7 @@ defmodule MultiTrackListening.Mixes do
     updated = Repo.update!(Ecto.Changeset.change(mix, track_one: track))
 
     if not is_nil(mix.track_one) do
-      Storage.delete_file(mix.track_one.file_uuid)
+      Storage.delete_file!(mix.track_one.file_uuid)
     end
 
     updated
@@ -166,7 +166,7 @@ defmodule MultiTrackListening.Mixes do
     updated = Repo.update!(Ecto.Changeset.change(mix, track_two: track))
 
     if not is_nil(mix.track_two) do
-      Storage.delete_file(mix.track_two.file_uuid)
+      Storage.delete_file!(mix.track_two.file_uuid)
     end
 
     updated

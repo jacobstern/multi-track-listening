@@ -45,14 +45,14 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
         )
 
       try do
-        Storage.copy_file_locally!(track_one.file_uuid, track_one_path)
-        Storage.copy_file_locally!(track_two.file_uuid, track_two_path)
+        Storage.download_file!(track_one.file_uuid, track_one_path)
+        Storage.download_file!(track_two.file_uuid, track_two_path)
 
         :ok =
           Cruncher.crunch_files(track_one_path, track_two_path, destination_path,
-            mix_duration: parameters.mix_duration,
             start_l: parameters.track_one_start,
-            start_r: parameters.track_two_start
+            start_r: parameters.track_two_start,
+            mix_duration: parameters.mix_duration
           )
 
         file_uuid = Storage.persist_file(destination_path, "audio/mpeg")

@@ -37,6 +37,7 @@ defmodule MultiTrackListeningWeb.MixController do
   def create_track_two(conn, %{"id" => id, "track_upload" => params}) do
     mix = Mixes.get_mix!(id)
 
+    # TODO: update_track_two and persist_track_upload should be the same call
     case Mixes.persist_track_upload(params) do
       {:ok, track} ->
         updated = Mixes.update_track_two(mix, track)
@@ -72,8 +73,7 @@ defmodule MultiTrackListeningWeb.MixController do
   def create_mix_render(conn, %{"id" => id, "mix" => params}) do
     mix = Mixes.get_mix!(id)
 
-    case Mixes.update_mix(mix, params) do
-      {:ok, mix} ->
+    with {:ok, mix} <- Mixes.update_mix(mix, params) do
         mix_render = Mixes.create_render(mix)
 
         on_update = fn updated ->
@@ -83,12 +83,10 @@ defmodule MultiTrackListeningWeb.MixController do
 
         Mixes.start_render_worker(mix, mix_render, on_update)
 
-        redirect(conn,
-          to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id)
-        )
-
+      redirect(conn, to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id))
+    else
       {:error, %Ecto.Changeset{} = changeset} ->
-        render_parameters_page(conn, mix, changeset)
+        render(conn, "parameters.html", mix: mix, changeset: changeset)
     end
   end
 
