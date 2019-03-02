@@ -1,8 +1,9 @@
-defmodule MultiTrackListeningWeb.MixController do
-  use MultiTrackListeningWeb, :controller
+defmodule MultiTrackWeb.MixController do
+  use MultiTrackWeb, :controller
 
-  alias MultiTrackListeningWeb.{Endpoint, MixView}
-  alias MultiTrackListening.Mixes
+  alias MultiTrackWeb.{Endpoint, MixView}
+  alias MultiTrackListening.{Mixes, Listens}
+  alias MultiTrackListening.Listens.Listen
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()
@@ -74,14 +75,14 @@ defmodule MultiTrackListeningWeb.MixController do
     mix = Mixes.get_mix!(id)
 
     with {:ok, mix} <- Mixes.update_mix(mix, params) do
-        mix_render = Mixes.create_render(mix)
+      mix_render = Mixes.create_render(mix)
 
-        on_update = fn updated ->
-          payload = MixView.render("mix-render.json", mix_render: updated)
-          Endpoint.broadcast!("mix_renders:#{updated.id}", "update", payload)
-        end
+      on_update = fn updated ->
+        payload = MixView.render("mix-render.json", mix_render: updated)
+        Endpoint.broadcast!("mix_renders:#{updated.id}", "update", payload)
+      end
 
-        Mixes.start_render_worker(mix, mix_render, on_update)
+      Mixes.start_render_worker(mix, mix_render, on_update)
 
       redirect(conn, to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id))
     else
@@ -95,4 +96,15 @@ defmodule MultiTrackListeningWeb.MixController do
     mix_render = Mixes.get_mix_render!(id, render_id)
     render(conn, "mix-render.html", mix: mix, mix_render: mix_render)
   end
+
+  # def post_mix(conn, %{"id" => id, "render_id" => render_id}) do
+  #   mix_render = Mixes.get_mix_render!(id, render_id)
+
+  #   {:ok, listen} =
+  #     Listens.create_listen(%Listen{
+  #       track_one_name: mix_render.track_one_name,
+  #       track_two_name: mix_render.track_two_name,
+  #       audio_file_uuid: mix_render
+  #     })
+  # end
 end

@@ -1,3 +1,3 @@
-defmodule MultiTrackListeningWeb.LayoutView do
-  use MultiTrackListeningWeb, :view
+defmodule MultiTrackWeb.LayoutView do
+  use MultiTrackWeb, :view
 end

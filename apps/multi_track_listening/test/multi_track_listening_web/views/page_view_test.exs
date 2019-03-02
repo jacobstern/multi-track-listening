@@ -1,3 +1,3 @@
-defmodule MultiTrackListeningWeb.PageViewTest do
-  use MultiTrackListeningWeb.ConnCase, async: true
+defmodule MultiTrackWeb.PageViewTest do
+  use MultiTrackWeb.ConnCase, async: true
 end

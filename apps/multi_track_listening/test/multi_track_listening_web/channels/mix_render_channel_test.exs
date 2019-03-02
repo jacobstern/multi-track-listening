@@ -1,26 +1,26 @@
-defmodule MultiTrackListeningWeb.MixRenderChannelTest do
-  use MultiTrackListeningWeb.ChannelCase
+defmodule MultiTrackWeb.MixRenderChannelTest do
+  use MultiTrackWeb.ChannelCase
 
   setup do
     {:ok, _, socket} =
-      socket(MultiTrackListeningWeb.UserSocket, "user_id", %{some: :assign})
-      |> subscribe_and_join(MultiTrackListeningWeb.MixRenderChannel, "mix_render:lobby")
+      socket(MultiTrackWeb.UserSocket, "user_id", %{some: :assign})
+      |> subscribe_and_join(MultiTrackWeb.MixRenderChannel, "mix_render:lobby")
 
     {:ok, socket: socket}
   end
 
   test "ping replies with status ok", %{socket: socket} do
-    ref = push socket, "ping", %{"hello" => "there"}
+    ref = push(socket, "ping", %{"hello" => "there"})
     assert_reply ref, :ok, %{"hello" => "there"}
   end
 
   test "shout broadcasts to mix_render:lobby", %{socket: socket} do
-    push socket, "shout", %{"hello" => "all"}
+    push(socket, "shout", %{"hello" => "all"})
     assert_broadcast "shout", %{"hello" => "all"}
   end
 
   test "broadcasts are pushed to the client", %{socket: socket} do
-    broadcast_from! socket, "broadcast", %{"some" => "data"}
+    broadcast_from!(socket, "broadcast", %{"some" => "data"})
     assert_push "broadcast", %{"some" => "data"}
   end
 end

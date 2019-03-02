@@ -11,7 +11,7 @@ defmodule MultiTrackListening.Application do
       # Start the Ecto repository
       MultiTrackListening.Repo,
       # Start the endpoint when the application starts
-      MultiTrackListeningWeb.Endpoint
+      MultiTrackWeb.Endpoint
       # Starts a worker by calling: MultiTrackListening.Worker.start_link(arg)
       # {MultiTrackListening.Worker, arg},
     ]
@@ -28,7 +28,7 @@ defmodule MultiTrackListening.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    MultiTrackListeningWeb.Endpoint.config_change(changed, removed)
+    MultiTrackWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

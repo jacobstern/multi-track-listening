@@ -1,10 +1,10 @@
-defmodule MultiTrackListeningWeb.UserSocket do
+defmodule MultiTrackWeb.UserSocket do
   use Phoenix.Socket
 
-  channel "mix_renders:*", MultiTrackListeningWeb.MixRenderChannel
+  channel "mix_renders:*", MultiTrackWeb.MixRenderChannel
 
   ## Channels
-  # channel "room:*", MultiTrackListeningWeb.RoomChannel
+  # channel "room:*", MultiTrackWeb.RoomChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -28,7 +28,7 @@ defmodule MultiTrackListeningWeb.UserSocket do
   # Would allow you to broadcast a "disconnect" event and terminate
   # all active sockets and channels for a given user:
   #
-  #     MultiTrackListeningWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
+  #     MultiTrackWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
   def id(_socket), do: nil

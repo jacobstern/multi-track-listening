@@ -1,8 +1,8 @@
-defmodule MultiTrackListeningWeb.Endpoint do
+defmodule MultiTrackWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :multi_track_listening
   alias MultiTrackListening.Storage
 
-  socket("/socket", MultiTrackListeningWeb.UserSocket,
+  socket("/socket", MultiTrackWeb.UserSocket,
     websocket: true,
     longpoll: false
   )
@@ -50,5 +50,5 @@ defmodule MultiTrackListeningWeb.Endpoint do
     signing_salt: "8xwndazw"
   )
 
-  plug(MultiTrackListeningWeb.Router)
+  plug(MultiTrackWeb.Router)
 end

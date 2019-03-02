@@ -1,3 +1,3 @@
-defmodule MultiTrackListeningWeb.HomeView do
-  use MultiTrackListeningWeb, :view
+defmodule MultiTrackWeb.HomeView do
+  use MultiTrackWeb, :view
 end

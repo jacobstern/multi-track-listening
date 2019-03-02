@@ -1,5 +1,5 @@
-defmodule MultiTrackListeningWeb.ErrorView do
-  use MultiTrackListeningWeb, :view
+defmodule MultiTrackWeb.ErrorView do
+  use MultiTrackWeb, :view
 
   # If you want to customize a particular status code
   # for a certain format, you may uncomment below.

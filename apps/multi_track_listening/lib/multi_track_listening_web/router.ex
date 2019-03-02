@@ -1,5 +1,5 @@
-defmodule MultiTrackListeningWeb.Router do
-  use MultiTrackListeningWeb, :router
+defmodule MultiTrackWeb.Router do
+  use MultiTrackWeb, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -13,7 +13,7 @@ defmodule MultiTrackListeningWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", MultiTrackListeningWeb do
+  scope "/", MultiTrackWeb do
     pipe_through :browser
 
     get "/", HomeController, :index
@@ -31,7 +31,7 @@ defmodule MultiTrackListeningWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MultiTrackListeningWeb do
+  # scope "/api", MultiTrackWeb do
   #   pipe_through :api
   # end
 end

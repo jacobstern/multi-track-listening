@@ -1,4 +1,4 @@
-defmodule MultiTrackListeningWeb.ErrorHelpers do
+defmodule MultiTrackWeb.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -36,9 +36,9 @@ defmodule MultiTrackListeningWeb.ErrorHelpers do
     # should be written to the errors.po file. The :count option is
     # set by Ecto and indicates we should also apply plural rules.
     if count = opts[:count] do
-      Gettext.dngettext(MultiTrackListeningWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(MultiTrackWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(MultiTrackListeningWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(MultiTrackWeb.Gettext, "errors", msg, opts)
     end
   end
 end

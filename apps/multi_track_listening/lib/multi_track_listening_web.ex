@@ -1,12 +1,12 @@
-defmodule MultiTrackListeningWeb do
+defmodule MultiTrackWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, views, channels and so on.
 
   This can be used in your application as:
 
-      use MultiTrackListeningWeb, :controller
-      use MultiTrackListeningWeb, :view
+      use MultiTrackWeb, :controller
+      use MultiTrackWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -19,11 +19,11 @@ defmodule MultiTrackListeningWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: MultiTrackListeningWeb
+      use Phoenix.Controller, namespace: MultiTrackWeb
 
       import Plug.Conn
-      import MultiTrackListeningWeb.Gettext
-      alias MultiTrackListeningWeb.Router.Helpers, as: Routes
+      import MultiTrackWeb.Gettext
+      alias MultiTrackWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -31,7 +31,7 @@ defmodule MultiTrackListeningWeb do
     quote do
       use Phoenix.View,
         root: "lib/multi_track_listening_web/templates",
-        namespace: MultiTrackListeningWeb
+        namespace: MultiTrackWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
@@ -39,10 +39,10 @@ defmodule MultiTrackListeningWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import MultiTrackListeningWeb.ErrorHelpers
-      import MultiTrackListeningWeb.Gettext
-      import MultiTrackListeningWeb.ViewScripts
-      alias MultiTrackListeningWeb.Router.Helpers, as: Routes
+      import MultiTrackWeb.ErrorHelpers
+      import MultiTrackWeb.Gettext
+      import MultiTrackWeb.ViewScripts
+      alias MultiTrackWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -57,7 +57,7 @@ defmodule MultiTrackListeningWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import MultiTrackListeningWeb.Gettext
+      import MultiTrackWeb.Gettext
     end
   end
 

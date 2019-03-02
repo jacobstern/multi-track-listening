@@ -1,8 +1,8 @@
-defmodule MultiTrackListeningWeb.MixView do
-  use MultiTrackListeningWeb, :view
+defmodule MultiTrackWeb.MixView do
+  use MultiTrackWeb, :view
 
-  alias MultiTrackListeningWeb.Endpoint
-  alias MultiTrackListeningWeb.Router.Helpers, as: Routes
+  alias MultiTrackWeb.Endpoint
+  alias MultiTrackWeb.Router.Helpers, as: Routes
 
   def render("scripts.track-one.html", assigns) do
     render_script_tag(assigns.conn, "track-upload.js")

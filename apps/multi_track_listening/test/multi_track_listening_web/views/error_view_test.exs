@@ -1,14 +1,14 @@
-defmodule MultiTrackListeningWeb.ErrorViewTest do
-  use MultiTrackListeningWeb.ConnCase, async: true
+defmodule MultiTrackWeb.ErrorViewTest do
+  use MultiTrackWeb.ConnCase, async: true
 
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
   test "renders 404.html" do
-    assert render_to_string(MultiTrackListeningWeb.ErrorView, "404.html", []) == "Not Found"
+    assert render_to_string(MultiTrackWeb.ErrorView, "404.html", []) == "Not Found"
   end
 
   test "renders 500.html" do
-    assert render_to_string(MultiTrackListeningWeb.ErrorView, "500.html", []) == "Internal Server Error"
+    assert render_to_string(MultiTrackWeb.ErrorView, "500.html", []) == "Internal Server Error"
   end
 end

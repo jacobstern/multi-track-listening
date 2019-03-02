@@ -1,5 +1,5 @@
-defmodule MultiTrackListeningWeb.StorageController do
-  use MultiTrackListeningWeb, :controller
+defmodule MultiTrackWeb.StorageController do
+  use MultiTrackWeb, :controller
 
   alias MultiTrackListening.Storage
 

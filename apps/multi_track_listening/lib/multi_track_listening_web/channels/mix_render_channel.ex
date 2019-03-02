@@ -1,8 +1,8 @@
-defmodule MultiTrackListeningWeb.MixRenderChannel do
-  use MultiTrackListeningWeb, :channel
+defmodule MultiTrackWeb.MixRenderChannel do
+  use MultiTrackWeb, :channel
 
   alias MultiTrackListening.Mixes
-  alias MultiTrackListeningWeb.MixView
+  alias MultiTrackWeb.MixView
 
   def join("mix_renders:" <> render_id, _payload, socket) do
     render = Mixes.get_render!(render_id)

@@ -1,4 +1,4 @@
-defmodule MultiTrackListeningWeb.ConnCase do
+defmodule MultiTrackWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -19,10 +19,10 @@ defmodule MultiTrackListeningWeb.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      alias MultiTrackListeningWeb.Router.Helpers, as: Routes
+      alias MultiTrackWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
-      @endpoint MultiTrackListeningWeb.Endpoint
+      @endpoint MultiTrackWeb.Endpoint
     end
   end
 

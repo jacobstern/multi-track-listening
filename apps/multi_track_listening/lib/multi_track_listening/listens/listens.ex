@@ -37,22 +37,8 @@ defmodule MultiTrackListening.Listens do
   """
   def get_listen!(id), do: Repo.get!(Listen, id)
 
-  @doc """
-  Creates a listen.
-
-  ## Examples
-
-      iex> create_listen(%{field: value})
-      {:ok, %Listen{}}
-
-      iex> create_listen(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_listen(attrs \\ %{}) do
-    %Listen{}
-    |> Listen.changeset(attrs)
-    |> Repo.insert()
+  def create_listen(listen) do
+    Repo.insert(listen)
   end
 
   @doc """

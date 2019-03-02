@@ -11,10 +11,10 @@ config :multi_track_listening,
   ecto_repos: [MultiTrackListening.Repo]
 
 # Configures the endpoint
-config :multi_track_listening, MultiTrackListeningWeb.Endpoint,
+config :multi_track_listening, MultiTrackWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "h81nMgXq9ucOOBIKmnTB6vppIC9kXu+oBOBVI8fZ+NJl0ByeTsBHB5ltCaoJm53r",
-  render_errors: [view: MultiTrackListeningWeb.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: MultiTrackWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: MultiTrackListening.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

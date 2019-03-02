@@ -1,4 +1,4 @@
-defmodule MultiTrackListeningWeb.ChannelCase do
+defmodule MultiTrackWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -21,7 +21,7 @@ defmodule MultiTrackListeningWeb.ChannelCase do
       use Phoenix.ChannelTest
 
       # The default endpoint for testing
-      @endpoint MultiTrackListeningWeb.Endpoint
+      @endpoint MultiTrackWeb.Endpoint
     end
   end
 
