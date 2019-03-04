@@ -140,7 +140,7 @@ defmodule MultiTrackListening.Mixes do
         result
 
       {:ok, %TrackUpload{file: file, name: name, client_uuid: client_uuid}} ->
-        uuid = Storage.persist_file(file.path, file.content_type)
+        uuid = Storage.upload_file!(file.path, file.content_type)
         {:ok, %Track{file_uuid: uuid, name: name, client_uuid: client_uuid}}
     end
   end

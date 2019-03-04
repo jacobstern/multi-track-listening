@@ -55,7 +55,7 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
             mix_duration: parameters.mix_duration
           )
 
-        file_uuid = Storage.persist_file(destination_path, "audio/mpeg")
+        file_uuid = Storage.upload_file!(destination_path, "audio/mpeg")
 
         update_and_notify.(
           status: :finished,
