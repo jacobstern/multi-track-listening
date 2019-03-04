@@ -36,11 +36,6 @@ defmodule MultiTrackListening.Storage do
     |> Keyword.get(:backend)
   end
 
-  defp backend_call_raw(func, args) do
-    get_backend()
-    |> apply(func, args)
-  end
-
   defp backend_call(func, args) do
     get_backend()
     |> apply(func, args)
