@@ -45,7 +45,8 @@ defmodule MultiTrackListening.Storage do
   defp gen_uuid(), do: UUID.uuid4()
 
   defp create_file_record(uuid, content_type) do
-    Repo.insert!(%Storage.File{backend: "local", content_type: content_type, uuid: uuid})
+    backend = get_backend().backend_identifier()
+    Repo.insert!(%Storage.File{backend: backend, content_type: content_type, uuid: uuid})
   end
 
   @spec upload_file!(Path.t(), String.t()) :: FileIdentifier.t()

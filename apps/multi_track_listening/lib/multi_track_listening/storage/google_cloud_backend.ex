@@ -1,4 +1,6 @@
 defmodule MultiTrackListening.Storage.GoogleCloudBackend do
+  def backend_identifier(), do: "gcs"
+
   defp get_conn() do
     {:ok, token} = Goth.Token.for_scope("https://www.googleapis.com/auth/cloud-platform")
     GoogleApi.Storage.V1.Connection.new(token.token)
@@ -69,9 +71,8 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
   end
 
   def download(uuid, file_path) do
-    with {:ok, response} <- HTTPoison.get(generate_object_url(uuid)),
-         :ok <- File.write(file_path, response.body) do
-      :ok
+    with {:ok, response} <- HTTPoison.get(generate_object_url(uuid)) do
+      File.write(file_path, response.body)
     end
   end
 end

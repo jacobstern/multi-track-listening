@@ -1,4 +1,6 @@
 defmodule MultiTrackListening.Storage.LocalBackend do
+  def backend_identifier(), do: "local"
+
   defp generate_local_path(uuid) do
     priv = :code.priv_dir(:multi_track_listening)
     Path.join([priv, "media", uuid])
