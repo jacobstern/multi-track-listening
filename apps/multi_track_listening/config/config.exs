@@ -26,7 +26,7 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 config :multi_track_listening, MultiTrackListening.Storage,
-  backend: MultiTrackListening.Storage.LocalBackend
+  backend: MultiTrackListening.Storage.GoogleCloudBackend
 
 config :goth, project_id: "multi-track-listening"
 

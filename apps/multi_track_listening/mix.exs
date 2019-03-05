@@ -24,7 +24,7 @@ defmodule MultiTrackListening.MixProject do
   def application do
     [
       mod: {MultiTrackListening.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :goth]
     ]
   end
 
@@ -52,6 +52,8 @@ defmodule MultiTrackListening.MixProject do
       {:ecto_enum, "~> 1.2"},
       {:honeydew, "~> 1.3.0"},
       {:goth, "~> 0.8.0"},
+      {:google_api_storage, "~> 0.0.1"},
+      {:httpoison, "~> 1.4"},
       {:multi_track_cruncher, in_umbrella: true}
     ]
   end

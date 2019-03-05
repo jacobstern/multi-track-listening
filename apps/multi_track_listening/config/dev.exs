@@ -72,3 +72,6 @@ config :multi_track_listening, MultiTrackListening.Repo,
   database: "multi_track_listening_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
+  bucket: "multi-track-listening-dev"
