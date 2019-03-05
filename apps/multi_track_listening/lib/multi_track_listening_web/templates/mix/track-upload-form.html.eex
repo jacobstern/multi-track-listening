@@ -9,7 +9,7 @@
         <%= file_input f, :file, required: true, accept: ".mp3", class: "file-input" %>
         <span class="file-cta">
           <span class="file-icon">
-            <i class="fas fa-upload"></i>
+            <i class="fa fa-upload"></i>
           </span>
 
           <span class="file-label">

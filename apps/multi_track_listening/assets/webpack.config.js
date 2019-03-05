@@ -46,6 +46,15 @@ module.exports = env => ({
             options: { sourceMap: true }
           })
         )
+      },
+      {
+        test: /\.(svg|woff|woff2|ttf|eot)(\?.*$|$)/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            outputPath: '../fonts'
+          }
+        }
       }
     ]
   },

@@ -2,8 +2,7 @@ defmodule MultiTrackWeb.MixController do
   use MultiTrackWeb, :controller
 
   alias MultiTrackWeb.{Endpoint, MixView}
-  alias MultiTrackListening.{Mixes, Listens}
-  alias MultiTrackListening.Listens.Listen
+  alias MultiTrackListening.Mixes
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()
