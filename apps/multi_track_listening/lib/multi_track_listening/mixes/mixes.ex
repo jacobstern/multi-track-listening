@@ -132,9 +132,7 @@ defmodule MultiTrackListening.Mixes do
     Mix.changeset(mix, %{})
   end
 
-  @spec persist_track_upload(map()) ::
-          {:ok, Track.t()} | {:error, Ecto.Changeset.t()}
-  def persist_track_upload(attrs) do
+  defp persist_track_upload(attrs) do
     case TrackUpload.changeset(%TrackUpload{}, attrs) |> Ecto.Changeset.apply_action(:insert) do
       result = {:error, %Ecto.Changeset{}} ->
         result
@@ -150,25 +148,29 @@ defmodule MultiTrackListening.Mixes do
     TrackUpload.changeset(%TrackUpload{}, %{})
   end
 
-  @spec update_track_one(Mix.t(), Track.t()) :: Mix.t()
-  def update_track_one(%Mix{} = mix, %Track{} = track) do
-    updated = Repo.update!(Ecto.Changeset.change(mix, track_one: track))
+  @spec attach_track_one(Mix.t(), any()) :: {:ok, Mix.t()} | {:error, Ecto.Changeset.t()}
+  def attach_track_one(mix = %Mix{}, track_upload) do
+    with {:ok, track} <- persist_track_upload(track_upload) do
+      updated = Repo.update!(Ecto.Changeset.change(mix, track_one: track))
 
-    if not is_nil(mix.track_one) do
-      Storage.delete_file!(mix.track_one.file_uuid)
+      if not is_nil(mix.track_one) do
+        Storage.delete_file!(mix.track_one.file_uuid)
+      end
+
+      {:ok, updated}
     end
-
-    updated
   end
 
-  @spec update_track_two(Mix.t(), Track.t()) :: Mix.t()
-  def update_track_two(%Mix{} = mix, %Track{} = track) do
-    updated = Repo.update!(Ecto.Changeset.change(mix, track_two: track))
+  @spec attach_track_two(Mix.t(), any()) :: {:ok, Mix.t()} | {:error, Ecto.Changeset.t()}
+  def attach_track_two(mix, track_upload) do
+    with {:ok, track} <- persist_track_upload(track_upload) do
+      updated = Repo.update!(Ecto.Changeset.change(mix, track_two: track))
 
-    if not is_nil(mix.track_two) do
-      Storage.delete_file!(mix.track_two.file_uuid)
+      if not is_nil(mix.track_two) do
+        Storage.delete_file!(mix.track_two.file_uuid)
+      end
+
+      {:ok, updated}
     end
-
-    updated
   end
 end

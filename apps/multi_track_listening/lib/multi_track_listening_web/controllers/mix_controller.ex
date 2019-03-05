@@ -18,10 +18,9 @@ defmodule MultiTrackWeb.MixController do
   def create_track_one(conn, %{"id" => id, "track_upload" => params}) do
     mix = Mixes.get_mix!(id)
 
-    case Mixes.persist_track_upload(params) do
-      {:ok, track} ->
-        Mixes.update_track_one(mix, track)
-        redirect(conn, to: Routes.mix_path(conn, :new_track_two, mix))
+    case Mixes.attach_track_one(mix, params) do
+      {:ok, updated} ->
+        redirect(conn, to: Routes.mix_path(conn, :parameters, updated))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "track-one.html", mix: mix, changeset: changeset)
@@ -37,10 +36,8 @@ defmodule MultiTrackWeb.MixController do
   def create_track_two(conn, %{"id" => id, "track_upload" => params}) do
     mix = Mixes.get_mix!(id)
 
-    # TODO: update_track_two and persist_track_upload should be the same call
-    case Mixes.persist_track_upload(params) do
-      {:ok, track} ->
-        updated = Mixes.update_track_two(mix, track)
+    case Mixes.attach_track_two(mix, params) do
+      {:ok, updated} ->
         redirect(conn, to: Routes.mix_path(conn, :parameters, updated))
 
       {:error, %Ecto.Changeset{} = changeset} ->
