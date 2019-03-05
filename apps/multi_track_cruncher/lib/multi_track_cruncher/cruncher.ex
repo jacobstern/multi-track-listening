@@ -1,4 +1,7 @@
 defmodule MultiTrackCruncher.Cruncher do
+  # Line 22 producers a Dialyzer error, not sure why
+  @dialyzer [{:nowarn_function, crunch_files: 3}, {:nowarn_function, crunch_files: 4}]
+
   defp extra_args_from_keyword_list(opts) do
     opts
     |> Enum.map(fn

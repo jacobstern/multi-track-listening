@@ -7,7 +7,7 @@ defmodule MultiTrackListening.Mixes.Track do
   @type t :: %__MODULE__{
           name: String.t(),
           client_uuid: String.t(),
-          file_uuid: Storage.uuid_t()
+          file_uuid: Storage.FileId.t()
         }
 
   embedded_schema do

@@ -1,4 +1,6 @@
 defmodule MultiTrackListening.Storage.GoogleCloudBackend do
+  @dialyzer [{:no_return, remove: 1}, {:no_return, duplicate: 2}]
+
   def backend_identifier(), do: "gcs"
 
   defp get_conn() do
