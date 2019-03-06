@@ -1,6 +1,4 @@
 defmodule MultiTrackListening.Storage.GoogleCloudBackend do
-  @dialyzer [{:no_return, remove: 1}, {:no_return, duplicate: 2}]
-
   def backend_identifier(), do: "gcs"
 
   defp get_conn() do
@@ -26,7 +24,7 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
                get_conn(),
                bucket_from_config(),
                "multipart",
-               %{name: uuid, contentType: content_type},
+               %GoogleApi.Storage.V1.Model.Object{name: uuid, contentType: content_type},
                file_path
              ) do
         :ok
