@@ -24,6 +24,9 @@ defmodule MultiTrackListening.Mixes.Mix do
     timestamps()
   end
 
+  @spec is_published(t()) :: boolean()
+  def is_published(mix = %__MODULE__{}), do: not is_nil(mix.published_mix_id)
+
   @doc false
   def changeset(mix, attrs) do
     mix

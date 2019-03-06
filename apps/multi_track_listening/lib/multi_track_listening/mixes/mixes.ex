@@ -158,14 +158,18 @@ defmodule MultiTrackListening.Mixes do
   end
 
   @spec publish_mix(Render.t()) :: PublishedMix.t()
-  def publish_mix(render = %Render{result_file_uuid: result_file})
+  def publish_mix(render = %Render{mix: mix, result_file_uuid: result_file})
       when is_binary(result_file) do
     audio_file = Storage.duplicate_file!(result_file)
 
-    PublishedMixes.create_published_mix_internal(
-      audio_file: audio_file,
-      track_one_name: render.track_one_name,
-      track_two_name: render.track_two_name
-    )
+    published =
+      PublishedMixes.create_published_mix_internal(
+        audio_file: audio_file,
+        track_one_name: render.track_one_name,
+        track_two_name: render.track_two_name
+      )
+
+    Ecto.Changeset.change(mix, published_mix_id: published.id) |> Repo.update!()
+    published
   end
 end

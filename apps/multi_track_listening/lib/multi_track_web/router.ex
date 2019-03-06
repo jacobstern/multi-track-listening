@@ -1,5 +1,6 @@
 defmodule MultiTrackWeb.Router do
   use MultiTrackWeb, :router
+  alias MultiTrackWeb.Plugs.{RedirectToPublishedMix, LoadMix}
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -13,6 +14,11 @@ defmodule MultiTrackWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :mix_common do
+    plug LoadMix
+    plug RedirectToPublishedMix
+  end
+
   scope "/", MultiTrackWeb do
     pipe_through :browser
 
@@ -21,14 +27,19 @@ defmodule MultiTrackWeb.Router do
     get "/uploads/:uuid", StorageController, :serve_file
 
     post "/mixes/create", MixController, :create
-    get "/mixes/:id/track-one", MixController, :new_track_one
-    post "/mixes/:id/track-one", MixController, :create_track_one
-    get "/mixes/:id/track-two", MixController, :new_track_two
-    post "/mixes/:id/track-two", MixController, :create_track_two
-    get "/mixes/:id/parameters", MixController, :parameters
-    put "/mixes/:id/parameters", MixController, :create_mix_render
-    get "/mixes/:id/renders/:render_id", MixController, :mix_render
-    post "/mixes/:id/renders/:render_id/publish", MixController, :publish
+
+    scope "/mixes" do
+      pipe_through :mix_common
+
+      get "/:id/track-one", MixController, :new_track_one
+      post "/:id/track-one", MixController, :create_track_one
+      get "/:id/track-two", MixController, :new_track_two
+      post "/:id/track-two", MixController, :create_track_two
+      get "/:id/parameters", MixController, :parameters
+      put "/:id/parameters", MixController, :create_mix_render
+      get "/:id/renders/:render_id", MixController, :mix_render
+      post "/:id/renders/:render_id/publish", MixController, :publish
+    end
 
     get "/listen/anonymous/:id", PublishedMixController, :published_mix
   end

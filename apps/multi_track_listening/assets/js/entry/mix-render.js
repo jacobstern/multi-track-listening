@@ -5,13 +5,15 @@ import { getElements } from '../dom-helpers';
 const pageIds = {
   renderStatus: 'render_status',
   resultAudio: 'result_audio',
-  renderProgress: 'render_progress'
+  renderProgress: 'render_progress',
+  finishedControls: 'finished_controls'
 };
 
 function updateRender(render) {
-  const [renderStatus, renderProgress] = getElements([
+  const [renderStatus, renderProgress, finishedControls] = getElements([
     pageIds.renderStatus,
-    pageIds.renderProgress
+    pageIds.renderProgress,
+    pageIds.finishedControls
   ]);
 
   if (render.status_text) {
@@ -29,6 +31,7 @@ function updateRender(render) {
     renderProgress.innerText = '100%';
     renderProgress.value = 100;
     renderProgress.classList.add('is-success');
+    finishedControls.classList.remove('is-hidden');
   }
 
   if (render.result_url) {

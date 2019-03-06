@@ -49,7 +49,13 @@
       src: mix_render_result_url(@mix_render) %>
 
     
-    <div class="field is-grouped">
+    <%= content_tag :div, id: "finished_controls", class: (
+        if @mix_render.status == :finished do
+          "field is-grouped"
+        else
+          "field is-grouped is-hidden"
+        end
+      ) do %>
       <div class="control">
         <%= button "Publish", to: Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
           class: "button is-primary", data: [confirm: "Finalize and publish this mix?"] %>
@@ -60,6 +66,6 @@
           class: "button is-secondary" %>
       </div>
 
-    </div>
+    <% end %>
   </div>
 </section>
