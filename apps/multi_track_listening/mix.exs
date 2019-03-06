@@ -52,7 +52,7 @@ defmodule MultiTrackListening.MixProject do
       {:ecto_enum, "~> 1.2"},
       {:honeydew, "~> 1.3.0"},
       {:goth, "~> 0.8.0"},
-      {:google_api_storage, "~> 0.0.1"},
+      {:google_api_storage, "~> 0.1.0"},
       {:httpoison, "~> 1.4"},
       {:multi_track_cruncher, in_umbrella: true}
     ]

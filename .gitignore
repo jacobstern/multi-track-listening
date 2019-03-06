@@ -27,3 +27,6 @@ out.mp3
 
 # VS Code
 .vscode/settings.json
+
+# VS Code C++ extension
+.vscode/ipch/

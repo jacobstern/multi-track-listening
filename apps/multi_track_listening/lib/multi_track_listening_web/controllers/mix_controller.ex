@@ -72,14 +72,6 @@ defmodule MultiTrackWeb.MixController do
 
     with {:ok, mix} <- Mixes.update_mix(mix, params) do
       mix_render = Mixes.create_render(mix)
-
-      on_update = fn updated ->
-        payload = MixView.render("mix-render.json", mix_render: updated)
-        Endpoint.broadcast!("mix_renders:#{updated.id}", "update", payload)
-      end
-
-      Mixes.start_render_worker(mix, mix_render, on_update)
-
       redirect(conn, to: Routes.mix_path(conn, :mix_render, mix.id, mix_render.id))
     else
       {:error, %Ecto.Changeset{} = changeset} ->
