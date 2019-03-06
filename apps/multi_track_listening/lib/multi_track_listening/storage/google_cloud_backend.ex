@@ -24,7 +24,11 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
                get_conn(),
                bucket_from_config(),
                "multipart",
-               %GoogleApi.Storage.V1.Model.Object{name: uuid, contentType: content_type},
+               %GoogleApi.Storage.V1.Model.Object{
+                 name: uuid,
+                 contentType: content_type,
+                 contentDisposition: "attachment"
+               },
                file_path
              ) do
         :ok

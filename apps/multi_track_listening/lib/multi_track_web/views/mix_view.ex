@@ -30,8 +30,6 @@ defmodule MultiTrackWeb.MixView do
   def mix_render_result_url(mix_render) do
     if mix_render.result_file_uuid do
       Storage.file_url(mix_render.result_file_uuid)
-    else
-      ""
     end
   end
 

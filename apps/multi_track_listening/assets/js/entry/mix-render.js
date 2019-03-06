@@ -6,14 +6,21 @@ const pageIds = {
   renderStatus: 'render_status',
   resultAudio: 'result_audio',
   renderProgress: 'render_progress',
-  finishedControls: 'finished_controls'
+  finishedControls: 'finished_controls',
+  downloadButton: 'download_button'
 };
 
 function updateRender(render) {
-  const [renderStatus, renderProgress, finishedControls] = getElements([
+  const [
+    renderStatus,
+    renderProgress,
+    finishedControls,
+    downloadButton
+  ] = getElements([
     pageIds.renderStatus,
     pageIds.renderProgress,
-    pageIds.finishedControls
+    pageIds.finishedControls,
+    pageIds.downloadButton
   ]);
 
   if (render.status_text) {
@@ -38,6 +45,7 @@ function updateRender(render) {
     const resultAudio = document.getElementById(pageIds.resultAudio);
     resultAudio.classList.remove('is-hidden');
     resultAudio.src = render.result_url;
+    downloadButton.href = render.result_url;
   }
 }
 
