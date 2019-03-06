@@ -6,7 +6,7 @@ defmodule MultiTrackListening.Mixes do
   import Ecto.Query, warn: false
   alias MultiTrackListening.Repo
   alias MultiTrackListening.Storage
-
+  alias MultiTrackListening.PublishedMixes
   alias MultiTrackListening.Mixes.{Mix, TrackUpload, Track, Render}
 
   @doc """
@@ -87,14 +87,17 @@ defmodule MultiTrackListening.Mixes do
     render
   end
 
+  @spec get_render!(integer) :: Render.t()
   def get_render!(render_id) do
     Repo.get!(Render, render_id) |> Repo.preload(:mix)
   end
 
+  @spec get_mix_render!(integer, integer) :: Render.t()
   def get_mix_render!(mix_id, render_id) do
     Repo.get_by!(Render, mix_id: mix_id, id: render_id) |> Repo.preload(:mix)
   end
 
+  @spec update_render_internal(Render.t(), keyword() | %{optional(atom()) => any()}) :: Render.t()
   def update_render_internal(render, updates) do
     Ecto.Changeset.change(render, updates) |> Repo.update!() |> Repo.preload(:mix)
   end
@@ -152,5 +155,17 @@ defmodule MultiTrackListening.Mixes do
 
       {:ok, updated}
     end
+  end
+
+  @spec publish_mix(Render.t()) :: PublishedMix.t()
+  def publish_mix(render = %Render{result_file_uuid: result_file})
+      when is_binary(result_file) do
+    audio_file = Storage.duplicate_file!(result_file)
+
+    PublishedMixes.create_published_mix_internal(
+      audio_file: audio_file,
+      track_one_name: render.track_one_name,
+      track_two_name: render.track_two_name
+    )
   end
 end

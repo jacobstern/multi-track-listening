@@ -30,7 +30,7 @@ defmodule MultiTrackWeb do
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/multi_track_listening_web/templates",
+        root: "lib/multi_track_web/templates",
         namespace: MultiTrackWeb
 
       # Import convenience functions from controllers

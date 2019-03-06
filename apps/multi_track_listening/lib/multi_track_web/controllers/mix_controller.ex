@@ -81,14 +81,9 @@ defmodule MultiTrackWeb.MixController do
     render(conn, "mix-render.html", mix: mix, mix_render: mix_render)
   end
 
-  # def post_mix(conn, %{"id" => id, "render_id" => render_id}) do
-  #   mix_render = Mixes.get_mix_render!(id, render_id)
-
-  #   {:ok, listen} =
-  #     Listens.create_listen(%Listen{
-  #       track_one_name: mix_render.track_one_name,
-  #       track_two_name: mix_render.track_two_name,
-  #       audio_file_uuid: mix_render
-  #     })
-  # end
+  def publish(conn, %{"id" => id, "render_id" => render_id}) do
+    mix_render = Mixes.get_mix_render!(id, render_id)
+    published_mix = Mixes.publish_mix(mix_render)
+    redirect(conn, to: Routes.published_mix_path(conn, :published_mix, published_mix))
+  end
 end

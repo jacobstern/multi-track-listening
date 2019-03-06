@@ -28,6 +28,9 @@ defmodule MultiTrackWeb.Router do
     get "/mixes/:id/parameters", MixController, :parameters
     put "/mixes/:id/parameters", MixController, :create_mix_render
     get "/mixes/:id/renders/:render_id", MixController, :mix_render
+    post "/mixes/:id/renders/:render_id/publish", MixController, :publish
+
+    get "/listen/anonymous/:id", PublishedMixController, :published_mix
   end
 
   # Other scopes may use custom stacks.

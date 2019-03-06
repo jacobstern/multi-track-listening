@@ -50,8 +50,8 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/multi_track_listening_web/views/.*(ex)$},
-      ~r{lib/multi_track_listening_web/templates/.*(eex)$}
+      ~r{lib/multi_track_web/views/.*(ex)$},
+      ~r{lib/multi_track_web/templates/.*(eex)$}
     ]
   ]
 

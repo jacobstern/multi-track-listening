@@ -44,9 +44,22 @@
 
     <%= content_tag :audio, nil,
       id: "result_audio",
-      class: "is-hidden",
+      class: "mix-render-audio is-hidden",
       controls: true,
       src: mix_render_result_url(@mix_render) %>
 
+    
+    <div class="field is-grouped">
+      <div class="control">
+        <%= button "Publish", to: Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
+          class: "button is-primary", data: [confirm: "Finalize and publish this mix?"] %>
+      </div>
+
+      <div class="control">
+        <%= link "Download", to: mix_render_result_url(@mix_render), download: "mix.mp3",
+          class: "button is-secondary" %>
+      </div>
+
+    </div>
   </div>
 </section>

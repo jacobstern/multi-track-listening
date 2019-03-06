@@ -31,12 +31,17 @@ defmodule MultiTrackWeb.MixView do
   def mix_render_result_url(mix_render) do
     if mix_render.result_file_uuid do
       Routes.storage_url(Endpoint, :serve_file, mix_render.result_file_uuid)
+    else
+      ""
     end
   end
 
   def display_mix_render_status(render_status) do
     %{
-      finished: "Done! You can now post or download the mix.",
+      finished: """
+      Done! You can now publish or download the mix.
+      Note that once you publish the mix, you can no longer update its parameters.
+      """,
       error: "There was an error rendering this mix. Please try again with different audio files."
     }[render_status]
   end
