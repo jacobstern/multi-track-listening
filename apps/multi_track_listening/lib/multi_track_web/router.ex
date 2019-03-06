@@ -41,7 +41,7 @@ defmodule MultiTrackWeb.Router do
       post "/:id/renders/:render_id/publish", MixController, :publish
     end
 
-    get "/listen/anonymous/:id", PublishedMixController, :published_mix
+    get "/listen/anonymous/:id", PublishedMixController, :show
   end
 
   # Other scopes may use custom stacks.

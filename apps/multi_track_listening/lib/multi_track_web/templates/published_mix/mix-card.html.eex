@@ -1,0 +1,13 @@
+<div class="card published-mix-card">
+  <div class="card-content">
+    <%= content_tag :p, @published_mix.track_one_name <> " ✗ " <> @published_mix.track_two_name,
+      class: "published-mix-card-description" %>
+    <p class="published-mix-card-attribution">
+      Created by anonymous
+    </p>
+     <%= content_tag :audio, nil,
+      class: "published-mix-card-audio",
+      controls: true,
+      src: @audio_url %>
+  </div>
+</div>

@@ -6,7 +6,7 @@ defmodule MultiTrackWeb.Plugs.RedirectToPublishedMix do
 
   def call(conn = %Plug.Conn{assigns: %{mix: %Mix{published_mix_id: published_id}}}, _) do
     if not is_nil(published_id) do
-      redirect_to = Routes.published_mix_path(conn, :published_mix, published_id)
+      redirect_to = Routes.published_mix_path(conn, :show, published_id)
 
       conn
       |> Phoenix.Controller.redirect(to: redirect_to)
