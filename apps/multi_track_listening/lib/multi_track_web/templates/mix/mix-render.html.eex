@@ -63,8 +63,16 @@
         end
       ) do %>
       <div class="control">
-        <%= button "Publish", to: Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
-          class: "button is-primary", data: [confirm: "Finalize and publish this mix?"] %>
+        <%= form_tag Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
+            id: "publish_form" do %>
+          <%= submit "Publish",
+            class: "button is-primary", id: "publish_button",
+            data: [
+              confirm: "Finalize and publish this mix?",
+              track_one_client_uuid: @mix.track_one.client_uuid,
+              track_two_client_uuid: @mix.track_two.client_uuid
+            ] %>
+        <% end %>
       </div>
 
       <div class="control">

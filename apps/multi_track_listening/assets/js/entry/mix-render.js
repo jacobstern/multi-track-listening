@@ -1,14 +1,40 @@
 import { Socket } from 'phoenix';
 import * as PageLifecycle from '../page-lifecycle';
 import { getElements } from '../dom-helpers';
+import { removeCachedFile } from '../file-cache';
 
 const pageIds = {
   renderStatus: 'render_status',
   resultAudio: 'result_audio',
   renderProgress: 'render_progress',
   finishedControls: 'finished_controls',
-  downloadButton: 'download_button'
+  downloadButton: 'download_button',
+  publishButton: 'publish_button',
+  publishForm: 'publish_form'
 };
+
+function handleFormSubmit(event) {
+  const publishButton = document.getElementById(pageIds.publishButton);
+  publishButton.disabled = true;
+  publishButton.classList.add('is-loading');
+
+  if (
+    publishButton.dataset.trackOneClientUuid &&
+    publishButton.dataset.trackTwoClientUuid
+  ) {
+    event.preventDefault();
+    Promise.all([
+      removeCachedFile(publishButton.dataset.trackOneClientUuid),
+      removeCachedFile(publishButton.dataset.trackTwoClientUuid)
+    ])
+      .then(() => {
+        event.target.submit();
+      })
+      .catch(() => {
+        event.target.submit();
+      });
+  }
+}
 
 function updateRender(render) {
   const [
@@ -66,4 +92,8 @@ PageLifecycle.ready(() => {
       throw e;
     });
   channel.on('update', updateRender);
+
+  document
+    .getElementById(pageIds.publishForm)
+    .addEventListener('submit', handleFormSubmit);
 });

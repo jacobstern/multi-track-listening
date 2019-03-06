@@ -1,6 +1,6 @@
 import * as PageLifecycle from '../page-lifecycle';
 import * as MixPreview from '../mix-preview';
-import * as FileCache from '../file-cache';
+import { getCachedFileBlob } from '../file-cache';
 
 const pageIds = {
   mixParametersForm: 'mix_parameters_form',
@@ -37,7 +37,7 @@ function getArrayBufferFromBlob(blob) {
 
 function loadAudioBuffer(url, clientUuid) {
   if (clientUuid) {
-    return FileCache.getFileBlob(clientUuid).then(blob => {
+    return getCachedFileBlob(clientUuid).then(blob => {
       if (blob) {
         return getArrayBufferFromBlob(blob);
       }

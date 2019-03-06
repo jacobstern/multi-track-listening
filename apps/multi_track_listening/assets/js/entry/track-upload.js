@@ -1,8 +1,8 @@
 import uniqid from 'uniqid';
 
 import * as PageLifecycle from '../page-lifecycle';
-import * as FileCache from '../file-cache';
 import { getElements } from '../dom-helpers';
+import { cacheFile, removeCachedFile } from '../file-cache';
 
 const pageIds = {
   trackUploadForm: 'track_upload_form',
@@ -54,11 +54,11 @@ function handleFormSubmit(event) {
 
     clientUuidInput.value = uuid;
     event.preventDefault();
-    FileCache.putFile(uuid, file)
+    cacheFile(uuid, file)
       .then(() => {
         if (previousValue) {
           // Previously cached file no longer relevant
-          return FileCache.removeFile(previousValue);
+          return removeCachedFile(previousValue);
         }
       })
       .then(() => {
