@@ -1,8 +1,7 @@
 defmodule MultiTrackWeb.MixView do
   use MultiTrackWeb, :view
 
-  alias MultiTrackWeb.Endpoint
-  alias MultiTrackWeb.Router.Helpers, as: Routes
+  alias MultiTrackListening.Storage
 
   def render("scripts.track-one.html", assigns) do
     render_script_tag(assigns.conn, "track-upload.js")
@@ -30,7 +29,7 @@ defmodule MultiTrackWeb.MixView do
 
   def mix_render_result_url(mix_render) do
     if mix_render.result_file_uuid do
-      Routes.storage_url(Endpoint, :serve_file, mix_render.result_file_uuid)
+      Storage.file_url(mix_render.result_file_uuid)
     else
       ""
     end

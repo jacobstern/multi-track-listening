@@ -44,7 +44,13 @@
 
     <%= content_tag :audio, nil,
       id: "result_audio",
-      class: "mix-render-audio is-hidden",
+      class: (
+        if @mix_render.status == :finished do
+          "mix-render-audio"
+        else
+          "mix-render-audio is-hidden"
+        end
+      ),
       controls: true,
       src: mix_render_result_url(@mix_render) %>
 

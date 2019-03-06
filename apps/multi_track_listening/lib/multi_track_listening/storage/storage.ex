@@ -70,10 +70,15 @@ defmodule MultiTrackListening.Storage do
     uuid |> get_file_record!() |> Repo.delete!()
   end
 
-  @spec serve_file!(FileId.t(), Plug.Conn.t()) :: Plug.Conn.t()
-  def serve_file!(uuid, conn) do
+  @spec get_file_content_type!(FileId.t()) :: String.t()
+  def get_file_content_type!(uuid) do
     %Storage.File{content_type: content_type} = get_file_record!(uuid)
-    backend_call(:serve_plug, [uuid, content_type, conn])
+    content_type
+  end
+
+  @spec file_url(FileId.t()) :: String.t()
+  def file_url(uuid) do
+    backend_call(:url, [uuid])
   end
 
   @spec download_file!(FileId.t(), Path.t()) :: :ok

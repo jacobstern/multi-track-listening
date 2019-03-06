@@ -1,7 +1,7 @@
 defmodule MultiTrackWeb.MixController do
   use MultiTrackWeb, :controller
 
-  alias MultiTrackListening.Mixes
+  alias MultiTrackListening.{Mixes, Storage}
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()
@@ -58,7 +58,9 @@ defmodule MultiTrackWeb.MixController do
       true ->
         render(conn, "parameters.html",
           mix: mix,
-          changeset: changeset
+          changeset: changeset,
+          track_one_url: Storage.file_url(mix.track_one.file_uuid),
+          track_two_url: Storage.file_url(mix.track_two.file_uuid)
         )
     end
   end

@@ -51,8 +51,8 @@
             data: [
               track_one_client_uuid: @mix.track_one.client_uuid,
               track_two_client_uuid: @mix.track_two.client_uuid,
-              track_one_url: Routes.storage_url(@conn, :serve_file, @mix.track_one.file_uuid),
-              track_two_url: Routes.storage_url(@conn, :serve_file, @mix.track_two.file_uuid)
+              track_one_url: @track_one_url,
+              track_two_url: @track_two_url
             ] %>
           <span id="preview_error" class="help is-danger is-hidden"></span>
         </div>

@@ -55,6 +55,8 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
     {:ok, result}
   end
 
+  def url(uuid), do: {:ok, generate_object_url(uuid)}
+
   def duplicate(uuid, uuid_dst) do
     bucket = bucket_from_config()
 
