@@ -8,6 +8,7 @@ defmodule MultiTrackListening.Mixes.Mix do
           track_one: Track.t(),
           track_two: Track.t(),
           parameters: MixParameters.t(),
+          published_mix_id: integer,
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -17,6 +18,8 @@ defmodule MultiTrackListening.Mixes.Mix do
     embeds_one :track_two, Track, on_replace: :delete
 
     has_one :parameters, MixParameters
+
+    field :published_mix_id, :integer
 
     timestamps()
   end

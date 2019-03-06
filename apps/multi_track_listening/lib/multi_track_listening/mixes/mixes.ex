@@ -87,16 +87,6 @@ defmodule MultiTrackListening.Mixes do
     render
   end
 
-  def start_render_worker(%Mix{id: mix_id}, %Render{id: render_id}, on_update) do
-    {:do_render, [mix_id, render_id, on_update]} |> Honeydew.async(:mix_render_queue)
-  end
-
-  def get_current_render(%Mix{id: mix_id}) do
-    from(r in Render, where: r.mix_id == ^mix_id, order_by: [desc: r.inserted_at], limit: 1)
-    |> Repo.one()
-    |> Repo.preload(:mix)
-  end
-
   def get_render!(render_id) do
     Repo.get!(Render, render_id) |> Repo.preload(:mix)
   end
@@ -106,23 +96,7 @@ defmodule MultiTrackListening.Mixes do
   end
 
   def update_render_internal(render, updates) do
-    Ecto.Changeset.change(render, updates) |> Repo.update!()
-  end
-
-  @doc """
-  Deletes a Mix.
-
-  ## Examples
-
-      iex> delete_mix(mix)
-      {:ok, %Mix{}}
-
-      iex> delete_mix(mix)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_mix(%Mix{} = mix) do
-    Repo.delete(mix)
+    Ecto.Changeset.change(render, updates) |> Repo.update!() |> Repo.preload(:mix)
   end
 
   @doc """

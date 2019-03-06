@@ -1,7 +1,6 @@
 defmodule MultiTrackWeb.MixController do
   use MultiTrackWeb, :controller
 
-  alias MultiTrackWeb.{Endpoint, MixView}
   alias MultiTrackListening.Mixes
 
   def create(conn, _params) do
@@ -45,7 +44,10 @@ defmodule MultiTrackWeb.MixController do
     end
   end
 
-  defp render_parameters_page(conn, mix, changeset) do
+  def parameters(conn, %{"id" => id}) do
+    mix = Mixes.get_mix!(id)
+    changeset = Mixes.change_mix(mix)
+
     cond do
       is_nil(mix.track_one) ->
         redirect(conn, to: Routes.mix_path(conn, :new_track_one, mix))
@@ -59,12 +61,6 @@ defmodule MultiTrackWeb.MixController do
           changeset: changeset
         )
     end
-  end
-
-  def parameters(conn, %{"id" => id}) do
-    mix = Mixes.get_mix!(id)
-    changeset = Mixes.change_mix(mix)
-    render_parameters_page(conn, mix, changeset)
   end
 
   def create_mix_render(conn, %{"id" => id, "mix" => params}) do
