@@ -87,6 +87,6 @@ defmodule MultiTrackWeb.MixController do
     mix = conn.assigns[:mix]
     mix_render = Mixes.get_mix_render!(mix.id, render_id)
     published_mix = Mixes.publish_mix(mix_render)
-    redirect(conn, to: Routes.published_mix_path(conn, :published_mix, published_mix))
+    redirect(conn, to: Routes.published_mix_path(conn, :show, published_mix))
   end
 end

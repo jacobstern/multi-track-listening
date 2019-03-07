@@ -1,7 +1,9 @@
 <div class="card published-mix-card">
-  <div class="card-content">
+  <header class="card-header">
     <%= content_tag :p, @published_mix.track_one_name <> " ✗ " <> @published_mix.track_two_name,
-      class: "published-mix-card-description" %>
+      class: "card-header-title" %>
+  </header>
+  <div class="card-content">
     <p class="published-mix-card-attribution">
       Created by anonymous
     </p>
