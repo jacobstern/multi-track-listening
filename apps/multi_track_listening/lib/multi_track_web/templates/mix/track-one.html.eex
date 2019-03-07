@@ -2,7 +2,7 @@
   <div class="container">
     <h1 class="title">New Mix – Upload Track One</h1>
 
-    <p class="common-form-description">Please upload an MP3 file.</p>
+    <p class="form-description">Please upload an MP3 file.</p>
 
     <%= render "track-upload-form.html", Map.merge(assigns,
       %{ action: Routes.mix_path(@conn, :create_track_one, @mix), track: @mix.track_one }) %>

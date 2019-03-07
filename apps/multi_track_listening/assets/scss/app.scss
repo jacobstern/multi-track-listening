@@ -1,13 +1,11 @@
-@import '../node_modules/bulma/bulma.sass';
+@charset "utf-8";
 
-$fa-font-path: '../node_modules/@fortawesome/fontawesome-free/webfonts/';
+@import './bulma';
+@import './fontawesome';
 
-@import '../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss';
-@import '../node_modules/@fortawesome/fontawesome-free/scss/solid.scss';
-
-@import './common.scss';
-@import './mix-render.scss';
-@import './published-mix-card.scss';
+@import './components/form';
+@import './components/mix-render';
+@import './components/published-mix-card';
 
 .app-navbar-brand {
   font-size: $size-5;

@@ -2,7 +2,7 @@
   <div class="container">
     <h1 class="title">Rendering Mix</h1>
 
-    <p class="common-form-description">
+    <p class="form-description">
       Mixing <%= content_tag :i, @mix.track_one.name %>
       and
       <%= content_tag :i, @mix.track_two.name %>.
@@ -33,11 +33,11 @@
     <% end %>
 
     <%= if @mix_render.status == :error do %>
-      <p id="render_status" class="common-form-description has-text-danger">
+      <p id="render_status" class="form-description has-text-danger">
         <%= display_mix_render_status @mix_render.status %>
       </p>
     <% else %>
-      <p id="render_status" class="common-form-description">
+      <p id="render_status" class="form-description">
         <%= display_mix_render_status @mix_render.status %>
       </p>
     <% end %>
