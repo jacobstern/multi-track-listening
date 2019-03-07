@@ -51,7 +51,7 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
       ~r{lib/multi_track_web/views/.*(ex)$},
-      ~r{lib/multi_track_web/templates/.*(eex)$}
+      ~r{lib/multi_track_web/templates/.*(eex|md)$}
     ]
   ]
 
@@ -75,3 +75,6 @@ config :multi_track_listening, MultiTrackListening.Repo,
 
 config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
   bucket: "multi-track-listening-dev"
+
+# FIXME: This belongs in an admin UI
+config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [1]

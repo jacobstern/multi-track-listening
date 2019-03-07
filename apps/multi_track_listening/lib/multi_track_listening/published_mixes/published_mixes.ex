@@ -21,6 +21,9 @@ defmodule MultiTrackListening.PublishedMixes do
     Repo.all(PublishedMix)
   end
 
+  @spec get_published_mix(integer) :: PublishedMix.t() | nil
+  def get_published_mix(id), do: Repo.get(PublishedMix, id)
+
   @doc """
   Gets a single published_mix.
 

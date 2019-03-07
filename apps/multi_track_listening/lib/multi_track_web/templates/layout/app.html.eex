@@ -17,7 +17,14 @@
         <div class="navbar-menu">
           <div class="navbar-start">
             <%= navbar_link @conn, "Home", Routes.home_path(@conn, :index), exact: true %>
-            <a class="navbar-item" href="https://hexdocs.pm/phoenix/overview.html">What is This?</a>
+            <a class="navbar-item" href="https://hexdocs.pm/phoenix/overview.html">About</a>
+          </div>
+          <div class="navbar-end is-hidden-touch">
+            <div class="navbar-item">
+              <%= form_tag Routes.mix_path(@conn, :create) do %>
+                <%= submit "Create a Mix", class: "button is-primary" %>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>

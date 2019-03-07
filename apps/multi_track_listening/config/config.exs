@@ -25,6 +25,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Enable Markdown templates
+config :phoenix, :template_engines, md: PhoenixMarkdown.Engine
+
 config :multi_track_listening, MultiTrackListening.Storage,
   backend: MultiTrackListening.Storage.GoogleCloudBackend
 

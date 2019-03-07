@@ -54,6 +54,7 @@ defmodule MultiTrackListening.MixProject do
       {:goth, "~> 0.8.0"},
       {:google_api_storage, "~> 0.1.0"},
       {:httpoison, "~> 1.4"},
+      {:phoenix_markdown, "~> 1.0"},
       {:multi_track_cruncher, in_umbrella: true}
     ]
   end
@@ -66,7 +67,7 @@ defmodule MultiTrackListening.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create", "ecto.migrate", "multi_track_listening.seed"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]

@@ -6,6 +6,6 @@ defmodule MultiTrackWeb.PublishedMixController do
   def show(conn, %{"id" => id}) do
     published_mix = %{audio_file: audio_file} = PublishedMixes.get_published_mix!(id)
     audio_url = Storage.file_url(audio_file)
-    render(conn, "show.html", published_mix: published_mix, audio_url: audio_url)
+    render(conn, "show.html", mix: published_mix, audio_url: audio_url)
   end
 end

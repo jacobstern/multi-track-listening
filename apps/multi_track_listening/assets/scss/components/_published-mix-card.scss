@@ -10,3 +10,7 @@
 .published-mix-card-audio {
   width: 100%;
 }
+
+.published-mix-card-header:hover .published-mix-card-title {
+  color: $link-hover;
+}

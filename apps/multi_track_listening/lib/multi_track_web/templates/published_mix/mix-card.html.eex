@@ -1,15 +1,17 @@
 <div class="card published-mix-card">
-  <header class="card-header">
-    <%= content_tag :p, @published_mix.track_one_name <> " ✗ " <> @published_mix.track_two_name,
-      class: "card-header-title" %>
+  <%= link to: Routes.published_mix_path(@conn, :show, @mix),
+    class: "card-header published-mix-card-header" do %>
+    <%= content_tag :p, @mix.track_one_name <> " ✗ " <> @mix.track_two_name,
+      class: "card-header-title published-mix-card-title" %>
+  <% end %>
   </header>
   <div class="card-content">
     <p class="published-mix-card-attribution">
       Created by anonymous
     </p>
      <%= content_tag :audio, nil,
-      class: "published-mix-card-audio",
-      controls: true,
-      src: @audio_url %>
+        class: "published-mix-card-audio",
+        controls: true,
+        src: @audio_url %>
   </div>
 </div>

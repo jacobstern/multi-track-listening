@@ -1,18 +1,24 @@
 <section class="section">  
   <div class="container">
-    <div class="columns">
-      <div class="column is-hidden-touch">
-        <img src="/images/multi-track-listening.jpg" class="home-large-image">
-<!--
+    <div class="columns is-variable is-8-widescreen is-8-desktop">
+      <div class="column">
         <div class="content">
           <%= render "welcome.html" %>
         </div>
-!-->
-      </div>
-      <div class="column">
-        <%= form_tag Routes.mix_path(@conn, :create) do %>
+
+        <%= form_tag Routes.mix_path(@conn, :create), class: "is-hidden-desktop home-create-mix-button" do %>
           <%= submit "Create a Mix", class: "button is-primary" %>
         <% end %>
+
+        <%= if length(@featured_mixes) > 0 do %>
+          <h1 class="title">Featured Mixes</h1>
+          <%= for mix <- @featured_mixes do %>
+            <%= render MultiTrackWeb.PublishedMixView, "mix-card.html", Map.put(mix, :conn, @conn) %>
+          <% end %>
+        <% end %>
+      </div>
+      <div class="column is-hidden-touch">
+        <img src="/images/multi-track-listening.jpg" class="home-large-image">
       </div>
     </div>
   </div>
