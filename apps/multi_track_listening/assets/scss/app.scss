@@ -8,3 +8,8 @@ $fa-font-path: '../node_modules/@fortawesome/fontawesome-free/webfonts/';
 @import './common.scss';
 @import './mix-render.scss';
 @import './published-mix-card.scss';
+
+.app-navbar-brand {
+  font-size: $size-5;
+  font-weight: $weight-light;
+}

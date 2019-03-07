@@ -4,15 +4,20 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Multi-Track Listening</title>
+    <title>Multi-Track Listening!</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
   <body>
     <nav class="navbar has-shadow" role="navigation">
       <div class="container">
+        <div class="navbar-brand">
+          <%= link "Multi-Track Listening!", to: Routes.home_path(@conn, :index),
+            class: "navbar-item app-navbar-brand" %>
+        </div>
         <div class="navbar-menu">
           <div class="navbar-start">
-            <a class="navbar-item" href="https://hexdocs.pm/phoenix/overview.html">Get Started</a>
+            <%= navbar_link @conn, "Home", Routes.home_path(@conn, :index), exact: true %>
+            <a class="navbar-item" href="https://hexdocs.pm/phoenix/overview.html">What is This?</a>
           </div>
         </div>
       </div>

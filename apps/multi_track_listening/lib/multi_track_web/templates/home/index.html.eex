@@ -1,19 +1,14 @@
-<section class="hero is-dark">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title">
-        Multi-Track Listening
-      </h1>
-      <h2 class="subtitle">
-        A new way to play
-      </h2>
-    </div>
-  </div>
-</section>
 <section class="section">  
   <div class="container">
-    <%= form_tag Routes.mix_path(@conn, :create) do %>
-      <%= submit "Create a Mix", class: "button is-primary" %>
-    <% end %>
+    <div class="columns">
+      <div class="column">
+        <%# TODO: Implement featured mixes %>
+      </div>
+      <div class="column">
+        <%= form_tag Routes.mix_path(@conn, :create) do %>
+          <%= submit "Create a Mix", class: "button is-primary" %>
+        <% end %>
+      </div>
+    </div>
   </div>
 </section>
