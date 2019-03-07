@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -Werror
+CFLAGS = -O3 -Wall -Werror
 
 HEADER_FILES = src
 
