@@ -15,7 +15,7 @@ defmodule MultiTrackWeb.LayoutView do
 
   defp navbar_classes(is_active) do
     if is_active do
-      ["is-active", "navbar-item"]
+      ["navbar-item", "is-active"]
     else
       ["navbar-item"]
     end

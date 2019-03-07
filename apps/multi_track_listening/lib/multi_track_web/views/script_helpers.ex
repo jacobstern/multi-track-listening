@@ -1,4 +1,4 @@
-defmodule MultiTrackWeb.ViewScripts do
+defmodule MultiTrackWeb.ScriptHelpers do
   use Phoenix.HTML
   alias MultiTrackWeb.Router.Helpers, as: Routes
 

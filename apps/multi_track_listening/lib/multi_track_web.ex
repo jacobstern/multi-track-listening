@@ -41,7 +41,7 @@ defmodule MultiTrackWeb do
 
       import MultiTrackWeb.ErrorHelpers
       import MultiTrackWeb.Gettext
-      import MultiTrackWeb.ViewScripts
+      import MultiTrackWeb.ScriptHelpers
       alias MultiTrackWeb.Router.Helpers, as: Routes
     end
   end

@@ -1,8 +1,13 @@
 <section class="section">  
   <div class="container">
     <div class="columns">
-      <div class="column">
-        <%# TODO: Implement featured mixes %>
+      <div class="column is-hidden-touch">
+        <img src="/images/multi-track-listening.jpg" class="home-large-image">
+<!--
+        <div class="content">
+          <%= render "welcome.html" %>
+        </div>
+!-->
       </div>
       <div class="column">
         <%= form_tag Routes.mix_path(@conn, :create) do %>
