@@ -16,9 +16,11 @@ const pageIds = {
 
 function guessTrackName(fileName) {
   const trackNumberRegex = /^\d\d?\.?\W+/;
+  const artistDashRegex = /^.*\W+-\W+/;
   return fileName
     .substring(0, fileName.lastIndexOf('.'))
-    .replace(trackNumberRegex, '');
+    .replace(trackNumberRegex, '')
+    .replace(artistDashRegex, '');
 }
 
 function fixFileInput() {
