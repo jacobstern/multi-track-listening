@@ -2,6 +2,7 @@ defmodule MultiTrackListening.Mixes.Mix do
   use Ecto.Schema
   import Ecto.Changeset
   alias MultiTrackListening.Mixes.{Track, MixParameters}
+  alias MultiTrackListening.PublishedMixes.PublishedMix
 
   @type t :: %__MODULE__{
           id: integer,
@@ -9,6 +10,7 @@ defmodule MultiTrackListening.Mixes.Mix do
           track_two: Track.t(),
           parameters: MixParameters.t(),
           published_mix_id: integer,
+          published_mix: PublishedMix.t() | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -19,7 +21,7 @@ defmodule MultiTrackListening.Mixes.Mix do
 
     has_one :parameters, MixParameters
 
-    field :published_mix_id, :integer
+    belongs_to :published_mix, PublishedMix
 
     timestamps()
   end

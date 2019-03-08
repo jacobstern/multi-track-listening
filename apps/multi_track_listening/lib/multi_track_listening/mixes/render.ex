@@ -3,6 +3,7 @@ defmodule MultiTrackListening.Mixes.Render do
   import EctoEnum
 
   alias MultiTrackListening.Mixes.Mix
+  alias MultiTrackListening.PublishedMixes.PublishedMix
 
   defenum(StatusEnum, requested: 0, in_progress: 1, finished: 2, error: 3, canceled: 4, aborted: 5)
 
@@ -20,6 +21,7 @@ defmodule MultiTrackListening.Mixes.Render do
           status: :requested | :in_progress | :finished | :error | :canceled | :aborted,
           mix_id: integer,
           mix: Mix.t(),
+          published_mix: PublishedMix.t() | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -44,6 +46,7 @@ defmodule MultiTrackListening.Mixes.Render do
     field :status, StatusEnum, default: :requested
 
     belongs_to :mix, Mix
+    belongs_to :published_mix, PublishedMix
 
     timestamps()
   end
