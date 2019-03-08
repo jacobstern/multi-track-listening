@@ -28,9 +28,14 @@
         </div>
       </div>
     </nav>
-    <main role="main">
+    <main role="main" class="app-main">
       <%= render @view_module, @view_template, assigns %>
     </main>
+    <footer class="footer app-footer">
+      <div class="content has-text-centered">
+        <%= render "footer.html" %>
+      </div>
+    </footer>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
     <%= render_existing @view_module, "scripts." <> @view_template, assigns %>
   </body>

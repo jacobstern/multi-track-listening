@@ -8,6 +8,16 @@
 @import './components/mix-render';
 @import './components/published-mix-card';
 
+$app-footer-height: 250px;
+
+.app-footer {
+  height: $app-footer-height;
+}
+
+.app-main {
+  min-height: calc(100vh - #{$app-footer-height} - #{$navbar-height});
+}
+
 .app-navbar-brand {
   font-size: $size-5;
   font-weight: $weight-light;
