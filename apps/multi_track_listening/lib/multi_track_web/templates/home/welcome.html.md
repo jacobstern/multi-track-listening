@@ -5,5 +5,3 @@ with [this YouTube video](https://www.youtube.com/watch?v=N2CKKV4Z44A), which
 also represents the canonical multi-track listening product. This website was
 created to facilitate creation and sharing of mixes in the spirit of the
 original work.
-
-The multi-track listening image is derived from a [comic by K009](http://k009comics.com/).

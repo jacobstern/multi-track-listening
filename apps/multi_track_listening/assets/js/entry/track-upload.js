@@ -1,8 +1,8 @@
 import uniqid from 'uniqid';
 
-import * as PageLifecycle from '../page-lifecycle';
 import { getElements } from '../dom-helpers';
 import { cacheFile, removeCachedFile } from '../file-cache';
+import { onReady } from '../page-lifecycle';
 
 const pageIds = {
   trackUploadForm: 'track_upload_form',
@@ -70,7 +70,7 @@ function handleFormSubmit(event) {
   }
 }
 
-PageLifecycle.ready(() => {
+onReady(() => {
   fixFileInput(); // Need to apply correct UI if file input is already populated
 
   const [fileInput, form] = getElements([

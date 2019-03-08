@@ -1,6 +1,7 @@
-import * as PageLifecycle from '../page-lifecycle';
+import { onReady } from '../page-lifecycle';
 import * as MixPreview from '../mix-preview';
 import { getCachedFileBlob } from '../file-cache';
+import { getElements } from '../dom-helpers';
 
 const pageIds = {
   mixParametersForm: 'mix_parameters_form',
@@ -47,105 +48,92 @@ function loadAudioBuffer(url, clientUuid) {
   return loadAudioBufferFetch(url);
 }
 
-function makePreviewStopHandler(stopPreview) {
-  const handler = {
-    handleEvent: event => {
-      event.preventDefault();
+onReady(() => {
+  let stopPreviewCallback, previewBuffers;
 
-      const stopButton = document.getElementById(pageIds.stopPreviewButton);
-      stopButton.removeEventListener('click', handler);
-      stopButton.disabled = true;
+  const handlePreviewStop = event => {
+    event.preventDefault();
 
-      stopPreview();
+    const stopButton = document.getElementById(pageIds.stopPreviewButton);
+    stopButton.disabled = true;
+
+    if (stopPreviewCallback) {
+      stopPreviewCallback();
     }
   };
-  return handler;
-}
 
-function makePreviewPlayHandler(
-  previewBuffers,
-  stopPreviewCallback,
-  stopPreviewHandler
-) {
-  const handler = {
-    handleEvent: event => {
-      event.preventDefault();
+  const handlePreviewPlay = event => {
+    event.preventDefault();
 
-      if (stopPreviewCallback) {
-        stopPreviewCallback();
-      }
+    if (stopPreviewCallback) {
+      stopPreviewCallback();
+    }
 
-      if (stopPreviewHandler) {
-        const stopButton = document.getElementById(pageIds.stopPreviewButton);
-        stopButton.removeEventListener('click', stopPreviewHandler);
-        stopButton.disabled = true;
-      }
+    const stopButton = document.getElementById(pageIds.stopPreviewButton);
+    stopButton.disabled = true;
 
-      const previewButton = document.getElementById(pageIds.previewButton);
-      const previewWithBuffers = buffers => {
-        const [
-          trackOneStartInput,
-          trackTwoStartInput,
-          mixDurationInput,
-          stopPreviewButton
-        ] = [
-          pageIds.trackOneStartInput,
-          pageIds.trackTwoStartInput,
-          pageIds.mixDurationInput,
-          pageIds.stopPreviewButton
-        ].map(Document.prototype.getElementById.bind(document));
-        const previewParameters = {
-          trackOneStart: trackOneStartInput.value,
-          trackTwoStart: trackTwoStartInput.value,
-          mixDuration: mixDurationInput.value
-        };
-        const stopPreview = MixPreview.startPreview(buffers, previewParameters);
-        previewButton.classList.remove('is-loading');
-        previewButton.disabled = false;
-
-        const newStopHandler = makePreviewStopHandler(stopPreview);
-        stopPreviewButton.addEventListener('click', newStopHandler);
-        stopPreviewButton.disabled = false;
-
-        const newPlayHandler = makePreviewPlayHandler(
-          buffers,
-          stopPreview,
-          newStopHandler
-        );
-        previewButton.removeEventListener('click', handler);
-        previewButton.addEventListener('click', newPlayHandler);
+    const previewButton = document.getElementById(pageIds.previewButton);
+    const previewWithBuffers = buffers => {
+      const [
+        trackOneStartInput,
+        trackTwoStartInput,
+        mixDurationInput,
+        stopPreviewButton
+      ] = getElements([
+        pageIds.trackOneStartInput,
+        pageIds.trackTwoStartInput,
+        pageIds.mixDurationInput,
+        pageIds.stopPreviewButton
+      ]);
+      const previewParameters = {
+        trackOneStart: trackOneStartInput.value,
+        trackTwoStart: trackTwoStartInput.value,
+        mixDuration: mixDurationInput.value
       };
+      const stopPreview = MixPreview.startPreview(buffers, previewParameters);
+      previewButton.classList.remove('is-loading');
+      previewButton.disabled = false;
 
-      if (previewBuffers) {
-        previewWithBuffers(previewBuffers);
-      } else {
-        previewButton.disabled = true;
-        previewButton.classList.add('is-loading');
-        return Promise.all([
-          loadAudioBuffer(
-            previewButton.dataset.trackOneUrl,
-            previewButton.dataset.trackOneClientUuid
-          ),
-          loadAudioBuffer(
-            previewButton.dataset.trackTwoUrl,
-            previewButton.dataset.trackTwoClientUuid
-          )
-        ]).then(buffers =>
-          MixPreview.preparePreviewBuffers(...buffers).then(previewWithBuffers)
-        );
-      }
+      stopPreviewButton.disabled = false;
+
+      previewBuffers = buffers;
+      stopPreviewCallback = stopPreview;
+    };
+
+    if (previewBuffers) {
+      previewWithBuffers(previewBuffers);
+    } else {
+      previewButton.disabled = true;
+      previewButton.classList.add('is-loading');
+      return Promise.all([
+        loadAudioBuffer(
+          previewButton.dataset.trackOneUrl,
+          previewButton.dataset.trackOneClientUuid
+        ),
+        loadAudioBuffer(
+          previewButton.dataset.trackTwoUrl,
+          previewButton.dataset.trackTwoClientUuid
+        )
+      ]).then(buffers =>
+        MixPreview.preparePreviewBuffers(...buffers).then(previewWithBuffers)
+      );
     }
   };
-  return handler;
-}
 
-PageLifecycle.ready(() => {
-  const previewButton = document.getElementById(pageIds.previewButton);
+  const [previewButton, stopPreviewButton, mixParametersForm] = getElements([
+    pageIds.previewButton,
+    pageIds.stopPreviewButton,
+    pageIds.mixParametersForm
+  ]);
+
   if (MixPreview.isSupported) {
-    previewButton.addEventListener('click', makePreviewPlayHandler());
+    previewButton.addEventListener('click', handlePreviewPlay);
   } else {
     showPreviewError('Preview is not supported in this browser.');
     previewButton.disabled = true;
     previewButton.classList.remove('is-primary');
   }
+
+  stopPreviewButton.addEventListener('click', handlePreviewStop);
+  mixParametersForm.addEventListener('change', handlePreviewStop);
 });

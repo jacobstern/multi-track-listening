@@ -77,4 +77,4 @@ config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
   bucket: "multi-track-listening-dev"
 
 # FIXME: This belongs in an admin UI
-config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [1]
+config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [2, 1]

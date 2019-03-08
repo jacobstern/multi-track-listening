@@ -1,7 +1,7 @@
 import { Socket } from 'phoenix';
-import * as PageLifecycle from '../page-lifecycle';
 import { getElements } from '../dom-helpers';
 import { removeCachedFile } from '../file-cache';
+import { onReady } from '../page-lifecycle';
 
 const pageIds = {
   renderStatus: 'render_status',
@@ -75,7 +75,7 @@ function updateRender(render) {
   }
 }
 
-PageLifecycle.ready(() => {
+onReady(() => {
   const pathSegments = window.location.pathname.split('/');
   const renderId = pathSegments[pathSegments.length - 1];
 

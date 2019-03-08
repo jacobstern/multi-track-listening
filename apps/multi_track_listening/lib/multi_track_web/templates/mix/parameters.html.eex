@@ -58,7 +58,7 @@
         </div>
         <div class="control">
           <%= content_tag :button, "Stop Preview", class: "button is-secondary",
-            id: "stop_preview_button", disabled: true %>
+            id: "stop_preview_button", disabled: true, type: "button" %>
         </div>
       </div>
 
