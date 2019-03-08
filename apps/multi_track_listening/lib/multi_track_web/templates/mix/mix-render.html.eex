@@ -25,6 +25,12 @@
       <%= content_tag :i, @mix.track_two.name %>.
     </p>
 
+    <%= if @mix_render.status != :finished && @mix_render.status != :error do %>
+      <noscript>
+        <p class="form-description">Please refresh your browser to update mix status.</p>
+      </noscript>
+    <% end %>
+
     <%= case @mix_render.status do %>
       <% :finished -> %>
         <progress id="render_progress" class="progress is-success mix-render-progress" 
