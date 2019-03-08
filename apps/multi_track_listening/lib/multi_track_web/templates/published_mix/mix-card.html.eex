@@ -1,9 +1,16 @@
 <div class="card published-mix-card">
-  <%= link to: Routes.published_mix_path(@conn, :show, @mix),
-    class: "card-header published-mix-card-header" do %>
+  <div class="card-header">
     <%= content_tag :p, @mix.track_one_name <> " ✗ " <> @mix.track_two_name,
       class: "card-header-title published-mix-card-title" %>
-  <% end %>
+    <%= if @show_link do %>
+      <%= link to: Routes.published_mix_path(@conn, :show, @mix),
+        class: "card-header-icon", aria_label: "Mix Page", title: "Mix Page" do %>
+        <span class="icon">
+          <i class="fa fa-link" aria-hidden="true"></i>
+        </span>
+      <% end %>
+    <% end %>
+  </div>
   </header>
   <div class="card-content">
     <p class="published-mix-card-attribution">
@@ -14,4 +21,10 @@
       controls: true,
       src: @audio_url %>
   </div>
+  <footer class="card-footer">
+    <%= link "Download", to: @audio_url, download: true,
+        class: "card-footer-item" %>
+    <%= link "Copy Link", to: "#", class: "card-footer-item",
+      data: [mix_card_copy_link: Routes.published_mix_url(@conn, :show, @mix)] %>
+  </footer>
 </div>

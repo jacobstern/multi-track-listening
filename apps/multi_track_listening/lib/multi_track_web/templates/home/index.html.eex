@@ -18,7 +18,9 @@
           <ul class="home-featured-mixes-list">
             <%= for mix <- @featured_mixes do %>
               <li class="home-featured-mix">
-                <%= render MultiTrackWeb.PublishedMixView, "mix-card.html", Map.put(mix, :conn, @conn) %>
+                <%= render MultiTrackWeb.PublishedMixView,
+                  "mix-card.html",
+                  mix |> Map.put(:conn, @conn) |> Map.put(:show_link, true) %>
               </li>
             <% end %>
           </ul>

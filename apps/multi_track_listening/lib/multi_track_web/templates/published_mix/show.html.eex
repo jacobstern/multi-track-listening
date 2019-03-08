@@ -1,5 +1,5 @@
 <section class="section">  
   <div class="container">
-    <%= render "mix-card.html", assigns %>
+    <%= render "mix-card.html", Map.put(assigns, :show_link, false) %>
   </div>
 </section>

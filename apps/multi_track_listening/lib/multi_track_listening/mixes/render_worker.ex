@@ -44,7 +44,8 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
           mix_duration: render.mix_duration
         )
 
-      result_file_uuid = Storage.upload_file!(destination_path, "audio/mpeg")
+      filename = "#{render.track_one_name} x #{render.track_two_name}.mp3"
+      result_file_uuid = Storage.upload_file!(destination_path, "audio/mpeg", filename: filename)
       update_and_notify(render, status: :finished, result_file_uuid: result_file_uuid)
     catch
       error ->

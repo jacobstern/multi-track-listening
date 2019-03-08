@@ -23,7 +23,7 @@
   </div>
 
   <div class="field">
-    <%= label f, :name, class: "label" %>
+    <%= label f, :name, "Song Name", class: "label" %>
     <div class="field-body">
       <div class="control">
         <%= text_input f, :name, class: "input", required: true %>

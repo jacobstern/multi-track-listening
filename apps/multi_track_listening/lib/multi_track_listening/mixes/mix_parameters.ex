@@ -16,7 +16,7 @@ defmodule MultiTrackListening.Mixes.MixParameters do
         }
 
   schema "mix_parameters" do
-    field :mix_duration, :integer, default: 90
+    field :mix_duration, :integer, default: 60
     field :track_one_start, :integer, default: 0
     field :track_two_start, :integer, default: 0
 

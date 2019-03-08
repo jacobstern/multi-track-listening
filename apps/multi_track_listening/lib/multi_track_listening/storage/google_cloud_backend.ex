@@ -16,7 +16,17 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
     "https://#{bucket}.storage.googleapis.com/#{uuid}"
   end
 
-  def upload(uuid, file_path, content_type) do
+  defp make_content_disposition(filename) do
+    if filename do
+      ~s(multipart; filename="#{filename}")
+    else
+      "multipart"
+    end
+  end
+
+  def upload(uuid, file_path, content_type, options) do
+    content_disposition = options |> Keyword.get(:filename) |> make_content_disposition()
+
     # Added this check as the Google client library function does not seem to handle missing file well
     if File.exists?(file_path) do
       with {:ok, _object} <-
@@ -27,7 +37,7 @@ defmodule MultiTrackListening.Storage.GoogleCloudBackend do
                %GoogleApi.Storage.V1.Model.Object{
                  name: uuid,
                  contentType: content_type,
-                 contentDisposition: "attachment"
+                 contentDisposition: content_disposition
                },
                file_path
              ) do

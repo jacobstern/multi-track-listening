@@ -6,7 +6,9 @@ defmodule MultiTrackListening.Storage.LocalBackend do
     Path.join([priv, "media", uuid])
   end
 
-  def upload(uuid, file_path, _content_type), do: File.cp(file_path, generate_local_path(uuid))
+  def upload(uuid, file_path, _content_type, _options) do
+    File.cp(file_path, generate_local_path(uuid))
+  end
 
   def remove(uuid), do: generate_local_path(uuid) |> File.rm()
 

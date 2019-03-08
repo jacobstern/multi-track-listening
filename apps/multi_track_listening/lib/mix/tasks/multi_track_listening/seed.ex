@@ -10,13 +10,13 @@ defmodule Mix.Tasks.MultiTrackListening.Seed do
 
   def seed(:dev) do
     Repo.insert!(%PublishedMix{
-      audio_file: "159099e1-e5d8-4e6a-809e-7c0226f944dd",
+      audio_file: "c05a05c6-80dd-4bc2-9ca1-4fd7ff7ce8c5",
       track_one_name: "Can't Feel My Face",
       track_two_name: "Regret"
     })
 
     Repo.insert!(%PublishedMix{
-      audio_file: "ddbb07fa-df7d-4a65-bbdf-0c762e4f35be",
+      audio_file: "8ec07f03-f3fb-42e8-93bf-108d9bb44fb1",
       track_one_name: "Gas Gas Gas",
       track_two_name: "Running In The 90s"
     })

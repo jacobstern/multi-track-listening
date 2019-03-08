@@ -86,7 +86,7 @@
       </div>
 
       <div class="control">
-        <%= link "Download", to: mix_render_result_url(@mix_render) || "", download: "mix.mp3",
+        <%= link "Download", to: mix_render_result_url(@mix_render) || "", download: true,
           class: "button is-secondary", id: "download_button" %>
       </div>
 

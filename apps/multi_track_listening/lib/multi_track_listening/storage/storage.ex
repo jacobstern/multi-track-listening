@@ -49,10 +49,10 @@ defmodule MultiTrackListening.Storage do
     Repo.insert!(%Storage.File{backend: backend, content_type: content_type, uuid: uuid})
   end
 
-  @spec upload_file!(Path.t(), String.t()) :: FileId.t()
-  def upload_file!(file_path, content_type) do
+  @spec upload_file!(Path.t(), String.t(), Keyword.t()) :: FileId.t()
+  def upload_file!(file_path, content_type, options \\ []) do
     uuid = gen_uuid()
-    backend_call(:upload, [uuid, file_path, content_type])
+    backend_call(:upload, [uuid, file_path, content_type, options])
     create_file_record(uuid, content_type)
     uuid
   end
