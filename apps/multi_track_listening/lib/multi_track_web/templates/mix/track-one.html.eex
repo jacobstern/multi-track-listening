@@ -1,6 +1,15 @@
 <section class="section">  
   <div class="container">
-    <h1 class="title">New Mix – Upload Track One</h1>
+    <h1 class="title">New Mix</h1>
+
+    <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <%= link "Track One", to: Routes.mix_path(@conn, :new_track_one, @mix) %>
+        </li>
+      </ul>
+    </nav>
+
 
     <p class="form-description">Please choose an MP3 file from your computer.</p>
 

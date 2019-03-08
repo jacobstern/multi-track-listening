@@ -35,9 +35,8 @@ defmodule MultiTrackWeb.MixView do
 
   def display_mix_render_status(render_status) do
     %{
-      finished: "Done! You can now publish or download the mix. \
-                 Note that once you publish the mix you can no longer change it.",
-      error: "There was an error rendering this mix. Please try again with different audio files."
+      finished: "Done! You can now publish or download the mix.",
+      error: "There was an error rendering this mix. Please try again later."
     }[render_status]
   end
 end

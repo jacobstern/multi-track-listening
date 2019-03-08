@@ -1,6 +1,20 @@
 <section class="section">
   <div class="container">
-    <h1 class="title">Mix Parameters</h1>
+    <h1 class="title">New Mix</h1>
+
+    <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <%= link "Track One", to: Routes.mix_path(@conn, :new_track_one, @mix) %>
+        </li>
+        <li>
+          <%= link "Track Two", to: Routes.mix_path(@conn, :new_track_two, @mix) %>
+        </li>
+        <li>
+          <%= link "Parameters", to: Routes.mix_path(@conn, :parameters, @mix) %>
+        </li>
+      </ul>
+    </nav>
 
     <p class="form-description">
       Mixing <%= content_tag :i, @mix.track_one.name %>

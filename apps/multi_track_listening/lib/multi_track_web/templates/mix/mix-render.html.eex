@@ -2,18 +2,28 @@
   <div class="container">
     <h1 class="title">Rendering Mix</h1>
 
+    <nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <%= link "Track One", to: Routes.mix_path(@conn, :new_track_one, @mix) %>
+        </li>
+        <li>
+          <%= link "Track Two", to: Routes.mix_path(@conn, :new_track_two, @mix) %>
+        </li>
+        <li>
+          <%= link "Parameters", to: Routes.mix_path(@conn, :parameters, @mix) %>
+        </li>
+        <li>
+          <%= link "Render", to: Routes.mix_path(@conn, :mix_render, @mix, @mix_render) %>
+        </li>
+      </ul>
+    </nav>
+
     <p class="form-description">
-      Mixing <%= content_tag :i, @mix.track_one.name %>
+      Rendering mix with <%= content_tag :i, @mix.track_one.name %>
       and
       <%= content_tag :i, @mix.track_two.name %>.
     </p>
-
-    <div class="field">
-      <div class="control">
-        <%= link "Back to Parameters", to: Routes.mix_path(@conn, :parameters, @mix),
-          class: "is-link" %>
-      </div>
-    </div>
 
     <%= case @mix_render.status do %>
       <% :finished -> %>
