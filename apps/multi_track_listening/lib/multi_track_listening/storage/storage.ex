@@ -27,7 +27,7 @@ defmodule MultiTrackListening.Storage do
     raise %BackendError{
       operation: func,
       reason: reason,
-      message: "backend module returned failure"
+      message: "error in backend module: #{inspect(reason)}"
     }
   end
 
