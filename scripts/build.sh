@@ -3,14 +3,9 @@
 set -o nounset
 set -o errexit
 
-if [ -z ${PROJECT_ID+x} ]; then
-  PROJECT_ID="multi-track-listening";
-fi
+PROJECT_ID=${PROJECT_ID-multi-track-listening}
 
-if [ -z ${TAG+x} ]; then
-  TAG="$(git rev-parse --verify HEAD)";
-fi
-
+TAG="$(git rev-parse --verify HEAD)"
 NAME="gcr.io/$PROJECT_ID/multi_track_listening"
 IMAGE="$NAME:$TAG"
 
@@ -21,3 +16,5 @@ docker build \
   .
 
 docker tag "$IMAGE" "$NAME:latest"
+
+docker push "gcr.io/$PROJECT_ID/multi_track_listening:$TAG"
