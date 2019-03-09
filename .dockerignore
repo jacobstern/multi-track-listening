@@ -1,0 +1,12 @@
+/_build/
+/_elixir_ls/
+/deps/
+
+/apps/multi_track_listening/assets/node_modules/
+/apps/multi_track_listening/priv/static/
+/apps/multi_track_listening/test/
+
+/apps/multi_track_cruncher/priv/c/
+/apps/multi_track_cruncher/priv/example/
+/apps/multi_track_cruncher/test/
+/apps/multi_track_cruncher/src/*.o
