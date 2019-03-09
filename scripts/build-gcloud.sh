@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-gcloud builds submit --substitutions="_TAG=$(git rev-parse --verify HEAD)" .
+TAG=${1-$(git rev-parse --verify HEAD)}
+
+gcloud builds submit --substitutions="_TAG=$TAG" .
