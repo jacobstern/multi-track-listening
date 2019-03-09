@@ -10,9 +10,15 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :multi_track_listening, MultiTrackWeb.Endpoint,
-  http: [:inet6, port: System.get_env("PORT") || 4000],
-  url: [host: "example.com", port: 80],
+  load_from_system_env: true,
+  http: [port: {:system, "PORT"}],
+  url: [host: "multitracklistening.net", port: 80],
+  check_origin: false,
+  server: true,
+  root: ".",
   cache_static_manifest: "priv/static/cache_manifest.json"
+
+config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [1]
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -65,6 +71,9 @@ config :logger, level: :info
 #
 # Note you can't rely on `System.get_env/1` when using releases.
 # See the releases documentation accordingly.
+
+config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
+  bucket: "multi-track-listening-media-prod"
 
 # Finally import the config/prod.secret.exs which should be versioned
 # separately.

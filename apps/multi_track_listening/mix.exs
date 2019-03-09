@@ -55,6 +55,7 @@ defmodule MultiTrackListening.MixProject do
       {:google_api_storage, "~> 0.1.0"},
       {:httpoison, "~> 1.4"},
       {:phoenix_markdown, "~> 1.0"},
+      {:distillery, "~> 2.0"},
       {:multi_track_cruncher, in_umbrella: true}
     ]
   end
