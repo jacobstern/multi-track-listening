@@ -57,7 +57,7 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
         error ->
           raise %CruncherError{message: "error from cruncher: #{inspect(error)}"}
       end
-    catch
+    rescue
       error ->
         update_and_notify(render, status: :error)
         raise error
