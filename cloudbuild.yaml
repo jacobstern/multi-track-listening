@@ -29,6 +29,8 @@ steps:
         "apps/multi_track_listening/Dockerfile",
         "-t",
         "gcr.io/$PROJECT_ID/multi_track_listening:$_TAG",
+        "-t",
+        "gcr.io/$PROJECT_ID/multi_track_listening:latest",
         "--build-arg",
         "project_id=$PROJECT_ID",
         ".",
