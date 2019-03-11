@@ -9,7 +9,7 @@ PROJECT_ID=${PROJECT_ID-multi-track-listening}
 NAME="gcr.io/$PROJECT_ID/multi_track_listening"
 TAG=${1-$("${BASH_SOURCE%/*}/get-default-tag.sh")}
 
-if ! gcloud container images list-tags "$NAME"| grep -q "$TAG";
+if ! gcloud container images list-tags "$NAME" --filter "$TAG" | grep -q "$TAG";
 then
   echo "$0: requested tag is not present in repository" >&2
   exit 1

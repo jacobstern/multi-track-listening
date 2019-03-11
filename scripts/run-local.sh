@@ -11,11 +11,11 @@ IMAGE="$NAME:$TAG"
 
 echo "Removing container $CONTAINER_NAME if it exists. You will have to stop a running container manually."
 
-if [ "$(docker ps -f name="$CONTAINER_NAME")" ]; then
+if [ "$(docker ps -aq -f name="$CONTAINER_NAME")" ]; then
   docker rm "$CONTAINER_NAME"
 fi
 
-echo "Creating container $CONTAINER_NAME"
+echo "Creating container $CONTAINER_NAME. Please stop the container after you're done testing locally."
 
 docker run -d --env GOOGLE_APPLICATION_CREDENTIALS=/opt/gcloud/application_default_credentials.json \
   -p 8080:8080 --name "$CONTAINER_NAME" -v ~/.config/gcloud:/opt/gcloud "$IMAGE"
