@@ -3,6 +3,7 @@
 /deps/
 
 /apps/multi_track_listening/assets/node_modules/
+/apps/multi_track_listening/priv/media/
 /apps/multi_track_listening/priv/static/
 /apps/multi_track_listening/test/
 
