@@ -23,7 +23,8 @@
     </p>
       
 
-    <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix), [id: "mix_parameters_form"], fn f -> %>
+    <%= form_for @changeset, Routes.mix_path(@conn, :create_mix_render, @mix),
+      [id: "mix_parameters_form", method: :put], fn f -> %>
 
       <%= inputs_for f, :parameters, fn pf -> %>
         <div class="field">
