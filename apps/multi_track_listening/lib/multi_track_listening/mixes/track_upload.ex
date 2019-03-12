@@ -3,7 +3,7 @@ defmodule MultiTrackListening.Mixes.TrackUpload do
   import Ecto.Changeset
   import MultiTrackListening.Ecto.Changeset
 
-  @supported_content_types ["audio/mpeg"]
+  @supported_content_types ["audio/mpeg", "audio/mp3"]
 
   embedded_schema do
     field(:name, :string)
