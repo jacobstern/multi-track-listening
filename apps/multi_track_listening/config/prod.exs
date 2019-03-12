@@ -18,7 +18,7 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
   root: ".",
   cache_static_manifest: "priv/static/cache_manifest.json"
 
-config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [2, 1]
+config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [2, 4, 1]
 
 # Do not print debug messages in production
 config :logger, level: :info
