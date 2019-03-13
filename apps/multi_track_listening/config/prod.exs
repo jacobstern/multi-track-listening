@@ -16,6 +16,7 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
   https: [
     :inet6,
     port: 443,
+    otp_app: :multi_track_listening,
     cipher_suite: :strong,
     keyfile: "priv/ssl/www.multitracklistening.net.key",
     certfile: "priv/ssl/www.multitracklistening.net.crt"
