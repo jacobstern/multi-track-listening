@@ -11,8 +11,8 @@ use Mix.Config
 # before starting your production server.
 config :multi_track_listening, MultiTrackWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "www.multitracklistening.net"],
   http: [port: {:system, "PORT"}],
+  url: [host: "www.multitracklistening.net", port: 80],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   check_origin: false,
   server: true,
