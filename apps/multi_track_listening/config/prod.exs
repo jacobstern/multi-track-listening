@@ -12,16 +12,7 @@ use Mix.Config
 config :multi_track_listening, MultiTrackWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [host: "multitracklistening.net", port: 443],
-  https: [
-    :inet6,
-    port: 443,
-    otp_app: :multi_track_listening,
-    cipher_suite: :strong,
-    keyfile: "priv/ssl/tls.key",
-    certfile: "priv/ssl/tls.crt"
-  ],
-  # force_ssl: [hsts: true],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
   check_origin: false,
   server: true,
   root: ".",
