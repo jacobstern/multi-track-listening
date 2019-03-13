@@ -3,6 +3,14 @@ kind: Ingress
 metadata:
   name: web-ingress
 spec:
-  backend:
-    serviceName: web
-    servicePort: 8080
+  tls:
+    - hosts:
+        - multitracklistening.net
+      secretName: multi-track-listening-web-tls
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: web
+              servicePort: 8080

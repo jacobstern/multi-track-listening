@@ -18,8 +18,8 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
     port: 443,
     otp_app: :multi_track_listening,
     cipher_suite: :strong,
-    keyfile: "priv/ssl/www.multitracklistening.net.key",
-    certfile: "priv/ssl/www.multitracklistening.net.crt"
+    keyfile: "priv/ssl/tls.key",
+    certfile: "priv/ssl/tls.crt"
   ],
   # force_ssl: [hsts: true],
   check_origin: false,
