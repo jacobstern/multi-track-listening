@@ -7,7 +7,7 @@ echo_and_run() { echo "$@" ; "$@" ; }
 
 PROJECT_ID=${PROJECT_ID-multi-track-listening}
 NAME="gcr.io/$PROJECT_ID/multi_track_listening"
-TAG=${1-$("${BASH_SOURCE%/*}/get-default-tag.sh")}
+TAG="$1"
 
 if ! gcloud container images list-tags "$NAME" --filter "$TAG" | grep -q "$TAG";
 then

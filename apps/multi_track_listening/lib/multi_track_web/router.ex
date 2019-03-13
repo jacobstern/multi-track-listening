@@ -3,6 +3,10 @@ defmodule MultiTrackWeb.Router do
   alias MultiTrackWeb.Plugs.{RedirectToPublishedMix, LoadMix}
 
   pipeline :browser do
+    if Mix.env() == :prod do
+      plug Plug.SSL, rewrite_on: [:x_forwarded_proto]
+    end
+
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
@@ -11,6 +15,10 @@ defmodule MultiTrackWeb.Router do
   end
 
   pipeline :api do
+    if Mix.env() == :prod do
+      plug Plug.SSL, rewrite_on: [:x_forwarded_proto]
+    end
+
     plug :accepts, ["json"]
   end
 
