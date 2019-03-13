@@ -21,7 +21,7 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
     keyfile: "priv/ssl/www.multitracklistening.net.key",
     certfile: "priv/ssl/www.multitracklistening.net.crt"
   ],
-  force_ssl: [hsts: true],
+  # force_ssl: [hsts: true],
   check_origin: false,
   server: true,
   root: ".",
