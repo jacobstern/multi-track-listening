@@ -44,8 +44,7 @@ defmodule MultiTrackWeb.Router do
     get "/published/anonymous/:id", PublishedMixController, :show
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MultiTrackWeb do
-  #   pipe_through :api
-  # end
+  scope "/health", MultiTrackWeb do
+    get "/", HealthController, :index
+  end
 end
