@@ -12,7 +12,7 @@ use Mix.Config
 config :multi_track_listening, MultiTrackWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [host: "www.multitracklistening.net", scheme: "https", port: 80],
+  url: [host: "www.multitracklistening.net", scheme: "https"],
   check_origin: false,
   server: true,
   root: ".",
