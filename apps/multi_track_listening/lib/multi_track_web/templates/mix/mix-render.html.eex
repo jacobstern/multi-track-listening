@@ -43,7 +43,7 @@
           15%
         </progress>
       <% _ -> %>
-        <progress id="render_progress" class="progress mix-render-progress" max="100">
+        <progress id="render_progress" class="progress is-primary mix-render-progress" max="100">
           0%
         </progress>
     <% end %>
