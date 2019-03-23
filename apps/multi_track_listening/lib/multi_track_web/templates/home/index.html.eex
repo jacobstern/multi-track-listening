@@ -9,10 +9,6 @@
           </p>
         </div>
 
-        <%= form_tag Routes.mix_path(@conn, :create), class: "is-hidden-desktop home-create-mix-button" do %>
-          <%= submit "Create a Mix", class: "button is-primary" %>
-        <% end %>
-
         <%= if length(@featured_mixes) > 0 do %>
           <h1 class="title">Featured Mixes</h1>
           <ul class="home-featured-mixes-list">

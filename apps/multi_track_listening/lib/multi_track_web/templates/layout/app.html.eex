@@ -13,6 +13,11 @@
         <div class="navbar-brand">
           <%= link "Multi-Track Listening!", to: Routes.home_path(@conn, :index),
             class: "navbar-item app-navbar-brand" %>
+          <div class="navbar-item is-hidden-desktop">
+            <%= form_tag Routes.mix_path(@conn, :create) do %>
+              <%= submit "Create", class: "button is-primary" %>
+            <% end %>
+          </div>
         </div>
         <div class="navbar-menu">
           <div class="navbar-start">
