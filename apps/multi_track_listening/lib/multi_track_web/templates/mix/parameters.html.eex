@@ -48,6 +48,16 @@
         </div>
 
         <div class="field">
+          <%= label pf, :drifting_speed, class: "label" %>
+          <div class="field-body">
+            <div class="control">
+              <%= number_input pf, :drifting_speed, class: "input", step: 0.1, min: 0, max: 11 %>
+            </div>
+          </div>
+          <%= error_tag pf, :drifting_speed %>
+        </div>
+
+        <div class="field">
           <%= label pf, :mix_duration, class: "label" %>
           <div class="field-body">
             <div class="control">
@@ -56,6 +66,7 @@
           </div>
           <%= error_tag pf, :mix_duration %>
         </div>
+
       <% end %>
 
       <div class="field is-grouped">

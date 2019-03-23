@@ -75,6 +75,7 @@ defmodule MultiTrackListening.Mixes do
         mix: mix,
         track_one_file_uuid: track_one_file,
         track_two_file_uuid: track_two_file,
+        drifting_speed: parameters.drifting_speed,
         mix_duration: parameters.mix_duration,
         track_one_start: parameters.track_one_start,
         track_two_start: parameters.track_two_start,

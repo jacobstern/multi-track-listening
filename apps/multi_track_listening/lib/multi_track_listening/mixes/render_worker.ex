@@ -44,6 +44,7 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
       case Cruncher.crunch_files(track_one_path, track_two_path, destination_path,
              start_l: render.track_one_start,
              start_r: render.track_two_start,
+             drifting_speed: render.drifting_speed,
              mix_duration: render.mix_duration
            ) do
         :ok ->

@@ -138,9 +138,15 @@ function stopPreview(preview) {
 }
 
 function previewAnimationFrame(preview) {
-  const { trackOnePanner, trackTwoPanner, startTime } = preview;
+  const {
+    trackOnePanner,
+    trackTwoPanner,
+    startTime,
+    parameters: { driftingSpeed }
+  } = preview;
   const elapsedSeconds = (Date.now() - startTime) / 1000;
-  const angle = ((elapsedSeconds * Math.PI * 2.0) / 10.0) % (Math.PI * 2.0);
+  const angle =
+    ((elapsedSeconds * Math.PI * 2.0 * driftingSpeed) / 60.0) % (Math.PI * 2.0);
   const opposite = angle + Math.PI;
 
   trackOnePanner.setPosition(Math.cos(opposite), 0, Math.sin(opposite));
