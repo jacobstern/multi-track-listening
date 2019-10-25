@@ -31,7 +31,7 @@
 # release. This stage uses the official Alpine Linux - Elixir base image, and
 # installs a few additional build tools such as Node.js.
 
-FROM elixir:alpine
+FROM elixir:1.8.2-alpine
 
 
 ##############################################################################
