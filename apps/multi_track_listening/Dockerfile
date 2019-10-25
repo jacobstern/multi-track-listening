@@ -101,7 +101,7 @@ RUN cd ${phoenix_subdir} \
 # image, with only the minimum dependencies for running ERTS and the Cloud SQL
 # Proxy.
 
-FROM alpine:latest
+FROM alpine:3.9
 
 # The Google Cloud project ID must be provided via a --build-arg.
 ARG project_id
