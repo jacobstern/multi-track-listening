@@ -15,6 +15,8 @@ defmodule MultiTrackListening.Mixes.Render do
           mix_duration: integer,
           track_one_start: integer,
           track_two_start: integer,
+          track_one_gain: float,
+          track_two_gain: float,
           drifting_speed: float,
           track_one_name: String.t(),
           track_two_name: String.t(),
@@ -39,6 +41,9 @@ defmodule MultiTrackListening.Mixes.Render do
     field :track_one_start, :integer
     field :track_two_start, :integer
     field :drifting_speed, :float
+
+    field :track_one_gain, :float
+    field :track_two_gain, :float
 
     field :track_one_name, :string
     field :track_two_name, :string

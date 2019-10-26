@@ -80,7 +80,9 @@ defmodule MultiTrackListening.Mixes do
         track_one_start: parameters.track_one_start,
         track_two_start: parameters.track_two_start,
         track_one_name: mix.track_one.name,
-        track_two_name: mix.track_two.name
+        track_two_name: mix.track_two.name,
+        track_one_gain: parameters.track_one_gain,
+        track_two_gain: parameters.track_two_gain
       })
 
     Honeydew.async({:do_render, [render]}, :mix_render_queue)

@@ -11,6 +11,8 @@ const pageIds = {
   trackTwoStartInput: 'mix_parameters_track_two_start',
   mixDurationInput: 'mix_parameters_mix_duration',
   driftingSpeedInput: 'mix_parameters_drifting_speed',
+  trackOneGainInput: 'mix_parameters_track_one_gain',
+  trackTwoGainInput: 'mix_parameters_track_two_gain',
   previewError: 'preview_error'
 };
 
@@ -80,19 +82,25 @@ onReady(() => {
         trackTwoStartInput,
         mixDurationInput,
         driftingSpeedInput,
-        stopPreviewButton
+        stopPreviewButton,
+        trackOneGainInput,
+        trackTwoGainInput
       ] = getElements([
         pageIds.trackOneStartInput,
         pageIds.trackTwoStartInput,
         pageIds.mixDurationInput,
         pageIds.driftingSpeedInput,
-        pageIds.stopPreviewButton
+        pageIds.stopPreviewButton,
+        pageIds.trackOneGainInput,
+        pageIds.trackTwoGainInput
       ]);
       const previewParameters = {
         trackOneStart: trackOneStartInput.value,
         trackTwoStart: trackTwoStartInput.value,
         mixDuration: mixDurationInput.value,
-        driftingSpeed: driftingSpeedInput.value
+        driftingSpeed: driftingSpeedInput.value,
+        trackOneGain: trackOneGainInput.value,
+        trackTwoGain: trackTwoGainInput.value
       };
       const stopPreview = MixPreview.startPreview(buffers, previewParameters);
       previewButton.classList.remove('is-loading');

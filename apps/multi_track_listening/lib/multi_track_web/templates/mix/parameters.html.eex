@@ -41,6 +41,19 @@
                 <%= error_tag pf, :track_one_start %>
               </div>
             </div>
+
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :track_one_gain, "Volume", class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= range_input pf, :track_one_gain, class: "input", min: 0.0, max: 1.0, step: 0.01 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :track_one_gain %>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -57,6 +70,18 @@
                   </div>
                 </div>
                 <%= error_tag pf, :track_two_start %>
+              </div>
+            </div>
+
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :track_one_gain, "Volume", class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= range_input pf, :track_two_gain, class: "input", min: 0.0, max: 1.0, step: 0.01 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :track_two_gain %>
               </div>
             </div>
           </div>
