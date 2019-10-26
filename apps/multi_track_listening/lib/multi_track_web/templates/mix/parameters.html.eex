@@ -27,45 +27,70 @@
       [id: "mix_parameters_form", method: :put], fn f -> %>
 
       <%= inputs_for f, :parameters, fn pf -> %>
-        <div class="field">
-          <%= label pf, :track_one_start, class: "label" %>
-          <div class="field-body">
-            <div class="control">
-              <%= number_input pf, :track_one_start, class: "input", step: 1, min: 0 %>
+        <section class="box">
+          <h2 class="subtitle">Track One</h2>
+          <div class="columns">
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :track_one_start, "Start time (seconds)", class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= number_input pf, :track_one_start, class: "input", step: 1, min: 0 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :track_one_start %>
+              </div>
             </div>
           </div>
-          <%= error_tag pf, :track_one_start %>
-        </div>
+        </section>
 
-        <div class="field">
-          <%= label pf, :track_two_start, class: "label" %>
-          <div class="field-body">
-            <div class="control">
-              <%= number_input pf, :track_two_start, class: "input", step: 1, min: 0 %>
-            </div>
-          </div>
-          <%= error_tag pf, :track_two_start %>
-        </div>
+        <section class="box">
+          <h2 class="subtitle">Track Two</h2>
 
-        <div class="field">
-          <%= label pf, :drifting_speed, class: "label" %>
-          <div class="field-body">
-            <div class="control">
-              <%= number_input pf, :drifting_speed, class: "input", step: 0.1, min: 0, max: 11 %>
+          <div class="columns">
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :track_two_start, "Start time (seconds)", class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= number_input pf, :track_two_start, class: "input", step: 1, min: 0 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :track_two_start %>
+              </div>
             </div>
           </div>
-          <%= error_tag pf, :drifting_speed %>
-        </div>
+        </section>
 
-        <div class="field">
-          <%= label pf, :mix_duration, class: "label" %>
-          <div class="field-body">
-            <div class="control">
-              <%= number_input pf, :mix_duration, class: "input", step: 1, min: 5, max: 90 %>
+        <section class="box">
+          <h2 class="subtitle">General Parameters</h2>
+
+          <div class="columns">
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :drifting_speed, class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= number_input pf, :drifting_speed, class: "input", step: 0.1, min: 0, max: 11 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :drifting_speed %>
+              </div>
+            </div>
+
+            <div class="column is-2">
+              <div class="field">
+                <%= label pf, :mix_duration, class: "label" %>
+                <div class="field-body">
+                  <div class="control">
+                    <%= number_input pf, :mix_duration, class: "input", step: 1, min: 5, max: 90 %>
+                  </div>
+                </div>
+                <%= error_tag pf, :mix_duration %>
+              </div>
             </div>
           </div>
-          <%= error_tag pf, :mix_duration %>
-        </div>
+        </section>
 
       <% end %>
 
