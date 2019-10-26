@@ -19,7 +19,7 @@
     "@fortawesome/fontawesome-free": "^5.7.2",
     "babel-loader": "^8.0.0",
     "bulma": "^0.7.4",
-    "bulma-fluent": "^0.3.14",
+    "bulma-fluent": "^0.3.18",
     "copy-webpack-plugin": "^4.5.0",
     "css-loader": "^0.28.10",
     "eslint": "^5.14.1",
