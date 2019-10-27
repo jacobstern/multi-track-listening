@@ -8,6 +8,6 @@
 /apps/multi_track_listening/test/
 
 /apps/multi_track_cruncher/priv/c/
-/apps/multi_track_cruncher/priv/example/
+/apps/multi_track_cruncher/example/
 /apps/multi_track_cruncher/test/
 /apps/multi_track_cruncher/src/*.o
