@@ -9,6 +9,8 @@ defmodule MultiTrackCruncher.Cruncher do
       {:start_r, start} -> ["--start-r", Integer.to_string(start)]
       {:mix_duration, duration} -> ["--mix-duration", Integer.to_string(duration)]
       {:drifting_speed, drifting_speed} -> ["--drifting-speed", Float.to_string(drifting_speed)]
+      {:gain_l, gain} -> ["--gain-l", Float.to_string(gain)]
+      {:gain_r, gain} -> ["--gain-r", Float.to_string(gain)]
       _ -> []
     end)
     |> List.flatten()

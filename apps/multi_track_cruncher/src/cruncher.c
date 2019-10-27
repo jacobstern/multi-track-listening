@@ -60,6 +60,8 @@ typedef struct program_args
     int start_r;
     int mix_duration;
     float drifting_speed;
+    float gain_l;
+    float gain_r;
 } program_args_t;
 
 typedef struct buffer
@@ -144,13 +146,15 @@ result_t parse_args(int argc, char **argv, program_args_t *program_args)
             {"start-r", required_argument, NULL, 'r'},
             {"mix-duration", required_argument, NULL, 'd'},
             {"drifting-speed", required_argument, NULL, 's'},
+            {"gain-l", required_argument, NULL, 'x'},
+            {"gain-r", required_argument, NULL, 'y'},
             {0, 0, 0, 0}};
 
     char *outfile = NULL;
     int c;
     int long_option_index = 0;
     int start_l = INT_MAX, start_r = INT_MAX, duration = INT_MAX;
-    float drifting_speed = NAN;
+    float drifting_speed = NAN, gain_l = NAN, gain_r = NAN;
 
     while ((c = getopt_long(argc, argv, "o:d:", long_options, &long_option_index)) != -1)
     {
@@ -188,6 +192,12 @@ result_t parse_args(int argc, char **argv, program_args_t *program_args)
             break;
         case 's':
             drifting_speed = strtof(optarg, NULL);
+            break;
+        case 'x':
+            gain_l = strtof(optarg, NULL);
+            break;
+        case 'y':
+            gain_r = strtof(optarg, NULL);
             break;
         case '?':
             return RESULT_FAILURE;
@@ -229,6 +239,16 @@ result_t parse_args(int argc, char **argv, program_args_t *program_args)
     if (!isnan(drifting_speed))
     {
         program_args->drifting_speed = drifting_speed;
+    }
+
+    if (!isnan(gain_l))
+    {
+        program_args->gain_l = gain_l;
+    }
+
+    if (!isnan(gain_r))
+    {
+        program_args->gain_r = gain_r;
     }
 
     return RESULT_SUCCESS;
@@ -556,6 +576,7 @@ result_t al_buffer_data_from_list(buffer_list_t *buffers, ALsizei count, ALuint 
 
 result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r,
                        int output_length_seconds, float drifting_speed,
+                       float gain_l, float gain_r,
                        buffer_list_t **out_mashup_buffers)
 {
     // resources declared upfront for error label
@@ -673,6 +694,9 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r,
         alSourcef(sources[i], AL_REFERENCE_DISTANCE, 1.0f);
     }
 
+    alSourcef(source_l, AL_GAIN, gain_l);
+    alSourcef(source_r, AL_GAIN, gain_r);
+
     err = alGetError();
     if (err != AL_NO_ERROR)
     {
@@ -733,13 +757,11 @@ result_t mashup_tracks(buffer_list_t *buffers_l, buffer_list_t *buffers_r,
             else if (current_time_seconds >= fadeout_start_time)
             {
                 // See https://webaudio.github.io/web-audio-api/#dom-audioparam-exponentialramptovalueattime
-                float fadeout_gain = powf(
+                float fadeout_factor = powf(
                     0.01f,
                     (current_time_seconds - fadeout_start_time) / FADEOUT_DURATION);
-                for (int i = 0; i < 2; i++)
-                {
-                    alSourcef(sources[i], AL_GAIN, fadeout_gain);
-                }
+                alSourcef(source_l, AL_GAIN, gain_l * fadeout_factor);
+                alSourcef(source_r, AL_GAIN, gain_r * fadeout_factor);
             }
 
             uint8_t *samples_dst = &mashup_buffer->bytes[batch * batch_size];
@@ -868,6 +890,8 @@ int main(int argc, char **argv)
     program_args.start_l = 0;
     program_args.start_r = 0;
     program_args.drifting_speed = 6.0f;
+    program_args.gain_l = 1.0f;
+    program_args.gain_r = 1.0f;
     result = parse_args(argc, argv, &program_args);
 
     if (is_failure(result))
@@ -924,7 +948,8 @@ int main(int argc, char **argv)
 
     buffer_list_t *mashup_buffers;
     result = mashup_tracks(mashup_input_l, mashup_input_r, program_args.mix_duration,
-                           program_args.drifting_speed, &mashup_buffers);
+                           program_args.drifting_speed, program_args.gain_l, program_args.gain_r,
+                           &mashup_buffers);
 
     if (is_failure(result))
     {

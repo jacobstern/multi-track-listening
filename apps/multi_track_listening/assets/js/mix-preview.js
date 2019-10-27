@@ -60,31 +60,44 @@ export function startPreview(previewBuffers, previewParameters) {
   trackOneSource.buffer = trackOneAudioBuffer;
   trackTwoSource.buffer = trackTwoAudioBuffer;
 
-  const { trackOneStart, trackTwoStart, mixDuration } = previewParameters;
+  const {
+    trackOneStart,
+    trackTwoStart,
+    mixDuration,
+    trackOneGain,
+    trackTwoGain
+  } = previewParameters;
   startSource(trackOneSource, trackOneStart, currentTime, mixDuration);
   startSource(trackTwoSource, trackTwoStart, currentTime, mixDuration);
 
-  const [trackOnePanner, trackTwoPanner] = [trackOneSource, trackTwoSource].map(
-    source => {
-      const downMix = context.createGain();
-      downMix.channelCount = 1;
-      downMix.channelCountMode = 'explicit';
+  const trackOneDownMix = context.createGain();
+  trackOneDownMix.channelCount = 1;
+  trackOneDownMix.channelCountMode = 'explicit';
+  trackOneDownMix.gain.value = trackOneGain;
+  trackOneSource.connect(trackOneDownMix);
 
-      source.connect(downMix);
+  const trackTwoDownMix = context.createGain();
+  trackTwoDownMix.channelCount = 1;
+  trackTwoDownMix.channelCountMode = 'explicit';
+  trackTwoDownMix.gain.value = trackTwoGain;
+  trackTwoSource.connect(trackTwoDownMix);
 
-      const panner = context.createPanner();
-      panner.panningModel = 'HRTF';
-      panner.refDistance = 1;
-      panner.distanceModel = 'linear';
-      panner.coneInnerAngle = 360;
-      panner.rolloffFactor = 1;
-      panner.setOrientation(1, 0, 0);
+  const [trackOnePanner, trackTwoPanner] = [
+    trackOneDownMix,
+    trackTwoDownMix
+  ].map(downMix => {
+    const panner = context.createPanner();
+    panner.panningModel = 'HRTF';
+    panner.refDistance = 1;
+    panner.distanceModel = 'linear';
+    panner.coneInnerAngle = 360;
+    panner.rolloffFactor = 1;
+    panner.setOrientation(1, 0, 0);
 
-      downMix.connect(panner);
+    downMix.connect(panner);
 
-      return panner;
-    }
-  );
+    return panner;
+  });
 
   trackOnePanner.setPosition(-1, 0, 0);
   trackTwoPanner.setPosition(1, 0, 0);

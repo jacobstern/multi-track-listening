@@ -45,7 +45,9 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
              start_l: render.track_one_start,
              start_r: render.track_two_start,
              drifting_speed: render.drifting_speed,
-             mix_duration: render.mix_duration
+             mix_duration: render.mix_duration,
+             gain_l: render.track_one_gain,
+             gain_r: render.track_two_gain
            ) do
         :ok ->
           filename = "#{render.track_one_name} x #{render.track_two_name}.mp3"
