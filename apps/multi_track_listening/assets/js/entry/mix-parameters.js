@@ -108,7 +108,6 @@ onReady(() => {
 
       stopPreviewButton.disabled = false;
 
-      previewBuffers = buffers;
       stopPreviewCallback = stopPreview;
     };
 
@@ -117,18 +116,7 @@ onReady(() => {
     } else {
       previewButton.disabled = true;
       previewButton.classList.add('is-loading');
-      return Promise.all([
-        loadAudioBuffer(
-          previewButton.dataset.trackOneUrl,
-          previewButton.dataset.trackOneClientUuid
-        ),
-        loadAudioBuffer(
-          previewButton.dataset.trackTwoUrl,
-          previewButton.dataset.trackTwoClientUuid
-        )
-      ]).then(buffers =>
-        MixPreview.preparePreviewBuffers(...buffers).then(previewWithBuffers)
-      );
+      return buffersPromise.then(previewWithBuffers);
     }
   };
 
@@ -138,7 +126,23 @@ onReady(() => {
     pageIds.mixParametersForm
   ]);
 
+  let buffersPromise;
   if (MixPreview.isSupported) {
+    buffersPromise = Promise.all([
+      loadAudioBuffer(
+        previewButton.dataset.trackOneUrl,
+        previewButton.dataset.trackOneClientUuid
+      ),
+      loadAudioBuffer(
+        previewButton.dataset.trackTwoUrl,
+        previewButton.dataset.trackTwoClientUuid
+      )
+    ])
+      .then(buffers => MixPreview.preparePreviewBuffers(...buffers))
+      .then(preparedBuffers => {
+        previewBuffers = preparedBuffers;
+        return preparedBuffers;
+      });
     previewButton.addEventListener('click', handlePreviewPlay);
   } else {
     showPreviewError('Preview is not supported in this browser.');
