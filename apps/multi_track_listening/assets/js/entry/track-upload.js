@@ -1,7 +1,7 @@
 import uniqid from 'uniqid';
 
 import { getElements } from '../dom-helpers';
-import { cacheFile, removeCachedFile } from '../file-cache';
+import { cacheFile, removeCachedFile, expireOldFiles } from '../file-cache';
 import { onReady } from '../page-lifecycle';
 
 const pageIds = {
@@ -81,4 +81,6 @@ onReady(() => {
   ]);
   fileInput.addEventListener('change', fixFileInput);
   form.addEventListener('submit', handleFormSubmit);
+
+  expireOldFiles(); // Note: ignores Promise return value
 });
