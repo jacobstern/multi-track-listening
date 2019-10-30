@@ -40,7 +40,7 @@ function startSource(source, start, currentTime, mixDuration) {
     return;
   }
 
-  source.loop = true;
+  source.loop = false;
   source.loopEnd = duration;
   source.loopStart = start;
   source.start(currentTime, start);
