@@ -1,6 +1,13 @@
 defmodule MultiTrackWeb.Router do
   use MultiTrackWeb, :router
+  use Pow.Phoenix.Router
+
   alias MultiTrackWeb.Plugs.{RedirectToPublishedMix, LoadMix}
+
+  pipeline :protected do
+    plug Pow.Plug.RequireAuthenticated,
+      error_handler: Pow.Phoenix.PlugErrorHandler
+  end
 
   pipeline :browser do
     if Mix.env() == :prod do
@@ -25,6 +32,12 @@ defmodule MultiTrackWeb.Router do
   pipeline :mix_common do
     plug LoadMix
     plug RedirectToPublishedMix
+  end
+
+  scope "/" do
+    pipe_through :browser
+
+    pow_routes()
   end
 
   scope "/", MultiTrackWeb do

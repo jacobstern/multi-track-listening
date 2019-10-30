@@ -17,6 +17,11 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
   render_errors: [view: MultiTrackWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: MultiTrackListening.PubSub, adapter: Phoenix.PubSub.PG2]
 
+config :multi_track_listening, :pow,
+  user: MultiTrackListening.Users.User,
+  repo: MultiTrackListening.Repo,
+  web_module: MultiTrackWeb
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

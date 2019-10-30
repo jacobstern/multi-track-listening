@@ -56,7 +56,8 @@ defmodule MultiTrackListening.MixProject do
       {:httpoison, "~> 1.4"},
       {:phoenix_markdown, "~> 1.0"},
       {:distillery, "~> 2.0"},
-      {:multi_track_cruncher, in_umbrella: true}
+      {:multi_track_cruncher, in_umbrella: true},
+      {:pow, "~> 1.0.14"}
     ]
   end
 

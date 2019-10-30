@@ -50,5 +50,7 @@ defmodule MultiTrackWeb.Endpoint do
     signing_salt: "8xwndazw"
   )
 
+  plug Pow.Plug.Session, otp_app: :multi_track_listening
+
   plug(MultiTrackWeb.Router)
 end
