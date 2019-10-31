@@ -40,6 +40,7 @@ defmodule MultiTrackWeb do
       use Phoenix.HTML
 
       import MultiTrackWeb.ErrorHelpers
+      import MultiTrackWeb.FormHelpers
       import MultiTrackWeb.Gettext
       import MultiTrackWeb.ScriptHelpers
       alias MultiTrackWeb.Router.Helpers, as: Routes

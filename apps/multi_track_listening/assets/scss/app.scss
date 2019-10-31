@@ -7,8 +7,9 @@
 @import './components/home';
 @import './components/mix-render';
 @import './components/published-mix-card';
+@import './components/pow';
 
-$app-footer-height: 250px;
+$app-footer-height: 215px;
 
 .app-footer {
   height: $app-footer-height;

@@ -27,6 +27,6 @@ defmodule MultiTrackWeb.LayoutView do
       |> navbar_classes()
       |> Enum.join(" ")
 
-    link(text, to: path, class: classes)
+    link(text, Keyword.merge([to: path, class: classes], opts))
   end
 end
