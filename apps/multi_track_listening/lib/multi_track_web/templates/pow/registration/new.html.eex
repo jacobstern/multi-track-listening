@@ -8,8 +8,12 @@
 
     <%= form_for @changeset, @action, [as: :user], fn f -> %>
 
-      <%= text_field f, :email, "Email" %>
-      <%= text_field f, :username, "Username" %>
+      <%= text_field f, :username, "Username", required: true, pattern: "^[a-z]+[a-z0-9_]*$", minlength: 3, maxlength: 20 %>
+      <p class="form-description has-text-grey-dark">
+        Username may consist of lowercase letters, numbers, and "_", and must start with a letter.
+      </p>
+
+      <%= text_field f, :email, "Email (optional)", type: "email"  %>
       <%= password_field f, :password, "Password" %>
       <%= password_field f, :confirm_password, "Confirm password" %>
 

@@ -22,7 +22,7 @@
     <%= error_tag f, :file %>
   </div>
 
-  <%= text_field f, :name, "Song Name", required: true %>
+  <%= text_field f, :name, "Song name", required: true %>
 
   <%= if @track do %>
     <%= hidden_input f, :client_uuid, value: @track.client_uuid %>

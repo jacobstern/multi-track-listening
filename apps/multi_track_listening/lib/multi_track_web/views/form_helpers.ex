@@ -2,12 +2,21 @@ defmodule MultiTrackWeb.FormHelpers do
   use Phoenix.HTML
   import MultiTrackWeb.ErrorHelpers
 
-  defp field_helper(form, field, label_text, input) do
+  defp field_helper(form, field, label_text, input_attrs, input_factory) do
+    base_classes =
+      if Keyword.get(form.errors, field) do
+        "input is-danger"
+      else
+        "input"
+      end
+
+    attrs = Keyword.merge([class: base_classes], input_attrs)
+
     content_tag :div, class: "field" do
       [
         label(form, field, label_text, class: "label"),
         content_tag :div, class: "field-body" do
-          content_tag(:div, input, class: "control")
+          content_tag(:div, input_factory.(form, field, attrs), class: "control")
         end,
         error_tag(form, field)
       ]
@@ -19,7 +28,8 @@ defmodule MultiTrackWeb.FormHelpers do
       form,
       field,
       label_text,
-      text_input(form, field, Keyword.merge([class: "input"], input_attrs))
+      input_attrs,
+      &text_input/3
     )
   end
 
@@ -28,7 +38,8 @@ defmodule MultiTrackWeb.FormHelpers do
       form,
       field,
       label_text,
-      password_input(form, field, Keyword.merge([class: "input"], input_attrs))
+      input_attrs,
+      &password_input/3
     )
   end
 end

@@ -7,7 +7,7 @@
     </div>
 
     <%= form_for @changeset, @action, [as: :user], fn f -> %>
-      <%= text_field f, :email, "Email" %>
+      <%= text_field f, :username, "Username" %>
       <%= password_field f, :password, "Password" %>
 
       <div class="field">

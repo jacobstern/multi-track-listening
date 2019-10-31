@@ -1,10 +1,13 @@
 defmodule MultiTrackListening.Users.User do
   use Ecto.Schema
-  use Pow.Ecto.Schema
+  import Ecto.Changeset
+
+  use Pow.Ecto.Schema,
+    user_id_field: :username
 
   schema "users" do
     pow_user_fields()
-    field :username, :string
+    field :email, :string
 
     timestamps()
   end
@@ -12,8 +15,18 @@ defmodule MultiTrackListening.Users.User do
   def changeset(user_or_changeset, attrs) do
     user_or_changeset
     |> pow_changeset(attrs)
-    |> Ecto.Changeset.cast(attrs, [:username])
-    |> Ecto.Changeset.validate_required([:username])
-    |> Ecto.Changeset.unique_constraint(:username)
+    |> cast(attrs, [:email])
+    |> unique_constraint(:email)
+    |> validate_change(:email, fn :email, email ->
+      case Pow.Ecto.Schema.Changeset.validate_email(email) do
+        :ok ->
+          []
+
+        {:error, reason} ->
+          [email: {"has invalid format", reason: reason}]
+      end
+    end)
+    |> validate_format(:username, ~r/^[a-z]+[a-z0-9_]*$/)
+    |> validate_length(:username, min: 3, max: 20)
   end
 end
