@@ -6,7 +6,7 @@ defmodule MultiTrackListening.Users.User do
     user_id_field: :username
 
   use Pow.Extension.Ecto.Schema,
-    extensions: [PowEmailConfirmation]
+    extensions: [PowResetPassword, PowEmailConfirmation]
 
   schema "users" do
     pow_user_fields()
@@ -20,7 +20,7 @@ defmodule MultiTrackListening.Users.User do
     |> pow_changeset(attrs)
     |> pow_extension_changeset(attrs)
     |> cast(attrs, [:email])
-    |> unique_constraint(:email)
+    |> validate_required([:email])
     |> validate_change(:email, fn :email, email ->
       case Pow.Ecto.Schema.Changeset.validate_email(email) do
         :ok ->
@@ -30,6 +30,7 @@ defmodule MultiTrackListening.Users.User do
           [email: {"has invalid format", reason: reason}]
       end
     end)
+    |> unique_constraint(:email)
     |> validate_format(:username, ~r/^[a-z]+[a-z0-9_]*$/)
     |> validate_length(:username, min: 3, max: 20)
   end

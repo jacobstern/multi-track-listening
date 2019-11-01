@@ -78,3 +78,7 @@ config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
 
 # FIXME: This belongs in an admin UI
 config :multi_track_listening, MultiTrackListeningWeb.HomeController, featured_mix_ids: [2, 1]
+
+config :multi_track_listening, MultiTrackListeningWeb.PowMailer,
+  adapter: Bamboo.LocalAdapter,
+  open_email_in_browser_url: "http://localhost:4000/sent_emails"

@@ -40,6 +40,10 @@ defmodule MultiTrackListeningWeb.Router do
 
     pow_routes()
     pow_extension_routes()
+
+    if Mix.env() == :dev do
+      forward "/sent_emails", Bamboo.SentEmailViewerPlug
+    end
   end
 
   scope "/", MultiTrackListeningWeb do

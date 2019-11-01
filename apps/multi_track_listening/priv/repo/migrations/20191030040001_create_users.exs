@@ -6,7 +6,7 @@ defmodule MultiTrackListening.Repo.Migrations.CreateUsers do
 
     create table(:users) do
       add :username, :string, null: false
-      add :email, :citext, null: true
+      add :email, :citext, null: false
       add :password_hash, :string
 
       timestamps()
