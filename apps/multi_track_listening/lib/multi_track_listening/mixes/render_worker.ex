@@ -5,7 +5,7 @@ defmodule MultiTrackListening.Mixes.RenderWorker do
   alias MultiTrackListening.Mixes
   alias MultiTrackListening.Mixes.{Render}
   alias MultiTrackListening.Storage
-  alias MultiTrackWeb.{Endpoint, MixView}
+  alias MultiTrackListeningWeb.{Endpoint, MixView}
 
   defmodule CruncherError do
     defexception [:message]

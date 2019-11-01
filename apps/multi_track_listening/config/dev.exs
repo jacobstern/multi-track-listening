@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :multi_track_listening, MultiTrackWeb.Endpoint,
+config :multi_track_listening, MultiTrackListeningWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -45,13 +45,13 @@ config :multi_track_listening, MultiTrackWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :multi_track_listening, MultiTrackWeb.Endpoint,
+config :multi_track_listening, MultiTrackListeningWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/multi_track_web/views/.*(ex)$},
-      ~r{lib/multi_track_web/templates/.*(eex|md)$}
+      ~r{lib/multi_track_listening_web/views/.*(ex)$},
+      ~r{lib/multi_track_listening_web/templates/.*(eex|md)$}
     ]
   ]
 
@@ -77,4 +77,4 @@ config :multi_track_listening, MultiTrackListening.Storage.GoogleCloudBackend,
   bucket: "multi-track-listening-dev"
 
 # FIXME: This belongs in an admin UI
-config :multi_track_listening, MultiTrackWeb.HomeController, featured_mix_ids: [2, 1]
+config :multi_track_listening, MultiTrackListeningWeb.HomeController, featured_mix_ids: [2, 1]

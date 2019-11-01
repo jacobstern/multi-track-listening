@@ -1,5 +1,5 @@
-defmodule MultiTrackWeb.PageControllerTest do
-  use MultiTrackWeb.ConnCase
+defmodule MultiTrackListeningWeb.PageControllerTest do
+  use MultiTrackListeningWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, "/")

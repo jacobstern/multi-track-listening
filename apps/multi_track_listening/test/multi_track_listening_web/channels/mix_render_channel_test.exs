@@ -1,10 +1,10 @@
-defmodule MultiTrackWeb.MixRenderChannelTest do
-  use MultiTrackWeb.ChannelCase
+defmodule MultiTrackListeningWeb.MixRenderChannelTest do
+  use MultiTrackListeningWeb.ChannelCase
 
   setup do
     {:ok, _, socket} =
-      socket(MultiTrackWeb.UserSocket, "user_id", %{some: :assign})
-      |> subscribe_and_join(MultiTrackWeb.MixRenderChannel, "mix_render:lobby")
+      socket(MultiTrackListeningWeb.UserSocket, "user_id", %{some: :assign})
+      |> subscribe_and_join(MultiTrackListeningWeb.MixRenderChannel, "mix_render:lobby")
 
     {:ok, socket: socket}
   end
