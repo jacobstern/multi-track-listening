@@ -68,7 +68,7 @@ defmodule MultiTrackListeningWeb.Router do
       post "/:id/renders/:render_id/publish", MixController, :publish
     end
 
-    get "/published/anonymous/:id", PublishedMixController, :show
+    get "/published/:author_slug/:id", PublishedMixController, :show
   end
 
   scope "/health", MultiTrackListeningWeb do

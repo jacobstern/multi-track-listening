@@ -3,7 +3,7 @@
     <%= content_tag :p, @mix.track_one_name <> " ✗ " <> @mix.track_two_name,
       class: "card-header-title published-mix-card-title" %>
     <%= if @show_link do %>
-      <%= link to: Routes.published_mix_path(@conn, :show, @mix),
+      <%= link to: Routes.published_mix_path(@conn, :show, :anonymous, @mix),
         class: "card-header-icon", aria_label: "Mix Page", title: "Mix Page" do %>
         <span class="icon">
           <i class="fa fa-link" aria-hidden="true"></i>
@@ -15,7 +15,7 @@
   <div class="card-content">
     <div class="published-mix-card-text">
       <p>
-        Created by anonymous
+        Created by <%= mix_card_author(@mix) %>
       </p>
       <p>
         Please listen with headphones!
@@ -30,6 +30,6 @@
     <%= link "Download", to: @audio_url, download: true,
         class: "card-footer-item" %>
     <%= link "Copy Link", to: "#", class: "card-footer-item",
-      data: [mix_card_copy_link: Routes.published_mix_url(@conn, :show, @mix)] %>
+      data: [mix_card_copy_link: Routes.published_mix_url(@conn, :show, :anonymous, @mix)] %>
   </footer>
 </div>

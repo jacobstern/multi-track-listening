@@ -18,11 +18,11 @@ defmodule MultiTrackListening.PublishedMixes do
 
   """
   def list_published_mixes do
-    Repo.all(PublishedMix)
+    Repo.all(PublishedMix) |> Repo.preload(:author)
   end
 
   @spec get_published_mix(integer) :: PublishedMix.t() | nil
-  def get_published_mix(id), do: Repo.get(PublishedMix, id)
+  def get_published_mix(id), do: Repo.get(PublishedMix, id) |> Repo.preload(:author)
 
   @doc """
   Gets a single published_mix.
@@ -38,7 +38,7 @@ defmodule MultiTrackListening.PublishedMixes do
       ** (Ecto.NoResultsError)
 
   """
-  def get_published_mix!(id), do: Repo.get!(PublishedMix, id)
+  def get_published_mix!(id), do: Repo.get!(PublishedMix, id) |> Repo.preload(:author)
 
   @spec create_published_mix_internal(keyword() | %{optional(atom()) => any()}) ::
           PublishedMix.t()

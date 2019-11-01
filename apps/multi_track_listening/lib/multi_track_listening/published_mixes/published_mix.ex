@@ -3,6 +3,7 @@ defmodule MultiTrackListening.PublishedMixes.PublishedMix do
   import Ecto.Changeset
   alias MultiTrackListening.Storage
   alias MultiTrackListening.Mixes.{Mix, Render}
+  alias MultiTrackListening.Users.User
 
   @type t :: %__MODULE__{
           id: integer,
@@ -11,6 +12,7 @@ defmodule MultiTrackListening.PublishedMixes.PublishedMix do
           track_two_name: String.t(),
           mix: Mix.t() | Ecto.Association.NotLoaded.t(),
           render: Render.t() | Ecto.Association.NotLoaded.t(),
+          author: User.t() | nil,
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -22,8 +24,17 @@ defmodule MultiTrackListening.PublishedMixes.PublishedMix do
 
     has_one :mix, Mix
     has_one :render, Render
+    belongs_to :author, User
 
     timestamps()
+  end
+
+  def author_slug(published_mix) do
+    if published_mix.author do
+      published_mix.author.username
+    else
+      "anonymous"
+    end
   end
 
   @doc false

@@ -15,6 +15,16 @@ defmodule MultiTrackListening.Users.User do
     timestamps()
   end
 
+  defp validate_username_not_forbidden(changeset, field) do
+    validate_change(changeset, field, fn ^field, username ->
+      if username == "anonymous" do
+        [username: "this username is reserved"]
+      else
+        []
+      end
+    end)
+  end
+
   def changeset(user_or_changeset, attrs) do
     user_or_changeset
     |> pow_changeset(attrs)
@@ -33,5 +43,6 @@ defmodule MultiTrackListening.Users.User do
     |> unique_constraint(:email)
     |> validate_format(:username, ~r/^[a-z]+[a-z0-9_]*$/)
     |> validate_length(:username, min: 3, max: 20)
+    |> validate_username_not_forbidden(:username)
   end
 end

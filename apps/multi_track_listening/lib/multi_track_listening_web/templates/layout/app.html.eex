@@ -66,10 +66,12 @@
     </footer>
     <div class="app-notifications">
       <%= Enum.map(get_flash(@conn), fn {flash_key, flash_message} -> %>
-        <div class="<%= notification_class(flash_key) %>" data-is-notification="yes">
-          <button class="delete" data-is-delete="yes"></button>
-          <%= flash_message %>
-        </div>
+        <%= if flash_message do %>
+          <div class="<%= notification_class(flash_key) %>" data-is-notification="yes">
+            <button class="delete" data-is-delete="yes"></button>
+            <%= flash_message %>
+          </div>
+        <% end %>
       <% end) %>
     </div>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>

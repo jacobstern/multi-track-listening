@@ -2,6 +2,7 @@ defmodule MultiTrackListeningWeb.MixController do
   use MultiTrackListeningWeb, :controller
 
   alias MultiTrackListening.{Mixes, Storage}
+  alias MultiTrackListening.PublishedMixes.PublishedMix
 
   def create(conn, _params) do
     mix = Mixes.create_mix_default!()
@@ -86,7 +87,17 @@ defmodule MultiTrackListeningWeb.MixController do
   def publish(conn, %{"render_id" => render_id}) do
     mix = conn.assigns[:mix]
     mix_render = Mixes.get_mix_render!(mix.id, render_id)
-    published_mix = Mixes.publish_mix(mix_render)
-    redirect(conn, to: Routes.published_mix_path(conn, :show, published_mix))
+    author = Pow.Plug.current_user(conn)
+    published = Mixes.publish_mix(mix_render, author)
+
+    redirect(conn,
+      to:
+        Routes.published_mix_path(
+          conn,
+          :show,
+          PublishedMix.author_slug(published),
+          published
+        )
+    )
   end
 end
