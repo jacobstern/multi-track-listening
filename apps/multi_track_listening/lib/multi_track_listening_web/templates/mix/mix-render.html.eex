@@ -71,30 +71,46 @@
       src: mix_render_result_url(@mix_render) %>
 
     
-    <%= content_tag :div, id: "finished_controls", class: (
+    <%= content_tag :div, id: "finished_footer", class: (
         if @mix_render.status == :finished do
-          "field is-grouped"
+          ""
         else
-          "field is-grouped is-hidden"
+          "is-hidden"
         end
       ) do %>
-      <div class="control">
-        <%= form_tag Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
-            id: "publish_form" do %>
-          <%= submit "Publish",
-            class: "button is-primary", id: "publish_button",
-            data: [
-              confirm: "Finalize and publish this mix?",
-              track_one_client_uuid: @mix.track_one.client_uuid,
-              track_two_client_uuid: @mix.track_two.client_uuid
-            ] %>
-        <% end %>
+      <div class="field is-grouped">
+        <div class="control">
+          <%= form_tag Routes.mix_path(@conn, :publish, @mix.id, @mix_render.id),
+              id: "publish_form" do %>
+            <% publish_text = if @current_user, do: "Publish", else: "Publish Anonymously" %>
+            <% confirm_text = if @current_user, do: "Finalize and publish this mix?", else: "Finalize this mix and publish anonymously?" %>
+
+            <%= submit publish_text,
+              class: "button is-primary", id: "publish_button",
+              data: [
+                confirm: confirm_text,
+                track_one_client_uuid: @mix.track_one.client_uuid,
+                track_two_client_uuid: @mix.track_two.client_uuid
+              ] %>
+          <% end %>
+        </div>
+
+        <div class="control">
+          <%= link "Download", to: mix_render_result_url(@mix_render) || "", download: true,
+            class: "button is-secondary", id: "download_button" %>
+        </div>
       </div>
 
-      <div class="control">
-        <%= link "Download", to: mix_render_result_url(@mix_render) || "", download: true,
-          class: "button is-secondary", id: "download_button" %>
-      </div>
+      <%= unless @current_user do %>
+        <% intent_url = @conn.request_path %>
+        <p class="form-description">
+          You can also
+          <%= link "Sign In", to: Routes.pow_session_path(@conn, :new, intent: intent_url) %>
+          or
+          <%= link "Sign Up", to: Routes.pow_registration_path(@conn, :new, intent: intent_url) %>          
+          to publish this mix under your account.
+        </p>
+      <% end %>
 
     <% end %>
   </div>

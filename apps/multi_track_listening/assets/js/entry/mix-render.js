@@ -7,7 +7,7 @@ const pageIds = {
   renderStatus: 'render_status',
   resultAudio: 'result_audio',
   renderProgress: 'render_progress',
-  finishedControls: 'finished_controls',
+  finishedFooter: 'finished_footer',
   downloadButton: 'download_button',
   publishButton: 'publish_button',
   publishForm: 'publish_form'
@@ -40,12 +40,12 @@ function updateRender(render) {
   const [
     renderStatus,
     renderProgress,
-    finishedControls,
+    finishedFooter,
     downloadButton
   ] = getElements([
     pageIds.renderStatus,
     pageIds.renderProgress,
-    pageIds.finishedControls,
+    pageIds.finishedFooter,
     pageIds.downloadButton
   ]);
 
@@ -64,7 +64,7 @@ function updateRender(render) {
     renderProgress.innerText = '100%';
     renderProgress.value = 100;
     renderProgress.classList.add('is-success');
-    finishedControls.classList.remove('is-hidden');
+    finishedFooter.classList.remove('is-hidden');
   }
 
   if (render.result_url) {

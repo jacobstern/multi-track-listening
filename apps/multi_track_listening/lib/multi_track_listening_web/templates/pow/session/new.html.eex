@@ -6,7 +6,15 @@
       Need an account? <%= link "Sign Up", to: Routes.pow_registration_path(@conn, :new) %>
     </div>
 
-    <%= form_for @changeset, @action, [as: :user], fn f -> %>
+    <% intent = Map.get(@conn.params, "intent")
+       form_action =
+         if intent != nil and intent != "" do 
+           Routes.pow_session_path(@conn, :create, intent: intent) 
+         else
+           @action 
+         end %>
+
+    <%= form_for @changeset, form_action, [as: :user], fn f -> %>
       <%= text_field f, :username, "Username" %>
       <%= password_field f, :password, "Password" %>
 

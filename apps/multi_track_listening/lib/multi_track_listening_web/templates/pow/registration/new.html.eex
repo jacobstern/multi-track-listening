@@ -6,10 +6,18 @@
       Already have an account? <%= link "Sign In", to: Routes.pow_session_path(@conn, :new), class: "auth-footer-link" %>
     </div>
 
-    <%= form_for @changeset, @action, [as: :user], fn f -> %>
+    <% intent = Map.get(@conn.params, "intent")
+       form_action =
+         if intent != nil and intent != "" do 
+           Routes.pow_registration_path(@conn, :create, intent: intent) 
+         else
+           @action 
+         end %>
+
+    <%= form_for @changeset, form_action, [as: :user], fn f -> %>
 
       <%= text_field f, :username, "Username", required: true, pattern: "^[a-z]+[a-z0-9_]*$", minlength: 3, maxlength: 20, required: true %>
-      <p class="form-description has-text-grey-dark">
+      <p class="form-description">
         Username may consist of lowercase letters, numbers, and "_", and must start with a letter.
       </p>
 

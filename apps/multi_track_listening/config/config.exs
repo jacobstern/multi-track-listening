@@ -23,7 +23,8 @@ config :multi_track_listening, :pow,
   web_module: MultiTrackListeningWeb,
   extensions: [PowResetPassword, PowEmailConfirmation],
   controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks,
-  mailer_backend: MultiTrackListeningWeb.PowMailer
+  mailer_backend: MultiTrackListeningWeb.PowMailer,
+  routes_backend: MultiTrackListeningWeb.Pow.Routes
 
 # Configures Elixir's Logger
 config :logger, :console,
