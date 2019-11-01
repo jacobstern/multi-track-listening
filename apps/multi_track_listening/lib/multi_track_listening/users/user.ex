@@ -5,6 +5,9 @@ defmodule MultiTrackListening.Users.User do
   use Pow.Ecto.Schema,
     user_id_field: :username
 
+  use Pow.Extension.Ecto.Schema,
+    extensions: [PowEmailConfirmation]
+
   schema "users" do
     pow_user_fields()
     field :email, :string
@@ -15,6 +18,7 @@ defmodule MultiTrackListening.Users.User do
   def changeset(user_or_changeset, attrs) do
     user_or_changeset
     |> pow_changeset(attrs)
+    |> pow_extension_changeset(attrs)
     |> cast(attrs, [:email])
     |> unique_constraint(:email)
     |> validate_change(:email, fn :email, email ->

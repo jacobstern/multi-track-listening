@@ -1,0 +1,20 @@
+<section class="section">
+  <div class="container">
+    <h1 class="title">Reset Password</h1>
+
+    <%= form_for @changeset, @action, [as: :user], fn f -> %>
+      <%= text_field f, :email, "Email", type: "email" %>  
+
+      <div class="field">
+        <div class="field-body">
+          <div class="control">
+            <%= submit "Submit", class: "button is-primary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</section>
+
+

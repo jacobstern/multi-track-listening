@@ -1,6 +1,7 @@
 defmodule MultiTrackWeb.Router do
   use MultiTrackWeb, :router
   use Pow.Phoenix.Router
+  use Pow.Extension.Phoenix.Router, otp_app: :multi_track_listening
 
   alias MultiTrackWeb.Plugs.{RedirectToPublishedMix, LoadMix}
 
@@ -38,6 +39,7 @@ defmodule MultiTrackWeb.Router do
     pipe_through :browser
 
     pow_routes()
+    pow_extension_routes()
   end
 
   scope "/", MultiTrackWeb do
