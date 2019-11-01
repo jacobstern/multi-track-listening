@@ -23,3 +23,27 @@ $app-footer-height: 215px;
   font-size: $size-5;
   font-weight: $weight-light;
 }
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.app-notifications {
+  animation: fade-in 1.15s cubic-bezier(0.075, 0.82, 0.165, 1);
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+  padding: 20px;
+  flex-flow: column;
+}

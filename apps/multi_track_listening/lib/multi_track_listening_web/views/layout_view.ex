@@ -29,4 +29,16 @@ defmodule MultiTrackListeningWeb.LayoutView do
 
     link(text, Keyword.merge([to: path, class: classes], opts))
   end
+
+  def notification_class("error") do
+    "notification is-danger"
+  end
+
+  def notification_class("info") do
+    "notification is-info"
+  end
+
+  def notification_class(_flash_key) do
+    "notification"
+  end
 end
