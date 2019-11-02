@@ -42,7 +42,7 @@ defmodule MultiTrackListeningWeb.Router do
     pow_extension_routes()
 
     if Mix.env() == :dev do
-      forward "/sent_emails", Bamboo.SentEmailViewerPlug
+      forward "/sent-emails", Bamboo.SentEmailViewerPlug
     end
   end
 
@@ -54,6 +54,8 @@ defmodule MultiTrackListeningWeb.Router do
     get "/uploads/:uuid", StorageController, :serve_file
 
     post "/mixes/create", MixController, :create
+
+    get "/confirm-email-intent/:id", CustomEmailConfirmationController, :show
 
     scope "/mixes" do
       pipe_through :mix_common

@@ -8,7 +8,7 @@
 
     <% intent = Map.get(@conn.params, "intent")
        form_action =
-         if intent != nil and intent != "" do 
+         if intent do
            Routes.pow_registration_path(@conn, :create, intent: intent) 
          else
            @action 

@@ -58,7 +58,7 @@
       <div class="content has-text-centered">
         <%= render "footer.html" %>
         <%= if Mix.env() == :dev do %>
-          <a href="/sent_emails" target="blank" class="link">
+          <a href="/sent-emails" target="blank" class="link">
             View local emails
           </a>
         <% end %>

@@ -5,11 +5,7 @@ defmodule MultiTrackListeningWeb.Pow.Routes do
   defp intent_path_or_home(conn) do
     intent = Map.get(conn.params, "intent")
 
-    if intent != nil and intent != "" do
-      intent
-    else
-      Routes.home_path(conn, :index)
-    end
+    if intent, do: intent, else: Routes.home_path(conn, :index)
   end
 
   @impl true
@@ -28,8 +24,8 @@ defmodule MultiTrackListeningWeb.Pow.Routes do
       ) do
     intent = Map.get(conn.params, "intent")
 
-    if intent != nil and intent != "" do
-      Routes.pow_email_confirmation_confirmation_url(conn, :show, token, intent: intent)
+    if intent do
+      Routes.custom_email_confirmation_url(conn, :show, token, intent: intent)
     else
       Routes.pow_email_confirmation_confirmation_url(conn, :show, token)
     end
