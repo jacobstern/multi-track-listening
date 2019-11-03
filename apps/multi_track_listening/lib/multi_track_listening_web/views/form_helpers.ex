@@ -42,4 +42,14 @@ defmodule MultiTrackListeningWeb.FormHelpers do
       &password_input/3
     )
   end
+
+  def submit_field(text) do
+    content_tag :div, class: "field" do
+      content_tag :div, class: "field-body" do
+        content_tag :div, class: "control" do
+          submit(text, class: "button is-primary")
+        end
+      end
+    end
+  end
 end

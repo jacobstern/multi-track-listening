@@ -9,6 +9,10 @@ defmodule MultiTrackListeningWeb.Pow.Routes do
   end
 
   @impl true
+  def after_sign_in_path(%{assigns: %{request_path: request_path}}) when is_binary(request_path),
+    do: request_path
+
+  @impl true
   def after_sign_in_path(conn), do: intent_path_or_home(conn)
 
   @impl true

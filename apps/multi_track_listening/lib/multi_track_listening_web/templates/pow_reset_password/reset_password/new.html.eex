@@ -5,13 +5,7 @@
     <%= form_for @changeset, @action, [as: :user], fn f -> %>
       <%= text_field f, :email, "Email", type: "email" %>  
 
-      <div class="field">
-        <div class="field-body">
-          <div class="control">
-            <%= submit "Submit", class: "button is-primary" %>
-          </div>
-        </div>
-      </div>
+      <%= submit_field "Submit" %>
     <% end %>
 
   </div>
