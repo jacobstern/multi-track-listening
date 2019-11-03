@@ -42,6 +42,7 @@
             </div>
             <%= if @current_user do %>
               <div class="navbar-item">Hello <%= @current_user.username %>!</div>
+              <%= navbar_link @conn, "My Mixes", Routes.my_mixes_path(@conn, :show) %>
               <%= navbar_link @conn, "Sign Out", Routes.pow_session_path(@conn, :delete), method: :delete %>
             <% else %>
               <%= navbar_link @conn, "Sign In", Routes.pow_session_path(@conn, :new) %>

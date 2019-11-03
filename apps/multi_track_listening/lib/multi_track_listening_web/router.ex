@@ -73,6 +73,12 @@ defmodule MultiTrackListeningWeb.Router do
     get "/published/:author_slug/:id", PublishedMixController, :show
   end
 
+  scope "/", MultiTrackListeningWeb do
+    pipe_through [:browser, :protected]
+
+    get "/my-mixes", MyMixesController, :show
+  end
+
   scope "/health", MultiTrackListeningWeb do
     get "/", HealthController, :index
   end

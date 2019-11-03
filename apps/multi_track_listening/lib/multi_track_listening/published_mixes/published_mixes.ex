@@ -24,6 +24,15 @@ defmodule MultiTrackListening.PublishedMixes do
   @spec get_published_mix(integer) :: PublishedMix.t() | nil
   def get_published_mix(id), do: Repo.get(PublishedMix, id) |> Repo.preload(:author)
 
+  def published_mixes_for_author(user) do
+    query =
+      from m in PublishedMix,
+        where: m.author_id == ^user.id,
+        order_by: [desc: :inserted_at]
+
+    Repo.all(query) |> Repo.preload(:author)
+  end
+
   @doc """
   Gets a single published_mix.
 

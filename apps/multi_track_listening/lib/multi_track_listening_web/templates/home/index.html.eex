@@ -11,9 +11,9 @@
 
         <%= if length(@featured_mixes) > 0 do %>
           <h1 class="title">Featured Mixes</h1>
-          <ul class="home-featured-mixes-list">
+          <ul>
             <%= for mix <- @featured_mixes do %>
-              <li class="home-featured-mix">
+              <li class="published-mix-card-list-item">
                 <%= render MultiTrackListeningWeb.PublishedMixView,
                   "mix-card.html",
                   mix |> Map.put(:conn, @conn) |> Map.put(:show_link, true) %>

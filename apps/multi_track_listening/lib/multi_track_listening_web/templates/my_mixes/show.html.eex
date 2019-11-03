@@ -1,0 +1,18 @@
+<section class="section">  
+  <div class="container">
+    <h1 class="title">My Mixes</h1>
+    <%= if length(@mixes) > 0 do %>
+      <ul>
+        <%= for mix <- @mixes do %>
+          <li class="published-mix-card-list-item">
+            <%= render MultiTrackListeningWeb.PublishedMixView,
+              "mix-card.html",
+              mix |> Map.put(:conn, @conn) |> Map.put(:show_link, true) %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>Nothing to see here yet!</p>
+    <% end %>
+  </div>
+</section>
