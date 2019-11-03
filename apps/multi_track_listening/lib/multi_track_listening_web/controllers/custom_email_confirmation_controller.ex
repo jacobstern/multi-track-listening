@@ -1,15 +1,9 @@
 defmodule MultiTrackListeningWeb.CustomEmailConfirmationController do
   use MultiTrackListeningWeb, :controller
 
-  alias Plug.Conn
-  alias PowEmailConfirmation.Plug
-
-  @spec process_show(Conn.t(), map()) :: {:ok | :error, map(), Conn.t()}
-  def process_show(conn, %{"id" => token}), do: Plug.confirm_email(conn, token)
-
   def show(conn, %{"id" => token}) do
-    case Plug.confirm_email(conn, token) do
-      {:ok, _changeset, conn} ->
+    case PowEmailConfirmation.Plug.confirm_email(conn, token) do
+      {:ok, _user, conn} ->
         conn
         |> put_flash(:info, "The email address has been confirmed. Please sign in to continue.")
         |> redirect(to: redirect_to(conn))
